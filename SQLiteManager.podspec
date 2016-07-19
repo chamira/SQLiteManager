@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
   s.name             = 'SQLiteManager'
   s.version          = '0.1.0'
-  s.summary          = 'A short description of SQLiteManager.'
+  s.summary          = 'Simple SQL Manager class to do operations such as open database, close database, insert, update, delete and select'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -18,15 +18,15 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-TODO: Add long description of the pod here.
+Simple DatabaseManager class to do operations like on SQLite database such as ,open database, close database, insert, update, delete and select, This class is a Singleton and can be accessed via sharedManager.
                        DESC
 
-  s.homepage         = 'https://github.com/<GITHUB_USERNAME>/SQLiteManager'
+  s.homepage         = 'https://github.com/chamira/'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'Chamira Fernando' => 'chamira.fernando@makingwaves.com' }
-  s.source           = { :git => 'https://github.com/<GITHUB_USERNAME>/SQLiteManager.git', :tag => s.version.to_s }
-  # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
+  s.author           = { 'Chamira Fernando' => 'chamira.fdo@gmail.com' }
+  s.source           = { :git => 'https://github.com/chamira/SQLiteManager.git', :tag => s.version.to_s }
+  # s.social_media_url = 'https://twitter.com/chamirafernando'
 
   s.ios.deployment_target = '8.0'
 

@@ -1,0 +1,22 @@
+PODS:
+  - Nimble (3.2.0)
+  - Quick (0.9.2)
+  - SQLiteManager (0.1.0)
+
+DEPENDENCIES:
+  - Nimble (~> 3.0)
+  - Quick (~> 0.8)
+  - SQLiteManager (from `../`)
+
+EXTERNAL SOURCES:
+  SQLiteManager:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  Nimble: 703854335d181df169bbca9c97117b5cf8c47c1d
+  Quick: 18d057bc66451eedd5d1c8dc99ba2a5db6e60226
+  SQLiteManager: 783afa768852bc4eca4289dc1154ef198de590af
+
+PODFILE CHECKSUM: 2466610ef40195deba496df181555a4074277e77
+
+COCOAPODS: 1.0.1
