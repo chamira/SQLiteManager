@@ -78,7 +78,7 @@ public class SQLite {
 
 
 //Utility
-extension SQLite {
+private extension SQLite {
 	
 	private func hasDatabaseMovedToDocumentsDir() -> Bool {
 		
@@ -92,7 +92,6 @@ extension SQLite {
 		guard let databaseBundlePath = NSBundle.mainBundle().pathForResource(_databaseName, ofType: _databaseExtension) else {
 			throw SQLiteManagerError.databaseFileDoesNotExistInAppBundle(databaseName)
 		}
-		
 	
 		do {
 	
@@ -111,7 +110,7 @@ extension SQLite {
 	}
 	
 	// Exclude file at URL from iCloud backup
-	func addSkipBackupAttributeToItemAtPath(url: NSURL) {
+	private func addSkipBackupAttributeToItemAtPath(url: NSURL) {
 		
 		guard let path = url.path else {
 			log("Could not att 'skip backup' attribute, file path did not exist at url: \(url)")
@@ -133,7 +132,7 @@ extension SQLite {
 }
 
 
-extension SQLite {
+private extension SQLite {
 	
 	func log(message:String!, tag:String? = nil, file:String? = nil, line:String? = nil) {
 		
@@ -166,23 +165,3 @@ extension SQLite {
 	}
 }
 
-//enum SQLiteManagerErrorCode {
-//
-//}
-public class SQLiteManagerError: NSError {
-	
-	public static var kErrorDomain = "lib.SQLiteManager.error"
-	
-	public init(code: Int, userInfo dict: [NSObject : AnyObject]?) {
-		super.init(domain: SQLiteManagerError.kErrorDomain, code: code, userInfo: dict)
-	}
-	
-	public required init?(coder aDecoder: NSCoder) {
-		super.init(coder: aDecoder)
-	}
-	
-	public static let  kDatabaseFileDoesNotExistInAppBundleCode = 10001
-	public static func databaseFileDoesNotExistInAppBundle(databaseName:String) -> SQLiteManagerError {
-		return SQLiteManagerError(code: kDatabaseFileDoesNotExistInAppBundleCode, userInfo: [kCFErrorDescriptionKey:"\(databaseName) file does not exist in app bundle to move to document dir",kCFErrorLocalizedRecoverySuggestionKey:"Drag and drop \(databaseName) file to app bundle"])
-	}
-}

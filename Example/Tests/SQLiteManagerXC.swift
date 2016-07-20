@@ -23,7 +23,7 @@ class SQLiteManagerXC: XCTestCase {
     }
     
     func testExample() {
-		var database:SQLite = SQLite.manager()
+		var database:SQLiteManagerError = SQLiteManagerError(code: 1, userInfo: [kCFErrorLocalizedDescriptionKey:"test"])
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
