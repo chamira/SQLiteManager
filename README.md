@@ -11,10 +11,14 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
 ## Requirements
 
+Must have SQLite Database created using command line or an external client.
+
 ## Installation
 
 SQLiteManager is available through [CocoaPods](http://cocoapods.org). To install
 it, simply add the following line to your Podfile:
+
+
 
 ```ruby
 pod "SQLiteManager"
@@ -22,7 +26,7 @@ pod "SQLiteManager"
 
 ## Author
 
-Chamira Fernando, chamira.fernando@makingwaves.com
+Chamira Fernando, chamira.fdo@gmail.com
 
 ## License
 

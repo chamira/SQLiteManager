@@ -1,18 +1,18 @@
 {
   "name": "SQLiteManager",
   "version": "0.1.0",
-  "summary": "A short description of SQLiteManager.",
-  "description": "TODO: Add long description of the pod here.",
-  "homepage": "https://github.com/<GITHUB_USERNAME>/SQLiteManager",
+  "summary": "Simple SQL Manager class to do operations such as open database, close database, insert, update, delete and select",
+  "description": "Simple DatabaseManager class to do operations like on SQLite database such as ,open database, close database, insert, update, delete and select, This class is a Singleton and can be accessed via sharedManager.",
+  "homepage": "https://github.com/chamira/",
   "license": {
     "type": "MIT",
     "file": "LICENSE"
   },
   "authors": {
-    "Chamira Fernando": "chamira.fernando@makingwaves.com"
+    "Chamira Fernando": "chamira.fdo@gmail.com"
   },
   "source": {
-    "git": "https://github.com/<GITHUB_USERNAME>/SQLiteManager.git",
+    "git": "https://github.com/chamira/SQLiteManager.git",
     "tag": "0.1.0"
   },
   "platforms": {
