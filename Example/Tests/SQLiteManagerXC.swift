@@ -6,8 +6,9 @@
 //  Copyright © 2016 CocoaPods. All rights reserved.
 //
 
+
 import XCTest
-import SQLiteManager.Swift
+import SQLiteManager
 
 class SQLiteManagerXC: XCTestCase {
     
@@ -22,7 +23,7 @@ class SQLiteManagerXC: XCTestCase {
     }
     
     func testExample() {
-		var database:SQLite = SQLite()
+		var database:SQLite = SQLite.manager()
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
