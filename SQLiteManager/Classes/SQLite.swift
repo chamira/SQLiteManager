@@ -10,7 +10,11 @@ import Foundation
 
 public class SQLite {
 	
-	public static let sharedManager = SQLite()
+	private static let sharedManager = SQLite()
+	
+	public static func manager()->SQLite {
+		return sharedManager
+	}
 	
 	public var databaseName:String  {
 		return _databaseName+"."+_databaseExtension
@@ -40,19 +44,20 @@ public class SQLite {
 	
 	lazy private var database_operation_queue:dispatch_queue_t = dispatch_queue_create("lib.SQLiteManager.database_operation_queue", DISPATCH_QUEUE_SERIAL)
 	
-	public func initializeDatabase(withDatabaseName:String, andExtension:String) throws {
+	public func initializeDatabase(withDatabaseName:String, andExtension:String) throws -> Bool {
 	
 		_databaseName = withDatabaseName
 		_databaseExtension = andExtension
 		
-		let moved = hasDatabaseMovedToDocumentsDir()
+		var moved = hasDatabaseMovedToDocumentsDir()
 		
 		if (!moved) {
 			log("Moving database to document dir")
 			do {
-				try copyDatabaseFromBundleToDocumentsDir()
+				moved = try copyDatabaseFromBundleToDocumentsDir()
 			} catch let e as NSError {
-				assertionFailure("Copying database failed:\(e.localizedDescription)")
+				//assertionFailure("Copying database failed:\(e.localizedDescription)")
+				throw e
 			}
 			
 		} else {
@@ -60,14 +65,12 @@ public class SQLite {
 		}
 		
 		log(_databaseName)
-		// TODO: Check if bundle has database with @var databaseName
-		// if there is no database file with given name - assert crash
-		// else open it.
+		return moved
 		
 	}
 	
 	
-	private init(){}
+	private init() {}
 	
 	deinit {}
 	
@@ -84,16 +87,15 @@ extension SQLite {
 		
 	}
 	
-	private func copyDatabaseFromBundleToDocumentsDir () throws {
+	private func copyDatabaseFromBundleToDocumentsDir () throws -> Bool {
 		
 		guard let databaseBundlePath = NSBundle.mainBundle().pathForResource(_databaseName, ofType: _databaseExtension) else {
-			//assertionFailure("\(databaseName) Database does not exist in the bundle")
 			throw SQLiteManagerError.databaseFileDoesNotExistInAppBundle(databaseName)
-			return
 		}
 		
-		// Copy from bundle to document folder
+	
 		do {
+	
 			let fileManager = NSFileManager.defaultManager()
 			try fileManager.copyItemAtPath(databaseBundlePath, toPath: databasePath)
 			log("Success, database file has been copied")
@@ -105,6 +107,7 @@ extension SQLite {
 			throw error
 		}
 		
+		return true
 	}
 	
 	// Exclude file at URL from iCloud backup
@@ -166,17 +169,20 @@ extension SQLite {
 //enum SQLiteManagerErrorCode {
 //
 //}
-class SQLiteManagerError: NSError {
+public class SQLiteManagerError: NSError {
 	
-	init(code: Int, userInfo dict: [NSObject : AnyObject]?) {
-		super.init(domain: "lib.SQLiteManager.error", code: code, userInfo: dict)
+	public static var kErrorDomain = "lib.SQLiteManager.error"
+	
+	public init(code: Int, userInfo dict: [NSObject : AnyObject]?) {
+		super.init(domain: SQLiteManagerError.kErrorDomain, code: code, userInfo: dict)
 	}
 	
-	required init?(coder aDecoder: NSCoder) {
+	public required init?(coder aDecoder: NSCoder) {
 		super.init(coder: aDecoder)
 	}
 	
-	static func databaseFileDoesNotExistInAppBundle(databaseName:String) -> SQLiteManagerError {
-		return SQLiteManagerError(code: 10001, userInfo: [kCFErrorDescriptionKey:"\(databaseName) file does not exist in app bundle to move to document dir",kCFErrorLocalizedRecoverySuggestionKey:"Drag and drop \(databaseName) file to app bundle"])
+	public static let  kDatabaseFileDoesNotExistInAppBundleCode = 10001
+	public static func databaseFileDoesNotExistInAppBundle(databaseName:String) -> SQLiteManagerError {
+		return SQLiteManagerError(code: kDatabaseFileDoesNotExistInAppBundleCode, userInfo: [kCFErrorDescriptionKey:"\(databaseName) file does not exist in app bundle to move to document dir",kCFErrorLocalizedRecoverySuggestionKey:"Drag and drop \(databaseName) file to app bundle"])
 	}
 }

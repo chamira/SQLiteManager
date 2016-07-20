@@ -2,49 +2,39 @@
 
 import Quick
 import Nimble
-import SQLiteManager
 
-class TableOfContentsSpec: QuickSpec {
-    override func spec() {
-        describe("these will fail") {
 
-            it("can do maths") {
-                expect(1) == 2
-            }
+class SQLiteManagerSpec: QuickSpec {
+	
+	override func spec() {
+		
+        describe("Test moving database") {
 
-            it("can read") {
-                expect("number") == "string"
-            }
+			it ("1 + 1") {
+				expect (1) == 2
+			}
+			
+//			var database:SQLite!
+//			
+//			beforeEach({ 
+//				database = SQLite()
+//			})
+//
+//			it("did not initial") {
+//
+//				expect {
+//					
+//					try database.initializeDatabase("app_database", andExtension: "db")
+//				
+//				}.to(throwError { (error: ErrorType) in
+//					
+//					expect(error._domain) == SQLiteManagerError.kErrorDomain
+//					expect(error._code) == SQLiteManagerError.kDatabaseFileDoesNotExistInAppBundleCode
+//						
+//				})
+//				
+//			}
 
-            it("will eventually fail") {
-                expect("time").toEventually( equal("done") )
-            }
-            
-            context("these will pass") {
-
-                it("can do maths") {
-                    expect(23) == 23
-                }
-
-                it("can read") {
-                    expect("🐮") == "🐮"
-                }
-
-                it("will eventually pass") {
-                    var time = "passing"
-
-                    dispatch_async(dispatch_get_main_queue()) {
-                        time = "done"
-                    }
-
-                    waitUntil { done in
-                        NSThread.sleepForTimeInterval(0.5)
-                        expect(time) == "done"
-
-                        done()
-                    }
-                }
-            }
-        }
+		}
     }
 }

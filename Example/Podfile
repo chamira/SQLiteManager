@@ -6,7 +6,7 @@ target 'SQLiteManager_Example' do
   target 'SQLiteManager_Tests' do
     inherit! :search_paths
 
-    pod 'Quick', '~> 0.8'
-  pod 'Nimble', '~> 3.0'
-  end
+	pod 'Quick', '~> 0.8'
+	pod 'Nimble', '~> 3.0'
+end
 end
