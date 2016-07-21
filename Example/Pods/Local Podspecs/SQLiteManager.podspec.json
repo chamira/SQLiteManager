@@ -15,8 +15,15 @@
     "git": "https://github.com/chamira/SQLiteManager.git",
     "tag": "0.1.0"
   },
+  "social_media_url": "https://twitter.com/chamirafernando",
   "platforms": {
     "ios": "8.0"
   },
-  "source_files": "SQLiteManager/Classes/**/*"
+  "source_files": "SQLiteManager/Classes/**/*",
+  "libraries": "sqlite3",
+  "dependencies": {
+    "sqlite3": [
+
+    ]
+  }
 }

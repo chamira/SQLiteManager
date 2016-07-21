@@ -26,7 +26,7 @@ Simple DatabaseManager class to do operations like on SQLite database such as ,o
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'Chamira Fernando' => 'chamira.fdo@gmail.com' }
   s.source           = { :git => 'https://github.com/chamira/SQLiteManager.git', :tag => s.version.to_s }
-  # s.social_media_url = 'https://twitter.com/chamirafernando'
+  s.social_media_url = 'https://twitter.com/chamirafernando'
 
   s.ios.deployment_target = '8.0'
 
@@ -38,5 +38,6 @@ Simple DatabaseManager class to do operations like on SQLite database such as ,o
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
-  # s.dependency 'AFNetworking', '~> 2.3'
+s.library = 'sqlite3'
+s.dependency 'sqlite3'
 end

@@ -14,7 +14,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-		try! SQLite.manager().initializeDatabase("sqlite_manager_example_app_database", andExtension: "db")
+		//try! SQLite.manager().initializeDatabase("sqlite_manager_example_app_database", andExtension: "db")
 		
     }
 

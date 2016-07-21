@@ -42,7 +42,10 @@ public class SQLite {
 	
 	private var _databaseExtension = "db"
 	
+	private var database:COpaquePointer = nil
+	
 	lazy private var database_operation_queue:dispatch_queue_t = dispatch_queue_create("lib.SQLiteManager.database_operation_queue", DISPATCH_QUEUE_SERIAL)
+	
 	
 	public func initializeDatabase(withDatabaseName:String, andExtension:String) throws -> Bool {
 	
@@ -73,6 +76,18 @@ public class SQLite {
 	private init() {}
 	
 	deinit {}
+	
+	
+	func closeDatabase() {
+		
+		if (sqlite3_close(database) == SQLITE_OK) {
+			if (log) {
+				print("Database Closed successfully");
+			}
+			database = nil
+		}
+		
+	}
 	
 }
 

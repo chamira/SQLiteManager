@@ -2,39 +2,43 @@
 
 import Quick
 import Nimble
+import SQLiteManager
 
-
-class SQLiteManagerSpec: QuickSpec {
+class SQLiteManagerNoDatabaseSpec: QuickSpec {
 	
 	override func spec() {
-		
-        describe("Test moving database") {
-
-			it ("1 + 1") {
-				expect (1) == 2
-			}
+		describe("SQLite.manager()") {
 			
-//			var database:SQLite!
-//			
-//			beforeEach({ 
-//				database = SQLite()
-//			})
-//
-//			it("did not initial") {
-//
-//				expect {
-//					
-//					try database.initializeDatabase("app_database", andExtension: "db")
-//				
-//				}.to(throwError { (error: ErrorType) in
-//					
-//					expect(error._domain) == SQLiteManagerError.kErrorDomain
-//					expect(error._code) == SQLiteManagerError.kDatabaseFileDoesNotExistInAppBundleCode
-//						
-//				})
-//				
-//			}
-
+			it ("initialize database catch no database") {
+				
+					expect {
+					
+						try SQLite.manager().initializeDatabase("app_test_database", andExtension: "db")
+						
+					}.to(throwError {(error:ErrorType) in
+						
+						expect(SQLiteManagerError.kDatabaseFileDoesNotExistInAppBundleCode) == error._code
+						expect(SQLiteManagerError.kErrorDomain) == error._domain
+						
+					})
+			}
+		
 		}
-    }
+	}
+}
+
+
+class SQLiteManagerDataabaseActionsSpec: QuickSpec {
+	
+	override func spec() {
+		describe("SQLite.manager()") {
+			
+			let database = SQLite.manager()
+			
+			try! database.initializeDatabase("app_test_database", andExtension: "db")
+			it ("Database name") {
+				expect("app_test_database.db") == database.databaseName
+			}
+		}
+	}
 }
