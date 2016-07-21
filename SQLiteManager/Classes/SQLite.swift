@@ -78,16 +78,16 @@ public class SQLite {
 	deinit {}
 	
 	
-	func closeDatabase() {
-		
-		if (sqlite3_close(database) == SQLITE_OK) {
-			if (log) {
-				print("Database Closed successfully");
-			}
-			database = nil
-		}
-		
-	}
+//	func closeDatabase() {
+//		
+//		if (sqlite3_close(database) == SQLITE_OK) {
+//			if (log) {
+//				print("Database Closed successfully");
+//			}
+//			database = nil
+//		}
+//		
+//	}
 	
 }
 
