@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'SQLiteManager'
-  s.version          = '0.1.0'
+  s.version          = '0.1.1'
   s.summary          = 'Simple SQL Manager class to do operations such as open database, close database, insert, update, delete and select'
 
 # This description is used to generate tags and improve search results.
