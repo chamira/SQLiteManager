@@ -60,14 +60,6 @@ class ViewController: UIViewController {
 			
 		}
 		
-//		try! SQLitePool.manager().initializeDatabase("app_test_database_1", andExtension: "db")
-		
-//		try! SQLitePool.manager().initializeDatabase("app_test_database", andExtension: "db")
-//		
-//		try! SQLitePool.manager().initializeDatabase("app_test_database", andExtension: "db")
-//		
-//		try! SQLitePool.manager().initializeDatabase("app_test_database", andExtension: "db")
-		
     }
 
     override func didReceiveMemoryWarning() {

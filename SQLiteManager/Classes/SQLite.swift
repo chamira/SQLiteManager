@@ -4,6 +4,7 @@
 //
 //  Created by Chamira Fernando on 19/07/16.
 //
+// Idea is to have a simple interface to talk to SQLite database in familiar SQL statements
 //
 
 import Foundation
@@ -19,6 +20,15 @@ public class SQLitePool {
 	}
 	
 	private static var instances:[String:SQLite] = [:]
+	private static var sharedPool:SQLitePool = SQLitePool()
+	
+	private static func addInstanceFor(database databaseNameWithExtension:String, instance:SQLite) {
+		instances[databaseNameWithExtension] = instance
+	}
+
+	public static func manager()->SQLitePool {
+		return sharedPool
+	}
 	
 	public static func getInstanceFor(database databaseNameWithExtension:String)->SQLite? {
 		
@@ -32,16 +42,17 @@ public class SQLitePool {
 		
 	}
 	
-	internal static func addInstanceFor(database databaseNameWithExtension:String, instance:SQLite) {
-		instances[databaseNameWithExtension] = instance
-	}
+	/**
+	Initialize a database and add to SQLitePool, you can initialize many databases as you like.
+	Each database (instance) will be remained in SQLitePool
 	
-	private static var sharedPool:SQLitePool = SQLitePool()
+	- parameter withDatabaseName: database name (without extension)
+	- parameter andExtension:     database extension (db, db3, sqlite, sqlite3) without .(dot)
 	
-	public static func manager()->SQLitePool {
-		return sharedPool
-	}
+	- throws: NSError
 	
+	- returns: SQLite database
+	*/
 	public func initializeDatabase(withDatabaseName:String, andExtension:String) throws -> SQLite {
 		do {
 			let lite = try SQLite().initializeDatabase(withDatabaseName, andExtension: andExtension)
@@ -51,7 +62,7 @@ public class SQLitePool {
 		}
 	}
 	
-	private static func closeDatabases() {
+	public static func closeDatabases() {
 		instances.forEach {  $0.1.closeDatabase() }
 		instances.removeAll()
 	}
@@ -65,7 +76,6 @@ public class SQLitePool {
 	}
 	
 }
-
 
 public class SQLite {
 
@@ -135,7 +145,6 @@ public class SQLite {
 			return sharedManager!
 		}
 		
-	
 		_databaseName = withDatabaseName
 		_databaseExtension = andExtension
 		
@@ -162,8 +171,8 @@ public class SQLite {
 		}
 		
 		log(_databaseName + " is open")
-		database_operation_queue = dispatch_queue_create("lib.SQLiteManager.database_operation_queue."+_databaseName, DISPATCH_QUEUE_SERIAL)
-		databaseOperationQueue.name = "lib.SQLiteManager.database_operation_queue."+_databaseName
+        database_operation_queue    = dispatch_queue_create("lib.SQLiteManager.database_operation_queue."+_databaseName, DISPATCH_QUEUE_SERIAL)
+        databaseOperationQueue.name = "lib.SQLiteManager.database_operation_queue."+_databaseName
 		SQLitePool.addInstanceFor(database: databaseName!, instance: self)
 		sharedManager = self
 		
@@ -230,19 +239,10 @@ public extension SQLite {
 		var error:NSError?
 		unowned let weakSelf = self
 		var result:SQLiteResult?
-		
-
+	
 		let blockOp = NSBlockOperation(block: {
-		
-			do {
-				result = try weakSelf.submitQuery(sqlStatement: sql)
-				
-			} catch let e as NSError {
-				error = e
-			}
-			
+			do { result = try weakSelf.submitQuery(sqlStatement: sql) } catch let e as NSError { error = e }
 		})
-		
 		
 		blockOp.completionBlock = {
 			
@@ -262,7 +262,8 @@ public extension SQLite {
 			
 		}
 		
-		
+        blockOp.qualityOfService = NSQualityOfService.Background
+        blockOp.queuePriority    = NSOperationQueuePriority.Normal
 		self.databaseOperationQueue.addOperation(blockOp)
 
 	}
@@ -298,10 +299,8 @@ public extension SQLite {
 		var statement: COpaquePointer = nil
 		
 		let closeClosure = {
-		
 			sqlite3_exec(weakSelf.database, "COMMIT", nil, nil, nil);
 			sqlite3_finalize(statement);
-			
 		}
 		
 		sqlite3_exec(weakSelf.database, "BEGIN", nil,nil,nil);
@@ -337,7 +336,6 @@ public extension SQLite {
 				keys.append(columnName!)
 			}
 			
-			
 			var resultObjects:[[String:AnyObject]]?
 			
 			while sqlite3_step(statement) == SQLITE_ROW {
@@ -352,18 +350,13 @@ public extension SQLite {
 						actualValue = String.fromCString(UnsafePointer<Int8>(sqlite3_value_text(value)))
 						break
 					case SQLITE_FLOAT:
-						let v = NSNumber(double: sqlite3_value_double(value))
-						actualValue = v
+                        actualValue = NSNumber(double: sqlite3_value_double(value))
 						break
 					case SQLITE_INTEGER:
-						let v = NSNumber(longLong: sqlite3_value_int64(value))
-						actualValue = v
+                        actualValue = NSNumber(longLong: sqlite3_value_int64(value))
 						break
 					case SQLITE_BLOB:
-						let v    = sqlite3_value_blob(statement)
-						let size = sqlite3_column_bytes(statement, 0);
-						
-						actualValue = NSData(bytes: v, length: Int(size))
+                        actualValue = NSData(bytes: sqlite3_value_blob(statement), length: Int(sqlite3_column_bytes(statement, 0)))
 						break
 					default:
 						actualValue = ""
@@ -476,7 +469,6 @@ private extension SQLite {
 	}
 }
 
-
 private extension SQLite {
 	
 	func log(message:String!, tag:String? = nil, file:String? = nil, line:String? = nil) {
@@ -506,4 +498,3 @@ private extension SQLite {
 	}
 	
 }
-
