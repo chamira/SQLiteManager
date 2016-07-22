@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
   s.name             = 'SQLiteManager'
   s.version          = '0.1.1'
-  s.summary          = 'Simple SQL Manager class to do operations such as open database, close database, insert, update, delete and select'
+  s.summary          = 'Simple SQLite Manager class to do operations such as open database, close database, insert, update, delete and select'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -18,7 +18,11 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-Simple DatabaseManager class to do operations like on SQLite database such as ,open database, close database, insert, update, delete and select, This class is a Singleton and can be accessed via sharedManager.
+Idea is to have a simple [Swift](https://developer.apple.com/swift/) interface to run basic [SQL](https://www.sqlite.org/lang.html) statements such as SELECT, INSERT, UPDATE and DELETE.
+There are many iOS libraries that are well capable of doing complicated SQLite stuff but almost all of those libraries have more than what we need for small projects.
+Thus, the idea is to get rid of all the boilerplate code and keep things very simple. You write your own SQL.
+
+Handling objects, writing business logic is all up to the developers.
                        DESC
 
   s.homepage         = 'https://github.com/chamira/'
@@ -38,6 +42,6 @@ Simple DatabaseManager class to do operations like on SQLite database such as ,o
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
-s.library = 'sqlite3'
-s.dependency 'sqlite3'
+	s.library = 'sqlite3'
+	s.dependency 'sqlite3'
 end

@@ -18,9 +18,9 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
 ## Requirements
 
-	* Min iOS SDK 8.0 
-	* Must have SQLite Database created using command line or an external client [DB Browser](http://sqlitebrowser.org/).
-
+Min iOS SDK 8.0<br /> 
+Must have SQLite Database created using command line or an external client [DB Browser](http://sqlitebrowser.org/).</br />
+	
 
 ## Installation
 
@@ -30,6 +30,10 @@ it, simply add the following line to your Podfile:
 ## Usage
 
 Drag and drop SQLite database file to project bundle. example database file name : `app_test_database_1` and extension is `db`
+
+```ruby
+pod "SQLiteManager"
+```
 
 ``` swift
 import SQLiteManager
@@ -50,11 +54,11 @@ class ViewController: UIViewController {
 		}
 
 		// on background thread
-		unowned let weakSelf = self
+		unowned let refSelf = self
 		database.query(sqlStatement: "select count(*) as user_count from tb_user", successClosure: { (result) in
 
 				if let r = result.results?.first!["user_count"] {
-					weakSelf.countLabel.text = "\(r)"
+					refSelf.countLabel.text = "\(r)"
 				}
 
 			}, errorClosure: { (error) in
@@ -64,11 +68,6 @@ class ViewController: UIViewController {
 		}
 }
 
-```
-
-
-```ruby
-pod "SQLiteManager"
 ```
 
 ## Author
