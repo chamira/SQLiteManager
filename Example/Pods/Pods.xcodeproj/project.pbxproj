@@ -196,6 +196,7 @@
 		4A772C8371DA6E47CFF973DE204CF84D /* Pods-SQLiteManager_Tests-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-SQLiteManager_Tests-dummy.m"; sourceTree = "<group>"; };
 		4CB478F809E80FCF0B21AAAB5FEA3E45 /* Pods-SQLiteManager_Tests-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-SQLiteManager_Tests-frameworks.sh"; sourceTree = "<group>"; };
 		4D92448776FF4CF364689EBACF86BD8E /* Pods-SQLiteManager_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-SQLiteManager_Tests.release.xcconfig"; sourceTree = "<group>"; };
+		5306FB0C1D40D948001F0CA4 /* SQLiteManager-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SQLiteManager-Bridging-Header.h"; sourceTree = "<group>"; };
 		5322BFEEC79B7B452942A2BA262B4FB1 /* sqlite3-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "sqlite3-prefix.pch"; sourceTree = "<group>"; };
 		55B7140610AB6587148E8238FE1FFA95 /* SQLite.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SQLite.swift; sourceTree = "<group>"; };
 		57EDB7BC8427C5D7BD6BE389279961CE /* QuickTestSuite.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QuickTestSuite.swift; path = Sources/Quick/QuickTestSuite.swift; sourceTree = "<group>"; };
@@ -381,6 +382,7 @@
 				D0450029982E56B211610B65BB6C4ADC /* SQLiteManager-dummy.m */,
 				715D12EC9E0E00A73AB3DFD6FDFAAA01 /* SQLiteManager-prefix.pch */,
 				6C6EEC0F17E7227A5472A93E6E57667F /* SQLiteManager-umbrella.h */,
+				5306FB0C1D40D948001F0CA4 /* SQLiteManager-Bridging-Header.h */,
 			);
 			name = "Support Files";
 			path = "Example/Pods/Target Support Files/SQLiteManager";
@@ -1133,6 +1135,7 @@
 				PRODUCT_NAME = SQLiteManager;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -1292,6 +1295,7 @@
 				PRODUCT_NAME = SQLiteManager;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
