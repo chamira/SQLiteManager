@@ -1,8 +1,8 @@
 # SQLiteManager
 
 Idea is to have a simple [Swift](https://developer.apple.com/swift/) interface to run basic [SQL](https://www.sqlite.org/lang.html) statements such as SELECT, INSERT, UPDATE and DELETE.
-There are many iOS libraries that we well capable of doing complicated SQLite stuff but almost all of those libraries have more than what we need for small projects. 
-Thus, the idea is to get rid of all the boilerplate code and keep things very simple. You write your own SQL U+1F603
+There are many iOS libraries that are well capable of doing complicated SQLite stuff but almost all of those libraries have more than what we need for small projects. 
+Thus, the idea is to get rid of all the boilerplate code and keep things very simple. You write your own SQL.
 
 Handling objects, writing business logic is all up to the developers. 
 
@@ -18,8 +18,10 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
 ## Requirements
 
-Min iOS SDK 8.0
-Must have SQLite Database created using command line or an external client [DB Browser](http://sqlitebrowser.org/).
+	* Min iOS SDK 8.0, 
+	* Must have SQLite Database created using command line or an external client [DB Browser](http://sqlitebrowser.org/).
+	* 
+
 
 ## Installation
 
@@ -72,7 +74,8 @@ pod "SQLiteManager"
 
 ## Author
 
-Chamira Fernando, chamira.fdo@gmail.com
+Chamira Fernando, chamira.fdo@gmail.com, [Twitter][https://twitter.com/chamirafernando]
+
 
 ## License
 
