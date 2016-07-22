@@ -18,9 +18,8 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
 ## Requirements
 
-	* Min iOS SDK 8.0, 
+	* Min iOS SDK 8.0 
 	* Must have SQLite Database created using command line or an external client [DB Browser](http://sqlitebrowser.org/).
-	* 
 
 
 ## Installation
@@ -74,7 +73,7 @@ pod "SQLiteManager"
 
 ## Author
 
-Chamira Fernando, chamira.fdo@gmail.com, [Twitter][https://twitter.com/chamirafernando]
+Chamira Fernando, chamira.fdo@gmail.com, [Twitter](https://twitter.com/chamirafernando)
 
 
 ## License
