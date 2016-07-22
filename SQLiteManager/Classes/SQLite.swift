@@ -10,7 +10,7 @@
 import Foundation
 import sqlite3
 
-
+//MARK: - SQLitePool Class
 public class SQLitePool {
 	
 	private init() {}
@@ -77,12 +77,10 @@ public class SQLitePool {
 	
 }
 
+
+//MARK: - SQLite Class
 public class SQLite {
-
-	public typealias SQLiteResult = (SQLiteSatusCode:Int32,affectedRowCount:Int,results:[[String:AnyObject]]?)
-	public typealias SuccessClosure = (result:SQLiteResult)->()
-	public typealias ErrorClosure = (error:NSError)->()
-
+	
 	public var databaseName:String?  {
 		return _databaseName+"."+_databaseExtension
 	}
@@ -152,22 +150,13 @@ public class SQLite {
 		
 		if (!moved) {
 			log("Moving database to document dir")
-			do {
-				moved = try copyDatabaseFromBundleToDocumentsDir()
-			} catch let e as NSError {
-				throw e
-			}
-			
+			do { moved = try copyDatabaseFromBundleToDocumentsDir() } catch let e as NSError { throw e }
 		} else {
 			log("Database is already moved")
 		}
 		
 		if (moved) {
-			do {
-				try openDatabase()
-			} catch let e as NSError {
-				throw e
-			}
+			do { try openDatabase() } catch let e as NSError { throw e }
 		}
 		
 		log(_databaseName + " is open")
@@ -183,10 +172,8 @@ public class SQLite {
 	public func openDatabase() throws {
 		
 		if (database != nil) {
-			
 			log("Database is already open:" + databaseName!)
 			return
-			
 		}
 		
 		guard let databasePath = databasePath else {
@@ -194,7 +181,6 @@ public class SQLite {
 		}
 		
 		if sqlite3_open(databasePath, &database) != SQLITE_OK {
-			
 			var errorMessage = String.fromCString(sqlite3_errmsg(database))
 			if (errorMessage?.characters.count == 0) {
 				errorMessage = "undefined database (sqlite3) error"
@@ -203,7 +189,6 @@ public class SQLite {
 			let code = sqlite3_errcode(database)
 			log(" ***** Failed to open database:" + databaseName!)
 			throw SQLiteManagerError(code: Int(code), userInfo: [kCFErrorDescriptionKey:errorMessage!])
-			
 		}
 		
 		if (log) {
@@ -215,7 +200,6 @@ public class SQLite {
 	public func closeDatabase() {
 		
 		if (sqlite3_close(database) == SQLITE_OK) {
-			
 			sharedManager = nil
 			database = nil
 			log("Database Closed successfully:" + databaseName!);
@@ -226,19 +210,48 @@ public class SQLite {
 }
 
 
+//MARK: - Query extension
 public extension SQLite {
 	
-	public func query(sqlStatement sql:String!) throws -> SQLiteResult {
+	/**
+		SQLiteSatusCode.SQLiteSatusCode SQLite status code return by sqlite3 engine
+		SQLiteSatusCode.affectedRowCount number of rows affected by the query if any, otherwise 0
+		SQLiteQueryResult.results is an array of [String:AnyObject], each row of the result of the query is casted in to a dictionary
+		[key:value], example if SQL statement 'SELECT first_name FROM tb_user WHERE id = 1' results will be [["first_name":"Chamira"]]
+	*/
+	public typealias SQLiteQueryResult = (SQLiteSatusCode:Int32,affectedRowCount:Int,results:[[String:AnyObject]]?)
+
+	public typealias SuccessClosure = (result:SQLiteQueryResult)->()
+	public typealias ErrorClosure = (error:NSError)->()
+
+	/**
+	Basic method to query the database, query is run on the same thread as the caller.
+	
+	- parameter sql: SQL statement (learn more @ https://www.sqlite.org/lang.html)
+	
+	- throws: if there is any error throws it
+	
+	- returns: return query result, SQLiteQueryResult (SQLiteResultCode, Affected Rows and Results array)
+	
+	*/
+	public func query(sqlStatement sql:String!) throws -> SQLiteQueryResult {
 	
 		do { return try submitQuery(sqlStatement: sql) } catch let e as NSError { throw e }
 		
 	}
 	
+	/**
+	Basic method to query the database, query is run on a background thread and pass result to main thread
+	
+	- parameter sql:            SQL statement (learn more @ https://www.sqlite.org/lang.html)
+	- parameter successClosure: if query is successfully executed run successClosure which has SQLiteQueryResult as a param
+	- parameter errorClosure:   if any error, run errorClosure
+	*/
 	public func query(sqlStatement sql:String!,successClosure:SuccessClosure,errorClosure:ErrorClosure) {
 		
 		var error:NSError?
 		unowned let weakSelf = self
-		var result:SQLiteResult?
+		var result:SQLiteQueryResult?
 	
 		let blockOp = NSBlockOperation(block: {
 			do { result = try weakSelf.submitQuery(sqlStatement: sql) } catch let e as NSError { error = e }
@@ -268,10 +281,10 @@ public extension SQLite {
 
 	}
 	
-	private func submitQuery(sqlStatement sql:String!) throws -> SQLiteResult {
+	private func submitQuery(sqlStatement sql:String!) throws -> SQLiteQueryResult {
 		
 		unowned let weakSelf = self
-		var r:SQLiteResult!
+		var r:SQLiteQueryResult!
 		var blockError: NSError? = nil
 		
 		dispatch_sync(database_operation_queue) {
@@ -290,7 +303,17 @@ public extension SQLite {
 		
 	}
 	
-	private func executeSQL(sqlString:String!) throws -> SQLiteResult {
+	/**
+	This is where all dirty jobs happen
+	Run SQL and cast into Dictionary and return the result
+	
+	- parameter sqlString: SQL Statement
+	
+	- throws: if an error throws it
+	
+	- returns: result
+	*/
+	private func executeSQL(sqlString:String!) throws -> SQLiteQueryResult {
 		
 		var returnCode: Int32         = 0
 		unowned let weakSelf          = self
@@ -411,7 +434,7 @@ public extension SQLite {
 	
 }
 
-//Utility
+//MARK: - Utility extension
 private extension SQLite {
 	
 	private func hasDatabaseMovedToDocumentsDir() -> Bool {
@@ -469,6 +492,7 @@ private extension SQLite {
 	}
 }
 
+//MARK: - Log extension
 private extension SQLite {
 	
 	func log(message:String!, tag:String? = nil, file:String? = nil, line:String? = nil) {

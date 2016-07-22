@@ -7,9 +7,8 @@
 //
 
 import Foundation
-//enum SQLiteManagerErrorCode {
-//
-//}
+
+//MARK: - SQLiteManagerError class
 public class SQLiteManagerError: NSError {
 	
 	public static var kErrorDomain = "lib.SQLiteManager.error"
