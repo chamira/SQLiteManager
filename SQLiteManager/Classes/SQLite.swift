@@ -331,7 +331,7 @@ public extension SQLite {
 		
 		if returnCode != SQLITE_OK {
 			let errorMessage = "\(String.fromCString(sqlite3_errmsg(weakSelf.database))!) SQL:\(sqlString) at line:\(#line) on file:\(#file)"
-			let code = sqlite3_errcode(weakSelf.database)
+			let code = sqlite3_extended_errcode(weakSelf.database)
 			closeClosure()
 			throw SQLiteManagerError(code: Int(code), userInfo: [kCFErrorDescriptionKey:errorMessage])
 		}
@@ -341,7 +341,7 @@ public extension SQLite {
 		if(returnCode != SQLITE_OK) {
 			
 			let errorMessage = "\(String.fromCString(sqlite3_errmsg(weakSelf.database))!) SQL:\(sqlString) at line:\(#line) on file:\(#file)"
-			let code = sqlite3_errcode(weakSelf.database)
+			let code = sqlite3_extended_errcode(weakSelf.database)
 			closeClosure()
 			throw SQLiteManagerError(code: Int(code), userInfo: [kCFErrorDescriptionKey:errorMessage])
 			
@@ -363,6 +363,8 @@ public extension SQLite {
 			
 			while sqlite3_step(statement) == SQLITE_ROW {
 				var c:Int32 = 0
+				var row:[String:AnyObject] = [:]
+				
 				for key in keys {
 					let value     = sqlite3_column_value(statement, c)
 					let valueType = sqlite3_value_type(value)
@@ -392,13 +394,15 @@ public extension SQLite {
 							resultObjects = []
 						}
 						
-						resultObjects?.append([key:v])
+						row[key] = v
 						
 					}
 
 					c += 1
 					
 				}
+				
+				resultObjects?.append(row)
 				
 			}
 			
