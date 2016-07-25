@@ -113,7 +113,7 @@ class SQLiteManagerDataabaseActionsSpec: QuickSpec {
 				it("INSERT SUCCESS") {
 					
 					let dob = NSDate(timeIntervalSince1970: 3600*24*9650)
-					let sql = "INSERT INTO 'tb_user' (first_name, last_name, username, date_of_birth) VALUES ('Marian','Peries', 'some_user_name', \(dob.timeIntervalSince1970))"
+					let sql = "INSERT INTO 'tb_user' (first_name, last_name, username, date_of_birth) VALUES ('Mariaan','Peries', 'some_user_name', \(dob.timeIntervalSince1970))"
 					
 					waitUntil { done in
 						database.query(sqlStatement: sql, successClosure: { (result) in
@@ -123,6 +123,29 @@ class SQLiteManagerDataabaseActionsSpec: QuickSpec {
 							expect(result.results).to(beFalsy())
 							done()
 						
+						}, errorClosure: { (error) in
+								
+							expect(SQLiteManagerError.kErrorDomain) == error._domain
+							done()
+								
+						})
+					}
+					
+				}
+				
+				
+				it ("UPDATE SUCCESS") {
+					
+					let sql = "UPDATE 'tb_user' SET first_name = 'Marian' WHERE first_name = 'Mariaan'"
+					
+					waitUntil { done in
+						database.query(sqlStatement: sql, successClosure: { (result) in
+							
+							expect(SQLITE_OK) == result.SQLiteSatusCode
+							expect(result.affectedRowCount) == 1
+							expect(result.results).to(beFalsy())
+							done()
+							
 						}, errorClosure: { (error) in
 								
 							expect(SQLiteManagerError.kErrorDomain) == error._domain
@@ -145,10 +168,10 @@ class SQLiteManagerDataabaseActionsSpec: QuickSpec {
 							expect(result.results).to(beFalsy())
 							done()
 							
-							}, errorClosure: { (error) in
+						}, errorClosure: { (error) in
 								
-								expect(SQLiteManagerError.kErrorDomain) == error._domain
-								done()
+							expect(SQLiteManagerError.kErrorDomain) == error._domain
+							done()
 								
 						})
 					}
