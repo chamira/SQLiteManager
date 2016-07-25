@@ -18,7 +18,11 @@ class ViewController: UIViewController {
 		
 		let database =  try! SQLitePool.manager().initializeDatabase("app_test_database_1", andExtension: "db")
 		
-		database.log = false
+		database.log = true
+		
+		let select = try! database.query(sqlStatement: "SELECT first_name, username, date_of_birth as dob from 'tb_user'")
+		print(select.results)
+		
 		let result = try! database.query(sqlStatement: "select count(*) as user_count from tb_user")
 		if let r = result.results?.first!["user_count"] {
 			self.countLabel.text = "\(r)"
