@@ -6,7 +6,7 @@ Thus, the idea is to get rid of all the boilerplate code and keep things very si
 
 Handling objects, writing business logic is all up to the developers. 
 
-[![CI Status](http://img.shields.io/travis/Chamira Fernando/SQLiteManager.svg?style=flat)](https://travis-ci.org/Chamira Fernando/SQLiteManager)
+[![CI Status](http://img.shields.io/travis/Chamira Fernando/SQLiteManager.svg?style=flat)](https://travis-ci.org/chamira/SQLiteManager)
 [![Version](https://img.shields.io/cocoapods/v/SQLiteManager.svg?style=flat)](http://cocoapods.org/pods/SQLiteManager)
 [![License](https://img.shields.io/cocoapods/l/SQLiteManager.svg?style=flat)](http://cocoapods.org/pods/SQLiteManager)
 [![Platform](https://img.shields.io/cocoapods/p/SQLiteManager.svg?style=flat)](http://cocoapods.org/pods/SQLiteManager)
