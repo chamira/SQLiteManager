@@ -8,38 +8,31 @@
 
 import UIKit
 import SQLiteManager
+import sqlite3
 
+
+/// These examples are to show how to use SQLITEManager lib, 
+/// It is up to you to have application architecture based on your needs.
 class ViewController: UIViewController {
 
+    @IBOutlet weak var headerLabel: UILabel!
 	@IBOutlet weak var countLabel: UILabel!
 	
+    @IBOutlet weak var queryTextView: UITextView!
+    @IBOutlet weak var statusCodeLabel: UILabel!
+    @IBOutlet weak var resultTextView: UITextView!
+    
+    @IBOutlet weak var asyncButton: UISwitch!
+    var database:SQLite!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 		
-		let database =  try! SQLitePool.manager().initialize(database: "app_test_database_1", withExtension: "db")
-		
+		database =  try! SQLitePool.manager().initialize(database: "app_test_database_1", withExtension: "db")
 		database.log = true
-		
-		let select = try! database.query(sqlStatement: "SELECT first_name, username, date_of_birth as dob from 'tb_user'")
-		print(select.results)
-		
-		let result = try! database.query(sqlStatement: "select count(*) as user_count from tb_user")
-		if let r = result.results?.first!["user_count"] {
-			self.countLabel.text = "\(r)"
-		}
-		
-	
-		unowned let weakSelf = self
-		database.query(sqlStatement: "select count(*) as user_count from tb_user", successClosure: { (result) in
-			
-				if let r = result.results?.first!["user_count"] {
-					weakSelf.countLabel.text = "\(r)"
-				}
-			
-			}, errorClosure: { (error) in
-				print("Database Error",error)
-			})
-		
+        
+        headerLabel.text = "Database '\(database.databaseName!)' is initialized successfully, Write your SQL Query Below: "
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -47,5 +40,78 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 
+    
+    /**
+     Executing SQL query
+     
+     - parameter sender: button
+     */
+    @IBAction func tapExecuteQueryButton(sender: AnyObject) {
+    
+        let q = queryTextView.text.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+        
+        unowned let refSelf = self
+        
+        let successClosure = { (result:(SQLiteSatusCode:Int32,affectedRowCount:Int,results:[[String:AnyObject]]?))->() in
+          
+            refSelf.statusCodeLabel.text = "SQLite Status Code:\(result.SQLiteSatusCode == SQLITE_OK ? "SQLITE_OK" : "SQLITE_FAIL")"
+            refSelf.countLabel.text = "Affected Row Count Count:\(result.affectedRowCount)"
+            if let r = result.results {
+                refSelf.resultTextView.text = "\(r)"
+            }
+
+        }
+        
+        let errorClosure = { (error:NSError) ->() in
+            refSelf.resultTextView.text = "Error:\n\(error)"
+        }
+        
+        if (!asyncButton.on) {
+            
+            do {
+                let result = try database.query(sqlStatement: q)
+                successClosure(result)
+            } catch let e as NSError {
+                errorClosure(e)
+            }
+            
+        } else {
+           
+            database.query(sqlStatement: q, successClosure: { (result) in
+                successClosure(result)
+            }, errorClosure: { (error) in
+                errorClosure(error)
+            })
+            
+        }
+    }
+    
+    @IBAction func tapCreateButton(sender: AnyObject) {
+        let q = "CREATE TABLE IF NOT EXISTS tb_company(pkId INT PRIMARY KEY NOT NULL,name TEXT NOT NULL, age INT NOT NULL,address CHAR(50), salary REAL)"
+        queryTextView.text = q
+        
+    }
+    
+    @IBAction func tapInsertButton(sender: AnyObject) {
+        let dob = NSDate(timeIntervalSince1970: 3600*24*3650)
+        let q = "INSERT INTO 'tb_user' (first_name, last_name, username, date_of_birth) VALUES ('Joohn','Frenando', 'some_user_name', \(dob.timeIntervalSince1970))"
+        queryTextView.text = q
+    }
+    
+    @IBAction func tapUpdateButton(sender: AnyObject) {
+        let q = "UPDATE 'tb_user' SET first_name = 'John', last_name = 'Fernando' WHERE first_name = 'Joohn'"
+        queryTextView.text = q
+    }
+
+    @IBAction func tapDeleteButton(sender: AnyObject) {
+        let q = "DELETE FROM 'tb_user' WHERE first_name = 'John'"
+        queryTextView.text = q
+    }
+    
+    @IBAction func tapSelectButton(sender: AnyObject) {
+        let q = "SELECT first_name, username, date_of_birth as dob from 'tb_user'"
+        queryTextView.text = q
+    }
+    
 }
 
