@@ -1,10 +1,10 @@
 # SQLiteManager
 
-Idea is to have a simple [Swift](https://developer.apple.com/swift/) interface to run basic [SQL](https://www.sqlite.org/lang.html) statements such as SELECT, INSERT, UPDATE and DELETE.
+Idea is to have a simple [Swift](https://developer.apple.com/swift/) interface to run basic [SQL](https://www.sqlite.org/lang.html) statements/quries such as CREATE TABLE, SELECT, INSERT, UPDATE and DELETE.
 There are many iOS libraries that are well capable of doing complicated SQLite stuff but almost all of those libraries have more than what we need for small projects. 
 Thus, the idea is to get rid of all the boilerplate code and keep things very simple. You write your own SQL.
 
-Handling objects, writing business logic is all up to the developers. 
+Modeling, Handling objects, writing business logic is all up to the developers. 
 
 [![CI Status](http://img.shields.io/travis/chamira/SQLiteManager.svg?style=flat)](https://travis-ci.org/chamira/SQLiteManager)
 [![Version](https://img.shields.io/cocoapods/v/SQLiteManager.svg?style=flat)](http://cocoapods.org/pods/SQLiteManager)
