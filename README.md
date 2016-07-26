@@ -19,8 +19,6 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 ## Requirements
 
 Min iOS SDK 8.0<br /> 
-Must have SQLite Database created using command line or an external client [DB Browser](http://sqlitebrowser.org/).</br />
-	
 
 ## Installation
 

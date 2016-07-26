@@ -16,7 +16,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 		
-		let database =  try! SQLitePool.manager().initializeDatabase("app_test_database_1", andExtension: "db")
+		let database =  try! SQLitePool.manager().initialize(database: "app_test_database_1", withExtension: "db")
 		
 		database.log = true
 		

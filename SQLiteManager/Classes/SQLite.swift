@@ -48,14 +48,14 @@ public class SQLitePool {
 	
 	- parameter withDatabaseName: database name (without extension)
 	- parameter andExtension:     database extension (db, db3, sqlite, sqlite3) without .(dot)
-	
+	- parameter
 	- throws: NSError
 	
 	- returns: SQLite database
 	*/
-	public func initializeDatabase(withDatabaseName:String, andExtension:String) throws -> SQLite {
+    public func initialize(database name:String, withExtension:String, createIfNotExists create:Bool = false) throws -> SQLite {
 		do {
-			let lite = try SQLite().initializeDatabase(withDatabaseName, andExtension: andExtension)
+			let lite = try SQLite().initialize(database: name, withExtension: withExtension, createIfNotExists: create)
 			return lite
 		} catch let e as NSError {
 			throw e
@@ -125,8 +125,15 @@ public class SQLite {
 	
 	private var database:COpaquePointer = nil
 	
+    private var _createIfNotExists:Bool = false
+    
+    private var createIfNotExists:Bool {
+        return _createIfNotExists
+    }
+    
 	private var database_operation_queue:dispatch_queue_t!
-	
+    
+    
 	lazy private var databaseOperationQueue:NSOperationQueue = {
 	
 		let queue = NSOperationQueue()
@@ -136,21 +143,25 @@ public class SQLite {
 		
 	}()
 	
-	private func initializeDatabase(withDatabaseName:String, andExtension:String) throws -> SQLite {
+	private func initialize(database name:String, withExtension:String, createIfNotExists create:Bool = false) throws -> SQLite {
 		
-		sharedManager = SQLitePool.getInstanceFor(database: withDatabaseName+"."+andExtension)
+		sharedManager = SQLitePool.getInstanceFor(database: name+"."+withExtension)
 		if (sharedManager != nil) {
 			return sharedManager!
 		}
 		
-		_databaseName = withDatabaseName
-		_databaseExtension = andExtension
-		
+        _databaseName      = name
+        _databaseExtension = withExtension
+        _createIfNotExists = create
+        
 		var moved = hasDatabaseMovedToDocumentsDir()
 		
 		if (!moved) {
 			log("Moving database to document dir")
-			do { moved = try copyDatabaseFromBundleToDocumentsDir() } catch let e as NSError { throw e }
+			do { moved = try copyDatabaseFromBundleToDocumentsDir() }
+            catch let e as NSError {
+                throw e
+            }
 		} else {
 			log("Database is already moved")
 		}
@@ -455,7 +466,25 @@ private extension SQLite {
 	private func copyDatabaseFromBundleToDocumentsDir () throws -> Bool {
 		
 		guard let databaseBundlePath = NSBundle.mainBundle().pathForResource(_databaseName, ofType: _databaseExtension) else {
-			throw SQLiteManagerError.databaseFileDoesNotExistInAppBundle(databaseName!)
+            
+            if (_createIfNotExists) {
+                guard let filePath = databasePath else {
+                    throw SQLiteManagerError.unknownError(databaseName!)
+                }
+                
+                if (!createDatabaseFileAtPath(filePath)) {
+                     throw SQLiteManagerError.unknownError(databaseName!)
+                }
+                
+                if (!backupToICloud) {
+                    addSkipBackupAttributeToItemAtPath(databaseUrl!)
+                }
+                
+                return true
+                
+            } else {
+                throw SQLiteManagerError.databaseFileDoesNotExistInAppBundle(databaseName!)
+            }
 		}
 	
 		do {
@@ -474,6 +503,14 @@ private extension SQLite {
 		return true
 	}
 	
+    private func createDatabaseFileAtPath(path:String)->Bool {
+     
+        let fileManager = NSFileManager.defaultManager()
+        let created =  fileManager.createFileAtPath(path, contents: nil, attributes: [NSFileCreationDate:NSDate(),NSFileType:NSFileTypeRegular])
+        
+        return created
+    }
+    
 	// Exclude file at URL from iCloud backup
 	private func addSkipBackupAttributeToItemAtPath(url: NSURL) {
 		

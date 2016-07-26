@@ -5,38 +5,40 @@ import Nimble
 import SQLiteManager
 import sqlite3
 
-class SQLiteManagerNoDatabaseSpec: QuickSpec {
+class SQLiteManagerDatabaseCreateSpec: QuickSpec {
 	
 	override func spec() {
-		describe("SQLite.manager()") {
+		describe("SQLite.manager() Create") {
 			
-			it ("initialize database catch no database") {
-				
-					expect {
-					
-						try SQLitePool.manager().initializeDatabase("app_test_database", andExtension: "db")
-						
-					}.to(throwError {(error:ErrorType) in
-						
-						expect(SQLiteManagerError.kDatabaseFileDoesNotExistInAppBundleCode) == error._code
-						expect(SQLiteManagerError.kErrorDomain) == error._domain
-						
-					})
+            let dbName = "app_test_database_x_4"
+            let database = try! SQLitePool.manager().initialize(database: dbName, withExtension: "db", createIfNotExists: true)
+
+			it ("initialize database") {
+                expect(dbName+".db") == database.databaseName
 			}
+            
+            it ("Create table") {
+                
+                let q = "CREATE TABLE IF NOT EXISTS COMPANY(ID INT PRIMARY KEY NOT NULL,NAME TEXT NOT NULL, AGE INT NOT NULL,ADDRESS CHAR(50), SALARY REAL)"
+                let ret = try! database.query(sqlStatement: q)
+                expect(SQLITE_OK) == ret.SQLiteSatusCode
+                
+            }
 		
 		}
 	}
 }
 
 
-class SQLiteManagerDataabaseActionsSpec: QuickSpec {
+class SQLiteManagerDatabaseActionsSpec: QuickSpec {
 	
 	override func spec() {
 		describe("SQLite.manager() Operations") {
 			
 			let databasesPool = SQLitePool.manager()
 			
-			let database = try! databasesPool.initializeDatabase("app_test_database_1", andExtension: "db")
+            let database = try! databasesPool.initialize(database:"app_test_database_1", withExtension: "db")
+            
 			it ("Database name") {
 				expect("app_test_database_1.db") == database.databaseName
 			}
