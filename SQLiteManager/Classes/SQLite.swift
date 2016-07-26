@@ -41,21 +41,23 @@ public class SQLitePool {
 		return lite
 		
 	}
-	
-	/**
-	Initialize a database and add to SQLitePool, you can initialize many databases as you like.
-	Each database (instance) will be remained in SQLitePool
-	
-	- parameter withDatabaseName: database name (without extension)
-	- parameter andExtension:     database extension (db, db3, sqlite, sqlite3) without .(dot)
-	- parameter
-	- throws: NSError
-	
-	- returns: SQLite database
-	*/
-    public func initialize(database name:String, withExtension:String, createIfNotExists create:Bool = false) throws -> SQLite {
+    
+    /**
+     Initialize a database and add to SQLitePool, you can initialize many databases as you like.
+     Each database (instance) will be remained in SQLitePool
+     
+     - parameter name:              name of the database (without extension)
+     - parameter withExtension:     database extension (db, db3, sqlite, sqlite3) without .(dot)
+     - parameter createIfNotExists: create database with given name in application dir If it does not exists, default value is false
+     
+     - throws: NSError
+     
+     - returns: SQLite database
+     */
+
+    public func initialize(database name:String, withExtension:String, createIfNotExists createIfNotExists:Bool = false) throws -> SQLite {
 		do {
-			let lite = try SQLite().initialize(database: name, withExtension: withExtension, createIfNotExists: create)
+			let lite = try SQLite().initialize(database: name, withExtension: withExtension, createIfNotExists: createIfNotExists)
 			return lite
 		} catch let e as NSError {
 			throw e
