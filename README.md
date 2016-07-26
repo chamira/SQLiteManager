@@ -43,7 +43,7 @@ class ViewController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 
-		let database =  try! SQLitePool.manager().initializeDatabase("app_test_database_1", andExtension: "db")
+		let database =  try! SQLitePool.manager().initialize(database: "app_test_database_1", withExtension: "db")
 
 		// on main thread
 		let result = try! database.query(sqlStatement: "select count(*) as user_count from tb_user")
