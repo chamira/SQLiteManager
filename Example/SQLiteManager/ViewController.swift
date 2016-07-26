@@ -22,16 +22,28 @@ class ViewController: UIViewController {
     @IBOutlet weak var statusCodeLabel: UILabel!
     @IBOutlet weak var resultTextView: UITextView!
     
+    @IBOutlet weak var executeButton: UIButton!
     @IBOutlet weak var asyncButton: UISwitch!
     var database:SQLite!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+		executeButton.enabled = false
+        do {
+            
+            database =  try SQLitePool.manager().initialize(database: "app_test_database_1", withExtension: "db")
+            database.log = true
+            
+            headerLabel.text = "Database '\(database.databaseName!)' is initialized successfully!\nWrite your SQL Query Below:"
+            headerLabel.textColor = UIColor.blackColor()
+            executeButton.enabled = true
+            
+        } catch let e as NSError {
+            headerLabel.text = "Error initializing database app_test_database_1.db \(e)"
+            headerLabel.textColor = UIColor.redColor()
+            executeButton.enabled = false
+        }
 		
-		database =  try! SQLitePool.manager().initialize(database: "app_test_database_1", withExtension: "db")
-		database.log = true
-        
-        headerLabel.text = "Database '\(database.databaseName!)' is initialized successfully, Write your SQL Query Below: "
         
     }
 

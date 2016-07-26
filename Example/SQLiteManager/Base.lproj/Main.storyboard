@@ -51,7 +51,7 @@
                                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" placeholderIntrinsicWidth="102" placeholderIntrinsicHeight="21" text="Result" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iVh-dU-yIi">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" placeholderIntrinsicWidth="102" placeholderIntrinsicHeight="21" text="Result:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iVh-dU-yIi">
                                                 <rect key="frame" x="6" y="58" width="102" height="21"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
@@ -194,6 +194,7 @@
                     <connections>
                         <outlet property="asyncButton" destination="VYb-Mg-Bm5" id="E2W-2i-N3Z"/>
                         <outlet property="countLabel" destination="lv9-eP-nHZ" id="w8O-Xb-U1d"/>
+                        <outlet property="executeButton" destination="xIq-iD-mnQ" id="bN1-hs-Enn"/>
                         <outlet property="headerLabel" destination="0Wt-Ow-gsC" id="tI6-yT-7Yi"/>
                         <outlet property="queryTextView" destination="hUg-CY-0jh" id="NIc-cy-xWf"/>
                         <outlet property="resultTextView" destination="kEF-E4-SzI" id="zcD-Ts-Bk3"/>
