@@ -43,8 +43,7 @@ class ViewController: UIViewController {
             headerLabel.textColor = UIColor.redColor()
             executeButton.enabled = false
         }
-		
-        
+    
     }
 
     override func didReceiveMemoryWarning() {
@@ -64,7 +63,7 @@ class ViewController: UIViewController {
         
         unowned let refSelf = self
         
-        let successClosure = { (result:(SQLiteSatusCode:Int32,affectedRowCount:Int,results:[[String:AnyObject]]?))->() in
+        let successClosure = { (result:(SQLiteSatusCode:Int32,affectedRowCount:Int,results:[[NSString:NSObject]]?))->() in
           
             refSelf.statusCodeLabel.text = "SQLite Status Code:\(result.SQLiteSatusCode == SQLITE_OK ? "SQLITE_OK" : "SQLITE_FAIL")"
             refSelf.countLabel.text = "Affected Row Count Count:\(result.affectedRowCount)"

@@ -10,6 +10,17 @@
 import Foundation
 import sqlite3
 
+/**
+ SQLiteSatusCode.SQLiteSatusCode SQLite status code return by sqlite3 engine
+ SQLiteSatusCode.affectedRowCount number of rows affected by the query if any, otherwise 0
+ SQLiteQueryResult.results is an array of [String:AnyObject], each row of the result of the query is casted in to a dictionary
+ [key:value], example if SQL statement 'SELECT first_name FROM tb_user WHERE id = 1' results will be [["first_name":"Chamira"]]
+	*/
+public typealias SQLiteQueryResult = (SQLiteSatusCode:Int32,affectedRowCount:Int,results:[[NSString:NSObject]]?)
+
+public typealias SuccessClosure = (result:SQLiteQueryResult)->()
+public typealias ErrorClosure = (error:NSError)->()
+
 //MARK: - SQLitePool Class
 public class SQLitePool {
 	
@@ -227,17 +238,6 @@ public class SQLite {
 public extension SQLite {
 	
 	/**
-		SQLiteSatusCode.SQLiteSatusCode SQLite status code return by sqlite3 engine
-		SQLiteSatusCode.affectedRowCount number of rows affected by the query if any, otherwise 0
-		SQLiteQueryResult.results is an array of [String:AnyObject], each row of the result of the query is casted in to a dictionary
-		[key:value], example if SQL statement 'SELECT first_name FROM tb_user WHERE id = 1' results will be [["first_name":"Chamira"]]
-	*/
-	public typealias SQLiteQueryResult = (SQLiteSatusCode:Int32,affectedRowCount:Int,results:[[String:AnyObject]]?)
-
-	public typealias SuccessClosure = (result:SQLiteQueryResult)->()
-	public typealias ErrorClosure = (error:NSError)->()
-
-	/**
 	Basic method to query the database, query is run on the same thread as the caller.
 	
 	- parameter sql: SQL statement (learn more @ https://www.sqlite.org/lang.html)
@@ -366,26 +366,26 @@ public extension SQLite {
 
 			let columnCount:Int32 = sqlite3_column_count(statement)
 			
-			var keys:[String] = []
+			var keys:[NSString] = []
 			for i in 0..<columnCount {
-				let columnName = String.fromCString(sqlite3_column_name(statement, i))
+				let columnName = NSString(CString: UnsafePointer<Int8>(sqlite3_column_name(statement, i)), encoding: NSString.defaultCStringEncoding())
 				keys.append(columnName!)
 			}
 			
-			var resultObjects:[[String:AnyObject]]?
+			var resultObjects:[[NSString:NSObject]]?
 			
 			while sqlite3_step(statement) == SQLITE_ROW {
 				var c:Int32 = 0
-				var row:[String:AnyObject] = [:]
+				var row:[NSString:NSObject] = [:]
 				
 				for key in keys {
 					let value     = sqlite3_column_value(statement, c)
 					let valueType = sqlite3_value_type(value)
-					var actualValue:AnyObject?
+					var actualValue:NSObject?
 					
 					switch valueType {
 					case SQLITE_TEXT:
-						actualValue = String.fromCString(UnsafePointer<Int8>(sqlite3_value_text(value)))
+						actualValue = NSString(CString: UnsafePointer<Int8>(sqlite3_value_text(value)), encoding: NSString.defaultCStringEncoding())
 						break
 					case SQLITE_FLOAT:
                         actualValue = NSNumber(double: sqlite3_value_double(value))
@@ -394,10 +394,12 @@ public extension SQLite {
                         actualValue = NSNumber(longLong: sqlite3_value_int64(value))
 						break
 					case SQLITE_BLOB:
-                        actualValue = NSData(bytes: sqlite3_value_blob(statement), length: Int(sqlite3_column_bytes(statement, 0)))
+                        let length = Int(sqlite3_column_bytes(statement, c))
+                        let bytes  = sqlite3_column_blob(statement, c)
+                        actualValue = NSData(bytes: bytes, length: length)
 						break
 					default:
-						actualValue = ""
+						actualValue = NSNull()
 						break
 					}
 					
