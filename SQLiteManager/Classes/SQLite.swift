@@ -411,7 +411,9 @@ public extension SQLite {
 						
 						row[key] = v
 						
-					}
+                    } else {
+                        row[key] = NSNull()
+                    }
 
 					c += 1
 					

@@ -60,7 +60,7 @@ class SQLiteManagerDatabaseActionsSpec: QuickSpec {
 			
 			it ("INSERT SUCCESS") {
 				let dob = NSDate(timeIntervalSince1970: 3600*24*3650)
-				let result = try! database.query(sqlStatement: "INSERT INTO 'tb_user' (first_name, last_name, username, date_of_birth) VALUES ('Chameera','Frenando', 'some_user_name', \(dob.timeIntervalSince1970))")
+				let result = try! database.query(sqlStatement: "INSERT INTO 'tb_user' (first_name, last_name, username, date_of_birth) VALUES ('Chameera','Frenando', NULL, \(dob.timeIntervalSince1970))")
 				expect(SQLITE_OK) == result.SQLiteSatusCode
 				expect(result.affectedRowCount) == 1
 				expect(result.results).to(beFalsy())
@@ -75,7 +75,7 @@ class SQLiteManagerDatabaseActionsSpec: QuickSpec {
 			}
 			
 			it ("SELECT SUCCESS") {
-				let result = try! database.query(sqlStatement: "SELECT first_name, username, date_of_birth as dob from 'tb_user'")
+				let result = try! database.query(sqlStatement: "SELECT first_name, date_of_birth as dob from 'tb_user'")
 				expect(SQLITE_OK) == result.SQLiteSatusCode
 				expect(result.affectedRowCount) == 1
 				
@@ -84,7 +84,6 @@ class SQLiteManagerDatabaseActionsSpec: QuickSpec {
 				expect(r).to(beTruthy())
 				
 				expect(r!["first_name"] as? String) == "Chamira"
-				expect(r!["username"] as? String) == "some_user_name"
 				
 				let dob = NSDate(timeIntervalSince1970: 3600*24*3650)
 				expect(r!["dob"] as? Double) == dob.timeIntervalSince1970
@@ -102,6 +101,20 @@ class SQLiteManagerDatabaseActionsSpec: QuickSpec {
 				expect(counter!["user_count"] as? Int) == 1
 				
 			}
+            
+            it ("SELECT NULL") {
+                let result = try! database.query(sqlStatement: "SELECT first_name, username, date_of_birth as dob from 'tb_user'")
+                expect(SQLITE_OK) == result.SQLiteSatusCode
+                expect(result.affectedRowCount) == 1
+                
+                let r = result.results?.first
+                
+                expect(r).to(beTruthy())
+                
+                expect(r!["first_name"] as? String) == "Chamira"
+                expect(r!["username"] as? NSNull) == NSNull()
+                
+            }
 			
 			it ("DELETE SUCCESS") {
 				let result = try! database.query(sqlStatement: "DELETE FROM 'tb_user' WHERE first_name = 'Chamira'")
