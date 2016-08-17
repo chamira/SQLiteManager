@@ -28,6 +28,7 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+		
 		executeButton.enabled = false
         do {
             

@@ -37,10 +37,22 @@ public class SQLitePool {
 		instances[databaseNameWithExtension] = instance
 	}
 
+	/**
+	SQLitePool Manager, Singleton access method
+	
+	- returns: SQLitePool class
+	*/
 	public static func manager()->SQLitePool {
 		return sharedPool
 	}
 	
+	/**
+	Returns the instance of a database if its already in the pool, otherwise nil
+	
+	- parameter databaseNameWithExtension: database name with extension
+	
+	- returns: SQLite Database
+	*/
 	public static func getInstanceFor(database databaseNameWithExtension:String)->SQLite? {
 		
 		if (instances.isEmpty) {
@@ -75,15 +87,21 @@ public class SQLitePool {
 		}
 	}
 	
+	/**
+	Close all open databases in the pool
+	*/
 	public static func closeDatabases() {
 		instances.forEach {  $0.1.closeDatabase() }
 		instances.removeAll()
 	}
 	
+	
+		/// Open databases count
 	public static var databasesCount:Int {
 		return instances.count
 	}
 	
+		/// Returns all instances of databases in the pool
 	public static var databases:[String:SQLite] {
 		return instances
 	}
@@ -94,10 +112,13 @@ public class SQLitePool {
 //MARK: - SQLite Class
 public class SQLite {
 	
+	
+		/// Database name with extension
 	public var databaseName:String?  {
 		return _databaseName+"."+_databaseExtension
 	}
 	
+		/// app document url
 	public var documentsUrl:NSURL {
 		let fileManager = NSFileManager.defaultManager()
 		let urls = fileManager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
@@ -105,6 +126,7 @@ public class SQLite {
 		return docUrl
 	}
 	
+		/// Database URL
 	public var databaseUrl:NSURL? {
 		if (databaseName == nil) {
 			return nil
@@ -112,6 +134,7 @@ public class SQLite {
 		return documentsUrl.URLByAppendingPathComponent(databaseName!)
 	}
 	
+		/// Database path
 	public var databasePath:String? {
 		if (databaseUrl == nil) {
 			return nil
@@ -119,6 +142,8 @@ public class SQLite {
 		return databaseUrl!.path
 	}
 	
+	
+		/// Log database queries and other executions, default is true
 	public var log:Bool = true
 	
 	private init() {}
@@ -145,8 +170,7 @@ public class SQLite {
     }
     
 	private var database_operation_queue:dispatch_queue_t!
-    
-    
+	
 	lazy private var databaseOperationQueue:NSOperationQueue = {
 	
 		let queue = NSOperationQueue()
@@ -193,6 +217,12 @@ public class SQLite {
 		
 	}
 	
+	
+	/**
+	Open database
+	
+	- throws: SQLiteManagerError
+	*/
 	public func openDatabase() throws {
 		
 		if (database != nil) {
@@ -221,6 +251,9 @@ public class SQLite {
 		
 	}
 	
+	/**
+	Close database
+	*/
 	public func closeDatabase() {
 		
 		if (sqlite3_close(database) == SQLITE_OK) {
@@ -294,6 +327,7 @@ public extension SQLite {
 
 	}
 	
+	// Gets an sql statement and returns result
 	private func submitQuery(sqlStatement sql:String!) throws -> SQLiteQueryResult {
 		
 		unowned let weakSelf = self

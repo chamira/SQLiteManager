@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		01C813A7318A885749F5A262 /* Pods_SQLiteManager_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20C49AB72307E917725C0BCF /* Pods_SQLiteManager_Example.framework */; };
 		5306FB161D461787001F0CA4 /* app_test_database_1.db in Resources */ = {isa = PBXBuildFile; fileRef = 5306FB151D461787001F0CA4 /* app_test_database_1.db */; };
+		530C9DB91D50C8FC00810114 /* Data.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 530C9DB81D50C8FC00810114 /* Data.xcassets */; };
+		530C9DBA1D50C8FC00810114 /* Data.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 530C9DB81D50C8FC00810114 /* Data.xcassets */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACD81AFB9204008FA782 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ViewController.swift */; };
 		607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 607FACD91AFB9204008FA782 /* Main.storyboard */; };
@@ -34,6 +36,7 @@
 		20C49AB72307E917725C0BCF /* Pods_SQLiteManager_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SQLiteManager_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		215F33085A6AF52F1766E6B3 /* Pods-SQLiteManager_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SQLiteManager_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SQLiteManager_Tests/Pods-SQLiteManager_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		5306FB151D461787001F0CA4 /* app_test_database_1.db */ = {isa = PBXFileReference; lastKnownFileType = file; path = app_test_database_1.db; sourceTree = "<group>"; };
+		530C9DB81D50C8FC00810114 /* Data.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Data.xcassets; sourceTree = "<group>"; };
 		531842751D3F942F00721664 /* SQLiteManager.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SQLiteManager.framework; path = "../../../../../Users/chamira.fernando/Library/Developer/Xcode/DerivedData/SQLiteManager-azrdsndqzszjihhhjiechobzqpnm/Build/Products/Debug-iphonesimulator/SQLiteManager/SQLiteManager.framework"; sourceTree = "<group>"; };
 		607FACD01AFB9204008FA782 /* SQLiteManager_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SQLiteManager_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACD41AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -111,6 +114,7 @@
 				607FACDC1AFB9204008FA782 /* Images.xcassets */,
 				607FACDE1AFB9204008FA782 /* LaunchScreen.xib */,
 				607FACD31AFB9204008FA782 /* Supporting Files */,
+				530C9DB81D50C8FC00810114 /* Data.xcassets */,
 			);
 			name = "Example for SQLiteManager";
 			path = SQLiteManager;
@@ -222,6 +226,10 @@
 		607FACC81AFB9204008FA782 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				KnownAssetTags = (
+					app_database,
+					app_test_database_tag,
+				);
 				LastSwiftUpdateCheck = 0720;
 				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = CocoaPods;
@@ -262,6 +270,7 @@
 				607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */,
 				607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */,
 				5306FB161D461787001F0CA4 /* app_test_database_1.db in Resources */,
+				530C9DB91D50C8FC00810114 /* Data.xcassets in Resources */,
 				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -270,6 +279,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				530C9DBA1D50C8FC00810114 /* Data.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
