@@ -1114,6 +1114,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7FA0BB05620D2276139B84E302AA50AE /* SQLiteManager.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -1273,6 +1274,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7FA0BB05620D2276139B84E302AA50AE /* SQLiteManager.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;

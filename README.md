@@ -2,7 +2,7 @@
 
 "Everything Should Be Made as Simple as Possible, But Not Simpler" - Albert Einstein
 
-Idea is to have a simple [Swift](https://developer.apple.com/swift/) interface to run basic [SQL](https://www.sqlite.org/lang.html) statements/quries such as CREATE TABLE, SELECT, INSERT, UPDATE and DELETE.
+Idea is to have a simple [Swift](https://developer.apple.com/swift/) interface to run basic [SQL](https://www.sqlite.org/lang.html) statements/queries such as CREATE TABLE, SELECT, INSERT, UPDATE and DELETE.
 There are many iOS libraries that are well capable of doing complicated SQLite stuff but almost all of those libraries have more than what we need for small projects. 
 Thus, the idea is to get rid of all the boilerplate code and keep things very simple. You write your own SQL.
 
