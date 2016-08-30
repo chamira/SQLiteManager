@@ -66,4 +66,23 @@ public class SQLiteManagerError: NSError {
 	public static func kDatabaseFilePathIsNil(databaseName:String) -> SQLiteManagerError {
 		return SQLiteManagerError(code: kDatabaseFilePathIsNilCode, userInfo: [kCFErrorDescriptionKey:"\(databaseName) file path is nil"])
 	}
+	
+	
+	// Database Binding values miss match = 10003
+	public static let  kDatabaseBindingValuesCountMissMatch = 10003
+	
+	/**
+	Returns as error with error code 10003. Use when bindQuery method has inequal number of binding params and binding values count.
+	
+	- parameter databaseName:      database name
+	- parameter sqlQeuery:         sql statement
+	- parameter bindingParamCount: binding param count
+	- parameter valuesCount:       values count
+	
+	- returns: SQLiteManagerError(NSError)
+	*/
+	public static func bindingValuesCountMissMatch(databaseName:String, sqlQeuery:String, bindingParamCount:Int, valuesCount:Int ) -> SQLiteManagerError {
+		return SQLiteManagerError(code: kDatabaseBindingValuesCountMissMatch, userInfo: [kCFErrorDescriptionKey:"\(databaseName), query:\(sqlQeuery) has \(bindingParamCount) binding params, but binding array has \(valuesCount) values. ",
+			kCFErrorLocalizedRecoverySuggestionKey:"Binding Param count and Number of binding values count MUST be equal"])
+	}
 }

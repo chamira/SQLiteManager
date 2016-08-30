@@ -403,7 +403,7 @@ public extension SQLite {
 			returnCode = closeClosure()
 			
 			if (log) {
-				print("SQL: \(sqlString) -> results:\n ", resultObjects)
+				print("SQL: \(sqlString) -> results:{ \(resultObjects) }")
 			}
 			
 			var resultCount:Int = 0
@@ -417,8 +417,9 @@ public extension SQLite {
 		returnCode = closeClosure()
 		
 		if (log) {
-			print("SQL: \(sqlString) -> count: ", count)
+			print("SQL: \(sqlString) -> count: { \(count)}")
 		}
+		
 		return (returnCode,Int(count),nil)
 		
 	}
@@ -526,6 +527,13 @@ public extension SQLite {
 			throw SQLiteManagerError(code: Int(code), userInfo: [kCFErrorDescriptionKey:errorMessage])
 		}
 		
+		let bindCount = Int(sqlite3_bind_parameter_count(statement))
+		
+		if bindCount != bindValues.count {
+			closeClosure()
+			throw SQLiteManagerError.bindingValuesCountMissMatch(databaseName!, sqlQeuery: sql, bindingParamCount: bindCount, valuesCount: bindValues.count)
+		}
+		
 		var position:Int32 = 1
 		for val in bindValues {
 			if val is NSString {
@@ -564,7 +572,7 @@ public extension SQLite {
 			let resultObjects:[[NSString:NSObject]]? = castSelectStatementValuesToNSObjects(statement)
 			
 			if (log) {
-				print("SQL: \(sql) -> results\n ", resultObjects)
+				print("SQL: \(sql) -> results: { \(resultObjects) } ")
 			}
 			
 			var resultCount:Int = 0
@@ -595,7 +603,7 @@ public extension SQLite {
 		returnCode = closeClosure()
 		
 		if (log) {
-			print("SQL: \(sql) -> results:\n ", resultObjects)
+			print("SQL: \(sql) -> results count: ", resultCount)
 		}
 		
 		return (returnCode,resultCount ,resultObjects)
