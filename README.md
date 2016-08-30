@@ -65,7 +65,13 @@ class ViewController: UIViewController {
 				print("Database Error",error)
 			})
 
-		}
+		//bind values
+		let dob = NSDate(timeIntervalSince1970: 3600*24*3650)
+		let profilePic  = NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("chamira_fernando", ofType: "jpg")!)
+		let _ = try! database.bindQuery(sqlStatement: "INSERT INTO 'tb_user' (first_name, last_name, username, date_of_birth, company_id, profile_picture) VALUES (?,?,?,?,?,?)", bindValues: ["Chameera","Fernando","some_user_name", NSNumber(double: dob.timeIntervalSince1970),NSNumber(int:1),profilePic!])
+
+	}
+
 }
 
 ```
