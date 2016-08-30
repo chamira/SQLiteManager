@@ -400,7 +400,7 @@ class SQLiteManagerDatabaseActionsSpec: QuickSpec {
 			}
 		}
 		
-		describe("SQLite.manager() multi-threaded queuries") {
+		/*describe("SQLite.manager() multi-threaded queuries") {
 			// Bind
 			
 			let databasesPool = SQLitePool.manager()
@@ -472,7 +472,7 @@ class SQLiteManagerDatabaseActionsSpec: QuickSpec {
 				})
 				
 			}
-		}
+		}*/
 		
 	}
 }
