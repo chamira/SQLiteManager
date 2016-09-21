@@ -700,6 +700,7 @@ private extension SQLite {
 		let columnCount:Int32 = sqlite3_column_count(statement)
 		
 		var keys:[NSString] = []
+		
 		for i in 0..<columnCount {
 			let columnName = NSString(CString: UnsafePointer<Int8>(sqlite3_column_name(statement, i)), encoding: NSString.defaultCStringEncoding())
 			keys.append(columnName!)
@@ -711,9 +712,10 @@ private extension SQLite {
 			
 			var c:Int32 = 0
 			var row:[NSString:NSObject] = [:]
-			
+		
 			for key in keys {
 				let value     = sqlite3_column_value(statement, c)
+				
 				let valueType = sqlite3_value_type(value)
 				var actualValue:NSObject?
 				

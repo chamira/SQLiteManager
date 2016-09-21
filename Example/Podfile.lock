@@ -1,27 +1,21 @@
 PODS:
-  - Nimble (3.2.0)
-  - Quick (0.9.3)
-  - sqlite3 (3.14.0):
-    - sqlite3/common (= 3.14.0)
-  - sqlite3/common (3.14.0)
-  - SQLiteManager (0.1.2):
+  - sqlite3 (3.14.2):
+    - sqlite3/common (= 3.14.2)
+  - sqlite3/common (3.14.2)
+  - SQLiteManager (0.1.6):
     - sqlite3
 
 DEPENDENCIES:
-  - Nimble (~> 3.0)
-  - Quick (~> 0.8)
   - SQLiteManager (from `../`)
 
 EXTERNAL SOURCES:
   SQLiteManager:
-    :path: ../
+    :path: "../"
 
 SPEC CHECKSUMS:
-  Nimble: 703854335d181df169bbca9c97117b5cf8c47c1d
-  Quick: 13a2a2b19a5d8e3ed4fd0c36ee46597fd77ebf71
-  sqlite3: 953030c8591fd16b7cfd136f8c8aea8231edc0d7
-  SQLiteManager: 74e80d045bfff2c154ad359e96d207778a47548c
+  sqlite3: 0da4924a394eff8e354bb63138818c870b28b097
+  SQLiteManager: 1f38f0feab730cfc6e925d5755b85eadacf9d0c9
 
-PODFILE CHECKSUM: 8150ecdf10067c3bcf398766f3273d5613ca6bb9
+PODFILE CHECKSUM: '028a39c610cec0389b8daf91701ea9f029152073'
 
 COCOAPODS: 1.0.1
