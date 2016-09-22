@@ -78,9 +78,9 @@ public class SQLitePool {
      - returns: SQLite database
      */
 
-    public func initialize(database name:String, withExtension:String, createIfNotExists createIfNotExists:Bool = false) throws -> SQLite {
+    public func initialize(database name:String, withExtension:String, createIfNotExist createIfNotExist:Bool = false) throws -> SQLite {
 		do {
-			let lite = try SQLite().initialize(database: name, withExtension: withExtension, createIfNotExists: createIfNotExists)
+			let lite = try SQLite().initialize(database: name, withExtension: withExtension, createIfNotExist: createIfNotExist)
 			return lite
 		} catch let e as NSError {
 			throw e
@@ -180,7 +180,7 @@ public class SQLite {
 		
 	}()
 	
-	private func initialize(database name:String, withExtension:String, createIfNotExists create:Bool = false) throws -> SQLite {
+	private func initialize(database name:String, withExtension:String, createIfNotExist create:Bool = false) throws -> SQLite {
 		
 		sharedManager = SQLitePool.getInstanceFor(database: name+"."+withExtension)
 		if (sharedManager != nil) {
@@ -364,8 +364,7 @@ public extension SQLite {
 		
         var returnCode: Int32 = SQLITE_FAIL
         unowned let weakSelf  = self
-		var errorType:SQLiteManagerError?
-		
+    
 		var statement: COpaquePointer = nil
 		
 		let closeClosure:(()->(Int32)) = {
@@ -508,7 +507,6 @@ public extension SQLite {
 		
 		var returnCode: Int32 = SQLITE_FAIL
 		unowned let weakSelf  = self
-		var errorType:SQLiteManagerError?
 		
 		var statement: COpaquePointer = nil
 		
@@ -564,7 +562,6 @@ public extension SQLite {
 			
 		}
 		
-		var resultObjects:[[NSString:NSObject]]?
 		var resultCount:Int = 0
 		
 		if (isSelectStatement(sql)) {
@@ -574,12 +571,7 @@ public extension SQLite {
 			if (log) {
 				print("SQL: \(sql) -> results: { \(resultObjects) } ")
 			}
-			
-			var resultCount:Int = 0
-			if let c = resultObjects?.count {
-				resultCount = c
-			}
-			
+						
 			returnCode = closeClosure()
 			
 			let c:Int! = resultObjects == nil ? 0 : resultObjects?.count
@@ -606,7 +598,7 @@ public extension SQLite {
 			print("SQL: \(sql) -> results count: ", resultCount)
 		}
 		
-		return (returnCode,resultCount ,resultObjects)
+		return (returnCode,resultCount ,nil)
 		
 	}
 	

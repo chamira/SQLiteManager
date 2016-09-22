@@ -17,7 +17,7 @@ Handling objects, writing business logic is all up to the developers.
     s.source           = { :git => 'https://github.com/chamira/SQLiteManager.git', :tag => s.version.to_s }
     s.social_media_url = 'https://twitter.com/chamirafernando'
     s.ios.deployment_target = '8.0'
-	s.tvos.deployment_target  = '9.0'
+    s.tvos.deployment_target = '9.0'
     s.source_files = 'SQLiteManager/Classes/**/*'
     s.library = 'sqlite3'
     s.dependency 'sqlite3'
