@@ -199,7 +199,7 @@ class SQLiteManger_Tests: XCTestCase {
 				expectation.fulfill()
 			})
 			
-			self.waitForExpectationsWithTimeout(1.0, handler: { (error) in
+			self.waitForExpectationsWithTimeout(2.0, handler: { (error) in
 				if let _ = error {
 					print("Expectation error:",error)
 				}
@@ -224,7 +224,7 @@ class SQLiteManger_Tests: XCTestCase {
 					expectation.fulfill()
 			})
 			
-			self.waitForExpectationsWithTimeout(1.0, handler: { (error) in
+			self.waitForExpectationsWithTimeout(2.0, handler: { (error) in
 				if let _ = error {
 					print("Expectation error:",error)
 				}
@@ -254,7 +254,7 @@ class SQLiteManger_Tests: XCTestCase {
 					expectation.fulfill()
 			})
 			
-			self.waitForExpectationsWithTimeout(1.0, handler: { (error) in
+			self.waitForExpectationsWithTimeout(2.0, handler: { (error) in
 				if let _ = error {
 					print("Expectation error:",error)
 				}
@@ -282,7 +282,7 @@ class SQLiteManger_Tests: XCTestCase {
 					expectation.fulfill()
 			})
 			
-			self.waitForExpectationsWithTimeout(1.0, handler: { (error) in
+			self.waitForExpectationsWithTimeout(2.0, handler: { (error) in
 				if let _ = error {
 					print("Expectation error:",error)
 				}
@@ -312,7 +312,7 @@ class SQLiteManger_Tests: XCTestCase {
 					expectation.fulfill()
 			})
 			
-			self.waitForExpectationsWithTimeout(1.0, handler: { (error) in
+			self.waitForExpectationsWithTimeout(2.0, handler: { (error) in
 				if let _ = error {
 					print("Expectation error:",error)
 				}
@@ -336,7 +336,7 @@ class SQLiteManger_Tests: XCTestCase {
 					expectation.fulfill()
 			})
 			
-			self.waitForExpectationsWithTimeout(1.0, handler: { (error) in
+			self.waitForExpectationsWithTimeout(2.0, handler: { (error) in
 				if let _ = error {
 					print("Expectation error:",error)
 				}
@@ -376,7 +376,7 @@ class SQLiteManger_Tests: XCTestCase {
 					expectation.fulfill()
 			})
 			
-			self.waitForExpectationsWithTimeout(1.0, handler: { (error) in
+			self.waitForExpectationsWithTimeout(2.0, handler: { (error) in
 				if let _ = error {
 					print("Expectation error:",error)
 				}
@@ -403,7 +403,7 @@ class SQLiteManger_Tests: XCTestCase {
 					expectation.fulfill()
 			})
 			
-			self.waitForExpectationsWithTimeout(1.0, handler: { (error) in
+			self.waitForExpectationsWithTimeout(2.0, handler: { (error) in
 				if let _ = error {
 					print("Expectation error:",error)
 				}
@@ -434,7 +434,7 @@ class SQLiteManger_Tests: XCTestCase {
 					expectation.fulfill()
 			})
 			
-			self.waitForExpectationsWithTimeout(1.0, handler: { (error) in
+			self.waitForExpectationsWithTimeout(2.0, handler: { (error) in
 				if let _ = error {
 					print("Expectation error:",error)
 				}
@@ -461,7 +461,7 @@ class SQLiteManger_Tests: XCTestCase {
 					expectation.fulfill()
 			})
 			
-			self.waitForExpectationsWithTimeout(1.0, handler: { (error) in
+			self.waitForExpectationsWithTimeout(2.0, handler: { (error) in
 				if let _ = error {
 					print("Expectation error:",error)
 				}
