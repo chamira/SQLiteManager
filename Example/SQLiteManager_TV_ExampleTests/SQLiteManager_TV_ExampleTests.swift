@@ -27,7 +27,7 @@ class SQLiteManager_TV_ExampleTests: XCTestCase {
 		let dbName = "app_test_database_x_4"
 		let ext = "db"
 		
-		let database = try! SQLitePool.manager().initialize(database: dbName, withExtension: ext, createIfNotExists: true)
+		let database = try! SQLitePool.manager().initialize(database: dbName, withExtension: ext, createIfNotExist: true)
 		
 		XCTAssertEqual(dbName+"."+ext, database.databaseName, "Database is not iinitialized correctly")
 		
