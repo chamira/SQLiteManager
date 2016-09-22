@@ -21,6 +21,7 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 ## Requirements
 
 Min iOS SDK 8.0<br /> 
+Min tvOS SDK 9.0<br />
 
 ## Installation
 
