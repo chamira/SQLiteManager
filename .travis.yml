@@ -11,4 +11,3 @@ podfile: Example/
 # - pod install --project-directory=Example
 script:
 - set -o pipefail && xcodebuild test -workspace Example/SQLiteManager.xcworkspace | -scheme SQLiteManager-Example -sdk iphonesimulator9.3 ONLY_ACTIVE_ARCH=NO && -scheme SQLiteManager_TV_Example -sdk appletvos9.2 ONLY_ACTIVE_ARCH=NO | xcpretty
-- pod lib lint --allow-warnings
