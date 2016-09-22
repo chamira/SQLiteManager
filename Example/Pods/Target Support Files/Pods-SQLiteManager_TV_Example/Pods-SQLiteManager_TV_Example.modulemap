@@ -1,0 +1,6 @@
+framework module Pods_SQLiteManager_TV_Example {
+  umbrella header "Pods-SQLiteManager_TV_Example-umbrella.h"
+
+  export *
+  module * { export * }
+}

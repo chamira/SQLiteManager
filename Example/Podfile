@@ -8,3 +8,12 @@ target 'SQLiteManager_Example' do
 
 end
 end
+
+target 'SQLiteManager_TV_Example' do
+	pod 'SQLiteManager', :path => '../'
+	
+	target 'SQLiteManager_TV_ExampleTests' do
+		inherit! :search_paths
+		
+	end
+end
