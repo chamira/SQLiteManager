@@ -12,9 +12,12 @@ import sqlite3
 
 
 /// These examples are to show how to use SQLITEManager lib, 
-/// It is up to you to have application architecture based on your needs.
-class ViewController: UIViewController {
 
+
+/// It is up to you to have application architecture based on your needs.
+
+class ViewController: UIViewController {
+	
     @IBOutlet weak var headerLabel: UILabel!
 	@IBOutlet weak var countLabel: UILabel!
 	
@@ -41,6 +44,7 @@ class ViewController: UIViewController {
             
         } catch let e as NSError {
             headerLabel.text = "Error initializing database app_test_database_1.db \(e)"
+
             headerLabel.textColor = UIColor.redColor()
             executeButton.enabled = false
         }
