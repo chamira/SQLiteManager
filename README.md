@@ -49,14 +49,14 @@ class ViewController: UIViewController {
 		let database =  try! SQLitePool.manager().initialize(database: "app_test_database_1", withExtension: "db")
 
 		// on main thread
-		let result = try! database.query(sqlStatement: "select count(*) as user_count from tb_user")
+		let result = try! database.query("select count(*) as user_count from tb_user")
 		if let r = result.results?.first!["user_count"] {
 			self.countLabel.text = "\(r)"
 		}
 
 		// on background thread
 		unowned let refSelf = self
-		database.query(sqlStatement: "select count(*) as user_count from tb_user", successClosure: { (result) in
+		database.query("select count(*) as user_count from tb_user", successClosure: { (result) in
 
 				if let r = result.results?.first!["user_count"] {
 					refSelf.countLabel.text = "\(r)"
@@ -69,7 +69,7 @@ class ViewController: UIViewController {
 		//bind values
 		let dob = NSDate(timeIntervalSince1970: 3600*24*3650)
 		let profilePic  = NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("chamira_fernando", ofType: "jpg")!)
-		let _ = try! database.bindQuery(sqlStatement: "INSERT INTO 'tb_user' (first_name, last_name, username, date_of_birth, company_id, profile_picture) VALUES (?,?,?,?,?,?)", bindValues: ["Chameera","Fernando","some_user_name", NSNumber(double: dob.timeIntervalSince1970),NSNumber(int:1),profilePic!])
+		let _ = try! database.bindQuery("INSERT INTO 'tb_user' (first_name, last_name, username, date_of_birth, company_id, profile_picture) VALUES (?,?,?,?,?,?)", bindValues: ["Chameera","Fernando","some_user_name", NSNumber(double: dob.timeIntervalSince1970),NSNumber(int:1),profilePic!])
 
 	}
 
@@ -78,7 +78,8 @@ class ViewController: UIViewController {
 ```
 
 ## Legacy 
-If you want to hook up with swift 2.3 point to 0.1.8 or to swift2.3 branch
+If you want to hook up with swift 2.3 point to swift2.3 branch
+`pod 'SQLiteManager', :git => 'https://github.com/chamira/SQLiteManager.git', :branch => 'swift2.3'`
 
 ## Author
 

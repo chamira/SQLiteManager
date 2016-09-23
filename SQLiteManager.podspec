@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'SQLiteManager'
-  s.version          = '0.1.9'
+  s.version          = '0.2.0'
   s.summary          = 'Simple SQLite Manager class to do operations such as open database, close database, insert, update, delete and select'
 
   s.description      = <<-DESC

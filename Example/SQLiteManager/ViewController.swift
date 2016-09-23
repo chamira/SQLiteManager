@@ -68,7 +68,7 @@ class ViewController: UIViewController {
         
         unowned let refSelf = self
         
-        let successClosure = { (result:(SQLiteSatusCode:Int32,affectedRowCount:Int,results:[[NSString:NSObject]]?))->() in
+        let successClosure = { (result:(SQLiteSatusCode:Int32,affectedRowCount:Int,results:SQLiteDataArray?))->() in
           
             refSelf.statusCodeLabel.text = "SQLite Status Code:\(result.SQLiteSatusCode == SQLITE_OK ? "SQLITE_OK" : "SQLITE_FAIL")"
             refSelf.countLabel.text = "Affected Row Count Count:\(result.affectedRowCount)"

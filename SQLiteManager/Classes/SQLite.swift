@@ -17,8 +17,8 @@ import sqlite3
  [key:value], example if SQL statement 'SELECT first_name FROM tb_user WHERE id = 1' results will be [["first_name":"Chamira"]]
 	*/
 
-public typealias SQLiteDataDictionary = [[NSString:NSObject]]
-public typealias SQLiteQueryResult = (SQLiteSatusCode:Int32,affectedRowCount:Int,results:SQLiteDataDictionary?)
+public typealias SQLiteDataArray = [[NSString:NSObject]]
+public typealias SQLiteQueryResult = (SQLiteSatusCode:Int32,affectedRowCount:Int,results:SQLiteDataArray?)
 
 public typealias SuccessClosure = (_ result:SQLiteQueryResult)->()
 public typealias ErrorClosure = (_ error:NSError)->()
@@ -570,7 +570,7 @@ public extension SQLite {
 		
 		if (isSelectStatement(sql)) {
 			
-			let resultObjects:SQLiteDataDictionary? = castSelectStatementValuesToNSObjects(statement!)
+			let resultObjects:SQLiteDataArray? = castSelectStatementValuesToNSObjects(statement!)
 			
 			if (log) {
 				print("SQL: \(sql) -> results: { \(resultObjects) } ")
@@ -686,7 +686,7 @@ private extension SQLite {
 		}
 	}
 	
-	func castSelectStatementValuesToNSObjects(_ statement:OpaquePointer) -> SQLiteDataDictionary? {
+	func castSelectStatementValuesToNSObjects(_ statement:OpaquePointer) -> SQLiteDataArray? {
 		
 		let columnCount:Int32 = sqlite3_column_count(statement)
 		
@@ -700,7 +700,7 @@ private extension SQLite {
 			}
 		}
 		
-		var resultObjects:SQLiteDataDictionary?
+		var resultObjects:SQLiteDataArray?
 		
 		while sqlite3_step(statement) == SQLITE_ROW {
 			
