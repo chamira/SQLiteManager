@@ -77,6 +77,9 @@ class ViewController: UIViewController {
 
 ```
 
+## Legacy 
+If you want to hook up with swift 2.3 point to 0.1.8 or to swift2.3 branch
+
 ## Author
 
 Chamira Fernando, chamira.fdo@gmail.com, [Twitter](https://twitter.com/chamirafernando)
