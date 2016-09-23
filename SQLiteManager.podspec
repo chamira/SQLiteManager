@@ -20,5 +20,5 @@ Handling objects, writing business logic is all up to the developers.
     s.tvos.deployment_target = '9.0'
     s.source_files = 'SQLiteManager/Classes/**/*'
     s.library = 'sqlite3'
-    s.dependency = 'sqlite3'
+    s.dependency 'sqlite3'
 end
