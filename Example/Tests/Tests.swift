@@ -24,7 +24,7 @@ class SQLiteManger_Tests: XCTestCase {
 		
 		
 		let q = "CREATE TABLE IF NOT EXISTS COMPANY(ID INT PRIMARY KEY NOT NULL,NAME TEXT NOT NULL, AGE INT NOT NULL,ADDRESS CHAR(50), SALARY REAL)"
-		let ret = try! database.query(sqlStatement: q)
+		let ret = try! database.query(q)
 		
 		XCTAssertEqual(SQLITE_OK, ret.SQLiteSatusCode, "Table is not created successfully SQLStatusCode:\(ret.SQLiteSatusCode)")
 		
@@ -40,8 +40,8 @@ class SQLiteManger_Tests: XCTestCase {
 		
 		XCTAssertEqual(dbName+"."+ext, database.databaseName, "Database is not iinitialized correctly")
 		
-		XCTAssertThrowsError(try database.query(sqlStatement: "INSERT INTO 'company' (name) VALUES ('Home Company')"))
-		XCTAssertThrowsError(try database.query(sqlStatement: "INSRT INTO 'tb_company' (name) VALUES ('Home Company')"))
+		XCTAssertThrowsError(try database.query("INSERT INTO 'company' (name) VALUES ('Home Company')"))
+		XCTAssertThrowsError(try database.query("INSRT INTO 'tb_company' (name) VALUES ('Home Company')"))
 		
 	}
 	
@@ -54,7 +54,7 @@ class SQLiteManger_Tests: XCTestCase {
 		let database = try! databasesPool.initialize(database:dbName, withExtension: ext)
 
 		let insert = {
-			let result = try! database.query(sqlStatement: "INSERT INTO 'tb_company' (name) VALUES ('Home Company')")
+			let result = try! database.query("INSERT INTO 'tb_company' (name) VALUES ('Home Company')")
 			XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 			XCTAssertEqual(1,result.affectedRowCount)
 			XCTAssertNil(result.results, "Results array MUST be nil")
@@ -63,7 +63,7 @@ class SQLiteManger_Tests: XCTestCase {
 		insert()
 		
 		let update = {
-			let result = try! database.query(sqlStatement: "UPDATE 'tb_company' SET name = 'Making Waves AS' WHERE name = 'Home Company'")
+			let result = try! database.query("UPDATE 'tb_company' SET name = 'Making Waves AS' WHERE name = 'Home Company'")
 			XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 			XCTAssertEqual(1,result.affectedRowCount)
 			XCTAssertNil(result.results, "Results array MUST be nil")
@@ -72,7 +72,7 @@ class SQLiteManger_Tests: XCTestCase {
 		update()
 		
 		let selectCompany = {
-			let result = try! database.query(sqlStatement: "SELECT pk_id, name FROM 'tb_company'")
+			let result = try! database.query("SELECT pk_id, name FROM 'tb_company'")
 			XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 			XCTAssertEqual(1,result.affectedRowCount)
 
@@ -81,7 +81,7 @@ class SQLiteManger_Tests: XCTestCase {
 			XCTAssertNotNil(r, "Result MUST NOT be nil")
 			XCTAssertEqual(r!["name"],"Making Waves AS" as NSString)
 
-			let count = try! database.query(sqlStatement: "SELECT count(*) as company_count FROM 'tb_company'")
+			let count = try! database.query("SELECT count(*) as company_count FROM 'tb_company'")
 
 			XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 			XCTAssertEqual(1,result.affectedRowCount)
@@ -89,13 +89,13 @@ class SQLiteManger_Tests: XCTestCase {
 			let counter = count.results?.first
 
 			XCTAssertNotNil(counter, "Result MUST NOT be nil")
-			XCTAssertEqual(counter!["company_count"],NSNumber(integer: 1))
+			XCTAssertEqual(counter!["company_count"],NSNumber(value: 1 as Int))
 		}
 		
 		selectCompany()
 		
 		let nullPick = {
-			let result = try! database.query(sqlStatement: "SELECT name, logo_picture_url FROM 'tb_company'")
+			let result = try! database.query("SELECT name, logo_picture_url FROM 'tb_company'")
 			XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 			XCTAssertEqual(1,result.affectedRowCount)
 
@@ -110,7 +110,7 @@ class SQLiteManger_Tests: XCTestCase {
 		nullPick()
 		
 		let delete = {
-			let result = try! database.query(sqlStatement: "DELETE FROM 'tb_company' WHERE name = 'Making Waves AS'")
+			let result = try! database.query("DELETE FROM 'tb_company' WHERE name = 'Making Waves AS'")
 			XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 			XCTAssertEqual(1,result.affectedRowCount)
 			XCTAssertNil(result.results, "Results array MUST be nil")
@@ -130,10 +130,10 @@ class SQLiteManger_Tests: XCTestCase {
 		
 		let insert = {
 		 
-			let dob = NSDate(timeIntervalSince1970: 3600*24*3650)
-			let profilePic  = NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("chamira_fernando", ofType: "jpg")!)
-			let result = try! database.bindQuery(sqlStatement: "INSERT INTO 'tb_user' (first_name, last_name, username, date_of_birth, company_id, profile_picture) VALUES (?,?,?,?,?,?)",
-												 bindValues: ["Chameera","Fernando","some_user_name", NSNumber(double: dob.timeIntervalSince1970),NSNumber(int:1),profilePic!])
+			let dob = Date(timeIntervalSince1970: 3600*24*3650)
+			let profilePic  = try? Data(contentsOf: URL(fileURLWithPath: Bundle.main.path(forResource: "chamira_fernando", ofType: "jpg")!))
+			let result = try! database.bindQuery("INSERT INTO 'tb_user' (first_name, last_name, username, date_of_birth, company_id, profile_picture) VALUES (?,?,?,?,?,?)",
+												 bindValues: [sqlStr("Chameera"),sqlStr("Fernando"),sqlStr("some_user_name"), sqlNumber(dob.timeIntervalSince1970),sqlNumber(1),sqlData(profilePic!)])
 			
 			XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 			XCTAssertEqual(1,result.affectedRowCount)
@@ -143,7 +143,7 @@ class SQLiteManger_Tests: XCTestCase {
 		insert()
 		
 		let update = {
-			let result = try! database.bindQuery(sqlStatement: "UPDATE 'tb_user' SET first_name = ?, last_name = ? WHERE first_name = ?", bindValues: ["Chamira","Fernando","Chameera"])
+			let result = try! database.bindQuery("UPDATE 'tb_user' SET first_name = ?, last_name = ? WHERE first_name = ?", bindValues: [sqlStr("Chamira"),sqlStr("Fernando"),sqlStr("Chameera")])
 			XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 			XCTAssertEqual(1,result.affectedRowCount)
 			XCTAssertNil(result.results, "Results array MUST be nil")
@@ -152,7 +152,7 @@ class SQLiteManger_Tests: XCTestCase {
 		update()
 		
 		let select = {
-			let result = try! database.bindQuery(sqlStatement: "SELECT first_name, date_of_birth as dob from 'tb_user' where first_name=?", bindValues: ["Chamira"])
+			let result = try! database.bindQuery("SELECT first_name, date_of_birth as dob from 'tb_user' where first_name=?", bindValues: [sqlStr("Chamira")])
 			XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 			XCTAssertEqual(1,result.affectedRowCount)
 			
@@ -166,7 +166,7 @@ class SQLiteManger_Tests: XCTestCase {
 		select()
 	
 		let delete = {
-			let result = try! database.bindQuery(sqlStatement: "DELETE FROM 'tb_user' WHERE first_name = ?",bindValues: ["Chamira"])
+			let result = try! database.bindQuery("DELETE FROM 'tb_user' WHERE first_name = ?",bindValues: [sqlStr("Chamira")])
 			XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 			XCTAssertEqual(1,result.affectedRowCount)
 			XCTAssertNil(result.results, "Results array MUST be nil")
@@ -186,9 +186,9 @@ class SQLiteManger_Tests: XCTestCase {
 		
 		let insert = {
 			
-			let expectation = self.expectationWithDescription("SQLStatementsAsync")
+			let expectation = self.expectation(description: "SQLStatementsAsync")
 			let sqlStatement = "INSERT INTO 'tb_company' (name) VALUES ('Home Company')"
-			database.query(sqlStatement: sqlStatement, successClosure: { (result) in
+			database.query(sqlStatement, successClosure: { (result) in
 				
 				XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 				XCTAssertEqual(1,result.affectedRowCount)
@@ -199,7 +199,7 @@ class SQLiteManger_Tests: XCTestCase {
 				expectation.fulfill()
 			})
 			
-			self.waitForExpectationsWithTimeout(2.0, handler: { (error) in
+			self.waitForExpectations(timeout: 2.0, handler: { (error) in
 				if let _ = error {
 					print("Expectation error:",error)
 				}
@@ -211,9 +211,9 @@ class SQLiteManger_Tests: XCTestCase {
 		
 		let update = {
 			
-			let expectation = self.expectationWithDescription("SQLStatementsAsync")
+			let expectation = self.expectation(description: "SQLStatementsAsync")
 			let sqlStatement = "UPDATE 'tb_company' SET name = 'Making Waves AS' WHERE name = 'Home Company'"
-			database.query(sqlStatement: sqlStatement, successClosure: { (result) in
+			database.query(sqlStatement, successClosure: { (result) in
 				
 				XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 				XCTAssertEqual(1,result.affectedRowCount)
@@ -224,7 +224,7 @@ class SQLiteManger_Tests: XCTestCase {
 					expectation.fulfill()
 			})
 			
-			self.waitForExpectationsWithTimeout(2.0, handler: { (error) in
+			self.waitForExpectations(timeout: 2.0, handler: { (error) in
 				if let _ = error {
 					print("Expectation error:",error)
 				}
@@ -236,9 +236,9 @@ class SQLiteManger_Tests: XCTestCase {
 		
 		let selectCompany = {
 			
-			let expectation = self.expectationWithDescription("SQLStatementsAsync")
+			let expectation = self.expectation(description: "SQLStatementsAsync")
 			let sqlStatement = "SELECT pk_id, name FROM 'tb_company'"
-			database.query(sqlStatement: sqlStatement, successClosure: { (result) in
+			database.query(sqlStatement, successClosure: { (result) in
 				
 				XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 				XCTAssertEqual(1,result.affectedRowCount)
@@ -254,7 +254,7 @@ class SQLiteManger_Tests: XCTestCase {
 					expectation.fulfill()
 			})
 			
-			self.waitForExpectationsWithTimeout(2.0, handler: { (error) in
+			self.waitForExpectations(timeout: 2.0, handler: { (error) in
 				if let _ = error {
 					print("Expectation error:",error)
 				}
@@ -267,14 +267,14 @@ class SQLiteManger_Tests: XCTestCase {
 		
 		let selectCount = {
 			
-			let expectation = self.expectationWithDescription("SQLStatementsAsync")
+			let expectation = self.expectation(description: "SQLStatementsAsync")
 			let sqlStatement = "SELECT count(*) as company_count FROM 'tb_company'"
-			database.query(sqlStatement: sqlStatement, successClosure: { (count) in
+			database.query(sqlStatement, successClosure: { (count) in
 				
 				let counter = count.results?.first
 				
 				XCTAssertNotNil(counter, "Result MUST NOT be nil")
-				XCTAssertEqual(counter!["company_count"],NSNumber(integer: 1))
+				XCTAssertEqual(counter!["company_count"],NSNumber(value: 1 as Int))
 				
 				expectation.fulfill()
 				}, errorClosure: { (error) in
@@ -282,7 +282,7 @@ class SQLiteManger_Tests: XCTestCase {
 					expectation.fulfill()
 			})
 			
-			self.waitForExpectationsWithTimeout(2.0, handler: { (error) in
+			self.waitForExpectations(timeout: 2.0, handler: { (error) in
 				if let _ = error {
 					print("Expectation error:",error)
 				}
@@ -294,9 +294,9 @@ class SQLiteManger_Tests: XCTestCase {
 		
 		let nullPick = {
 			
-			let expectation = self.expectationWithDescription("SQLStatementsAsync")
+			let expectation = self.expectation(description: "SQLStatementsAsync")
 			let sqlStatement = "SELECT name, logo_picture_url FROM 'tb_company'"
-			database.query(sqlStatement: sqlStatement, successClosure: { (result) in
+			database.query(sqlStatement, successClosure: { (result) in
 				
 				XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 				XCTAssertEqual(1,result.affectedRowCount)
@@ -312,7 +312,7 @@ class SQLiteManger_Tests: XCTestCase {
 					expectation.fulfill()
 			})
 			
-			self.waitForExpectationsWithTimeout(2.0, handler: { (error) in
+			self.waitForExpectations(timeout: 2.0, handler: { (error) in
 				if let _ = error {
 					print("Expectation error:",error)
 				}
@@ -323,9 +323,9 @@ class SQLiteManger_Tests: XCTestCase {
 		
 		let delete = {
 		
-			let expectation = self.expectationWithDescription("SQLStatementsAsync")
+			let expectation = self.expectation(description: "SQLStatementsAsync")
 			let sqlStatement = "DELETE FROM 'tb_company' WHERE name = 'Making Waves AS'"
-			database.query(sqlStatement: sqlStatement, successClosure: { (result) in
+			database.query(sqlStatement, successClosure: { (result) in
 				
 				XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 				XCTAssertEqual(1,result.affectedRowCount)
@@ -336,7 +336,7 @@ class SQLiteManger_Tests: XCTestCase {
 					expectation.fulfill()
 			})
 			
-			self.waitForExpectationsWithTimeout(2.0, handler: { (error) in
+			self.waitForExpectations(timeout: 2.0, handler: { (error) in
 				if let _ = error {
 					print("Expectation error:",error)
 				}
@@ -358,15 +358,15 @@ class SQLiteManger_Tests: XCTestCase {
 		
 		let insert = {
 		 
-			let expectation = self.expectationWithDescription("SQLStatementsAsync")
+			let expectation = self.expectation(description: "SQLStatementsAsync")
 			
-			let dob = NSDate(timeIntervalSince1970: 3600*24*3650)
-			let profilePic  = NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("chamira_fernando", ofType: "jpg")!)
+			let dob = Date(timeIntervalSince1970: 3600*24*3650)
+			let profilePic  = try? Data(contentsOf: URL(fileURLWithPath: Bundle.main.path(forResource: "chamira_fernando", ofType: "jpg")!))
 			
 			let sqlStatement = "INSERT INTO 'tb_user' (first_name, last_name, username, date_of_birth, company_id, profile_picture) VALUES (?,?,?,?,?,?)"
-			let values = ["Chameera","Fernando","some_user_name", NSNumber(double: dob.timeIntervalSince1970),NSNumber(int:1),profilePic!]
+			let values = [sqlStr("Chameera"),sqlStr("Fernando"),sqlStr("some_user_name"),sqlNumber(dob.timeIntervalSince1970),sqlNumber(1),sqlData(profilePic!)]
 			
-			database.bindQuery(sqlStatement: sqlStatement, bindValues: values, successClosure: { (result) in
+			database.bindQuery(sqlStatement, bindValues: values, successClosure: { (result) in
 				XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 				XCTAssertEqual(1,result.affectedRowCount)
 				XCTAssertNil(result.results, "Results array MUST be nil")
@@ -376,7 +376,7 @@ class SQLiteManger_Tests: XCTestCase {
 					expectation.fulfill()
 			})
 			
-			self.waitForExpectationsWithTimeout(2.0, handler: { (error) in
+			self.waitForExpectations(timeout: 2.0, handler: { (error) in
 				if let _ = error {
 					print("Expectation error:",error)
 				}
@@ -388,12 +388,12 @@ class SQLiteManger_Tests: XCTestCase {
 		
 		let update = {
 		
-			let expectation = self.expectationWithDescription("SQLStatementsAsync")
+			let expectation = self.expectation(description: "SQLStatementsAsync")
 			
 			let sqlStatement = "UPDATE 'tb_user' SET first_name = ?, last_name = ? WHERE first_name = ?"
-			let values = ["Chamira","Fernando","Chameera"]
+			let values = [sqlStr("Chamira"),("Fernando"),("Chameera")]
 			
-			database.bindQuery(sqlStatement: sqlStatement, bindValues: values, successClosure: { (result) in
+			database.bindQuery(sqlStatement, bindValues: values, successClosure: { (result) in
 				XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 				XCTAssertEqual(1,result.affectedRowCount)
 				XCTAssertNil(result.results, "Results array MUST be nil")
@@ -403,7 +403,7 @@ class SQLiteManger_Tests: XCTestCase {
 					expectation.fulfill()
 			})
 			
-			self.waitForExpectationsWithTimeout(2.0, handler: { (error) in
+			self.waitForExpectations(timeout: 2.0, handler: { (error) in
 				if let _ = error {
 					print("Expectation error:",error)
 				}
@@ -415,12 +415,12 @@ class SQLiteManger_Tests: XCTestCase {
 		
 		let select = {
 			
-			let expectation = self.expectationWithDescription("SQLStatementsAsync")
+			let expectation = self.expectation(description: "SQLStatementsAsync")
 			
 			let sqlStatement = "SELECT first_name, date_of_birth as dob from 'tb_user' where first_name=?"
-			let values = ["Chamira"]
+			let values = [sqlStr("Chamira")]
 			
-			database.bindQuery(sqlStatement: sqlStatement, bindValues: values, successClosure: { (result) in
+			database.bindQuery(sqlStatement, bindValues: values, successClosure: { (result) in
 				XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 				XCTAssertEqual(1,result.affectedRowCount)
 				
@@ -434,7 +434,7 @@ class SQLiteManger_Tests: XCTestCase {
 					expectation.fulfill()
 			})
 			
-			self.waitForExpectationsWithTimeout(2.0, handler: { (error) in
+			self.waitForExpectations(timeout: 2.0, handler: { (error) in
 				if let _ = error {
 					print("Expectation error:",error)
 				}
@@ -446,12 +446,12 @@ class SQLiteManger_Tests: XCTestCase {
 		
 		let delete = {
 			
-			let expectation = self.expectationWithDescription("SQLStatementsAsync")
+			let expectation = self.expectation(description: "SQLStatementsAsync")
 			
 			let sqlStatement = "DELETE FROM 'tb_user' WHERE first_name = ?"
-			let values = ["Chamira"]
+			let values = [sqlStr("Chamira")]
 			
-			database.bindQuery(sqlStatement: sqlStatement, bindValues: values, successClosure: { (result) in
+			database.bindQuery(sqlStatement, bindValues: values, successClosure: { (result) in
 				XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 				XCTAssertEqual(1,result.affectedRowCount)
 				XCTAssertNil(result.results, "Results array MUST be nil")
@@ -461,7 +461,7 @@ class SQLiteManger_Tests: XCTestCase {
 					expectation.fulfill()
 			})
 			
-			self.waitForExpectationsWithTimeout(2.0, handler: { (error) in
+			self.waitForExpectations(timeout: 2.0, handler: { (error) in
 				if let _ = error {
 					print("Expectation error:",error)
 				}

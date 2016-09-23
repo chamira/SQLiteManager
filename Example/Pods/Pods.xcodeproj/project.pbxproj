@@ -17,6 +17,8 @@
 		496B6F6319F94ED25BBE3DE02195F33C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8269EA575417E881641B52D115339E /* Foundation.framework */; };
 		4C39F8720FF9108876A4BD5F30E109D9 /* sqlite3-iOS-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = E018F7115F38ED991E403CB1C15958AD /* sqlite3-iOS-dummy.m */; };
 		4D953551A269575062BB25C2A92CC4B8 /* sqlite3ext.h in Headers */ = {isa = PBXBuildFile; fileRef = 8C427E612582D48E86D791D25D60CE68 /* sqlite3ext.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		536B28831D95483800BBA0D3 /* HelperFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536B28821D95483800BBA0D3 /* HelperFunctions.swift */; };
+		536B28841D95483800BBA0D3 /* HelperFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536B28821D95483800BBA0D3 /* HelperFunctions.swift */; };
 		540340FCF9B518CB19E300F165437470 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 840D1770B53FEBAA9EC241511E56F718 /* Foundation.framework */; };
 		5A591EC0F795EEC983A9420F0476D094 /* Pods-SQLiteManager_TV_Example-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = A5EE325064304639AC5C3BD1761FC523 /* Pods-SQLiteManager_TV_Example-dummy.m */; };
 		5DDFDF520792FF9D3A4DAAEFD82F4CAA /* sqlite3ext.h in Headers */ = {isa = PBXBuildFile; fileRef = 8C427E612582D48E86D791D25D60CE68 /* sqlite3ext.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -117,6 +119,7 @@
 		4EB4CD9FD564970A620F5E29CE15ABF1 /* Pods-SQLiteManager_Tests-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-SQLiteManager_Tests-acknowledgements.plist"; sourceTree = "<group>"; };
 		4EF14A48AE7FE85385F3979E80E4CF6C /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4F4ED11157C5D225C35E4B3B0DDC4E6B /* Pods-SQLiteManager_Example-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-SQLiteManager_Example-umbrella.h"; sourceTree = "<group>"; };
+		536B28821D95483800BBA0D3 /* HelperFunctions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelperFunctions.swift; sourceTree = "<group>"; };
 		53E229334EA1D4424EE556B82C13BE39 /* Pods-SQLiteManager_Example-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-SQLiteManager_Example-frameworks.sh"; sourceTree = "<group>"; };
 		547DCB9B4F3ADB3C65002C78536A15AE /* SQLiteManager-iOS-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "SQLiteManager-iOS-umbrella.h"; sourceTree = "<group>"; };
 		54C8241BBA131B5BDB7A33A44C0D6CB7 /* Pods-SQLiteManager_TV_ExampleTests-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-SQLiteManager_TV_ExampleTests-dummy.m"; sourceTree = "<group>"; };
@@ -285,6 +288,7 @@
 			children = (
 				8069DE7352E84AD4046F35E6F4E58121 /* SQLite.swift */,
 				FC6007106C67DE1E33C90B43DEDE61DC /* SQLiteManagerError.swift */,
+				536B28821D95483800BBA0D3 /* HelperFunctions.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -706,6 +710,29 @@
 			attributes = {
 				LastSwiftUpdateCheck = 0730;
 				LastUpgradeCheck = 0700;
+				TargetAttributes = {
+					3385A7645CB67641DD61C26D5CF6ABD8 = {
+						LastSwiftMigration = 0800;
+					};
+					870D1327C4E3FC4789AF8DE9853C28D4 = {
+						LastSwiftMigration = 0800;
+					};
+					8AE2E7BF83F401EE1A649CC9D76712D8 = {
+						LastSwiftMigration = 0800;
+					};
+					91592AD635A0FEB472336E0A8CB94A6F = {
+						LastSwiftMigration = 0800;
+					};
+					AA33783D19FA60ED46C66108101FDAB9 = {
+						LastSwiftMigration = 0800;
+					};
+					EA21AA2649C682D09177067390F1D955 = {
+						LastSwiftMigration = 0800;
+					};
+					F8815B7CCA82DC223891F1092B147512 = {
+						LastSwiftMigration = 0800;
+					};
+				};
 			};
 			buildConfigurationList = 2D8E8EC45A3A1A1D94AE762CB5028504 /* Build configuration list for PBXProject "Pods" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -737,6 +764,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7D059D7B375188E18196524734838DEB /* SQLite.swift in Sources */,
+				536B28841D95483800BBA0D3 /* HelperFunctions.swift in Sources */,
 				9EC82851907AF06F6E29CF1B54C8B189 /* SQLiteManager-tvOS-dummy.m in Sources */,
 				C219F910FF6AAE3E8E66A44349E5BA13 /* SQLiteManagerError.swift in Sources */,
 			);
@@ -771,6 +799,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FFDA2FFBF74FFBE708FEFE15DE351E64 /* SQLite.swift in Sources */,
+				536B28831D95483800BBA0D3 /* HelperFunctions.swift in Sources */,
 				C709B6F966FBB09E2822091E9AB24ABF /* SQLiteManager-iOS-dummy.m in Sources */,
 				A1631B6515F76A1A8F58E1C02E7CE04F /* SQLiteManagerError.swift in Sources */,
 			);
@@ -874,6 +903,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -909,6 +939,7 @@
 				PRODUCT_NAME = Pods_SQLiteManager_Tests;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -940,7 +971,7 @@
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -976,6 +1007,7 @@
 				PRODUCT_NAME = Pods_SQLiteManager_TV_ExampleTests;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 10.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1007,7 +1039,7 @@
 				PRODUCT_NAME = SQLiteManager;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1040,7 +1072,7 @@
 				PRODUCT_NAME = sqlite3;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -1116,7 +1148,7 @@
 				PRODUCT_NAME = sqlite3;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1152,6 +1184,7 @@
 				PRODUCT_NAME = Pods_SQLiteManager_TV_Example;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 10.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1185,7 +1218,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -1221,6 +1254,7 @@
 				PRODUCT_NAME = Pods_SQLiteManager_Example;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -1255,6 +1289,7 @@
 				PRODUCT_NAME = Pods_SQLiteManager_TV_ExampleTests;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 10.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1328,7 +1363,7 @@
 				PRODUCT_NAME = sqlite3;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -1364,6 +1399,7 @@
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 10.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1400,6 +1436,7 @@
 				PRODUCT_NAME = Pods_SQLiteManager_Tests;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -1431,7 +1468,7 @@
 				PRODUCT_NAME = SQLiteManager;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -1462,7 +1499,7 @@
 				PRODUCT_NAME = sqlite3;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";

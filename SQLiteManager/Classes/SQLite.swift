@@ -16,24 +16,27 @@ import sqlite3
  SQLiteQueryResult.results is an array of [String:AnyObject], each row of the result of the query is casted in to a dictionary
  [key:value], example if SQL statement 'SELECT first_name FROM tb_user WHERE id = 1' results will be [["first_name":"Chamira"]]
 	*/
-public typealias SQLiteQueryResult = (SQLiteSatusCode:Int32,affectedRowCount:Int,results:[[NSString:NSObject]]?)
 
-public typealias SuccessClosure = (result:SQLiteQueryResult)->()
-public typealias ErrorClosure = (error:NSError)->()
+public typealias SQLiteDataDictionary = [[NSString:NSObject]]
+public typealias SQLiteQueryResult = (SQLiteSatusCode:Int32,affectedRowCount:Int,results:SQLiteDataDictionary?)
+
+public typealias SuccessClosure = (_ result:SQLiteQueryResult)->()
+public typealias ErrorClosure = (_ error:NSError)->()
+
 
 //MARK: - SQLitePool Class
-public class SQLitePool {
+open class SQLitePool {
 	
-	private init() {}
+	fileprivate init() {}
 	
 	deinit {
 		SQLitePool.closeDatabases()
 	}
 	
-	private static var instances:[String:SQLite] = [:]
-	private static var sharedPool:SQLitePool = SQLitePool()
+	fileprivate static var instances:[String:SQLite] = [:]
+	fileprivate static var sharedPool:SQLitePool = SQLitePool()
 	
-	private static func addInstanceFor(database databaseNameWithExtension:String, instance:SQLite) {
+	fileprivate static func addInstanceFor(database databaseNameWithExtension:String, instance:SQLite) {
 		instances[databaseNameWithExtension] = instance
 	}
 
@@ -42,7 +45,7 @@ public class SQLitePool {
 	
 	- returns: SQLitePool class
 	*/
-	public static func manager()->SQLitePool {
+	open static func manager()->SQLitePool {
 		return sharedPool
 	}
 	
@@ -53,7 +56,7 @@ public class SQLitePool {
 	
 	- returns: SQLite Database
 	*/
-	public static func getInstanceFor(database databaseNameWithExtension:String)->SQLite? {
+	open static func getInstanceFor(database databaseNameWithExtension:String)->SQLite? {
 		
 		if (instances.isEmpty) {
 			return nil
@@ -78,7 +81,7 @@ public class SQLitePool {
      - returns: SQLite database
      */
 
-    public func initialize(database name:String, withExtension:String, createIfNotExist createIfNotExist:Bool = false) throws -> SQLite {
+    open func initialize(database name:String, withExtension:String, createIfNotExist:Bool = false) throws -> SQLite {
 		do {
 			let lite = try SQLite().initialize(database: name, withExtension: withExtension, createIfNotExist: createIfNotExist)
 			return lite
@@ -90,19 +93,18 @@ public class SQLitePool {
 	/**
 	Close all open databases in the pool
 	*/
-	public static func closeDatabases() {
+	open static func closeDatabases() {
 		instances.forEach {  $0.1.closeDatabase() }
 		instances.removeAll()
 	}
 	
-	
-		/// Open databases count
-	public static var databasesCount:Int {
+	/// Open databases count
+	open static var databasesCount:Int {
 		return instances.count
 	}
 	
-		/// Returns all instances of databases in the pool
-	public static var databases:[String:SQLite] {
+	/// Returns all instances of databases in the pool
+	open static var databases:[String:SQLite] {
 		return instances
 	}
 	
@@ -110,32 +112,35 @@ public class SQLitePool {
 
 
 //MARK: - SQLite Class
-public class SQLite {
+open class SQLite {
 	
+	open var description:String {
+		return databaseName!
+	}
 	
-		/// Database name with extension
-	public var databaseName:String?  {
+	/// Database name with extension
+	open var databaseName:String?  {
 		return _databaseName+"."+_databaseExtension
 	}
 	
-		/// app document url
-	public var documentsUrl:NSURL {
-		let fileManager = NSFileManager.defaultManager()
-		let urls = fileManager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
-		let docUrl: NSURL = urls[0]
+	/// app document url
+	open var documentsUrl:URL {
+		let fileManager = FileManager.default
+		let urls = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
+		let docUrl: URL = urls[0]
 		return docUrl
 	}
 	
 		/// Database URL
-	public var databaseUrl:NSURL? {
+	open var databaseUrl:URL? {
 		if (databaseName == nil) {
 			return nil
 		}
-		return documentsUrl.URLByAppendingPathComponent(databaseName!)
+		return documentsUrl.appendingPathComponent(databaseName!)
 	}
 	
 		/// Database path
-	public var databasePath:String? {
+	open var databasePath:String? {
 		if (databaseUrl == nil) {
 			return nil
 		}
@@ -144,43 +149,43 @@ public class SQLite {
 	
 	
 		/// Log database queries and other executions, default is true
-	public var log:Bool = true
+	open var log:Bool = true
 	
-	private init() {}
+	fileprivate init() {}
 	
 	deinit {
 		closeDatabase()
 	}
 	
-	private var sharedManager:SQLite?
+	fileprivate var sharedManager:SQLite?
 
 	//Private members
-	private var backupToICloud:Bool = false
+	fileprivate var backupToICloud:Bool = false
 	
-	private var _databaseName:String = ""
+	fileprivate var _databaseName:String = ""
 	
-	private var _databaseExtension = "db"
+	fileprivate var _databaseExtension = "db"
 	
-	private var database:COpaquePointer = nil
+	fileprivate var database:OpaquePointer? = nil
 	
-    private var _createIfNotExists:Bool = false
+    fileprivate var _createIfNotExists:Bool = false
     
-    private var createIfNotExists:Bool {
+    fileprivate var createIfNotExists:Bool {
         return _createIfNotExists
     }
     
-	private var database_operation_queue:dispatch_queue_t!
+	fileprivate var database_operation_queue:DispatchQueue!
 	
-	lazy private var databaseOperationQueue:NSOperationQueue = {
+	lazy fileprivate var databaseOperationQueue:OperationQueue = {
 	
-		let queue = NSOperationQueue()
+		let queue = OperationQueue()
 		queue.maxConcurrentOperationCount = 1
-		queue.qualityOfService = NSQualityOfService.Background
+		queue.qualityOfService = QualityOfService.background
 		return queue
 		
 	}()
 	
-	private func initialize(database name:String, withExtension:String, createIfNotExist create:Bool = false) throws -> SQLite {
+	fileprivate func initialize(database name:String, withExtension:String, createIfNotExist create:Bool = false) throws -> SQLite {
 		
 		sharedManager = SQLitePool.getInstanceFor(database: name+"."+withExtension)
 		if (sharedManager != nil) {
@@ -208,7 +213,7 @@ public class SQLite {
 		}
 		
 		log(_databaseName + " is open")
-        database_operation_queue    = dispatch_queue_create("lib.SQLiteManager.database_operation_queue."+_databaseName, DISPATCH_QUEUE_SERIAL)
+        database_operation_queue    = DispatchQueue(label: "lib.SQLiteManager.database_operation_queue."+_databaseName, attributes: [])
         databaseOperationQueue.name = "lib.SQLiteManager.database_operation_queue."+_databaseName
 		SQLitePool.addInstanceFor(database: databaseName!, instance: self)
 		sharedManager = self
@@ -223,7 +228,7 @@ public class SQLite {
 	
 	- throws: SQLiteManagerError
 	*/
-	public func openDatabase() throws {
+	open func openDatabase() throws {
 		
 		if (database != nil) {
 			log("Database is already open:" + databaseName!)
@@ -235,14 +240,14 @@ public class SQLite {
 		}
 		
 		if sqlite3_open(databasePath, &database) != SQLITE_OK {
-			var errorMessage = String.fromCString(sqlite3_errmsg(database))
-			if (errorMessage?.characters.count == 0) {
+			var errorMessage = String(cString: sqlite3_errmsg(database))
+			if (errorMessage.characters.count == 0) {
 				errorMessage = "undefined database (sqlite3) error"
 			}
 			
 			let code = sqlite3_errcode(database)
 			log(" ***** Failed to open database:" + databaseName!)
-			throw SQLiteManagerError(code: Int(code), userInfo: [kCFErrorDescriptionKey:errorMessage!])
+			throw SQLiteManagerError(code: Int(code), userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):errorMessage])
 		}
 		
 		if (log) {
@@ -254,7 +259,7 @@ public class SQLite {
 	/**
 	Close database
 	*/
-	public func closeDatabase() {
+	open func closeDatabase() {
 		
 		if (sqlite3_close(database) == SQLITE_OK) {
 			sharedManager = nil
@@ -280,7 +285,7 @@ public extension SQLite {
 	- returns: return query result, SQLiteQueryResult (SQLiteResultCode, Affected Rows and Results array)
 	
 	*/
-	public func query(sqlStatement sql:String!) throws -> SQLiteQueryResult {
+	public func query(_ sql:String!) throws -> SQLiteQueryResult {
 	
 		do { return try submitQuery(sqlStatement: sql) } catch let e as NSError { throw e }
 		
@@ -293,48 +298,48 @@ public extension SQLite {
 	- parameter successClosure: if query is successfully executed run successClosure which has SQLiteQueryResult as a param
 	- parameter errorClosure:   if any error, run errorClosure
 	*/
-	public func query(sqlStatement sql:String!,successClosure:SuccessClosure,errorClosure:ErrorClosure) {
+	public func query(_ sql:String,successClosure:@escaping SuccessClosure,errorClosure:@escaping ErrorClosure) {
 		
 		var error:NSError?
 		unowned let weakSelf = self
 		var result:SQLiteQueryResult?
 	
-		let blockOp = NSBlockOperation(block: {
+		let blockOp = BlockOperation(block: {
 			do { result = try weakSelf.submitQuery(sqlStatement: sql) } catch let e as NSError { error = e }
 		})
 		
 		blockOp.completionBlock = {
 			
 			if let r = result {
-				dispatch_async(dispatch_get_main_queue()) {
-					successClosure(result: r)
+				DispatchQueue.main.async {
+					successClosure(r)
 				}
 			} else if let e = error {
-				dispatch_async(dispatch_get_main_queue()) {
-					errorClosure(error:e)
+				DispatchQueue.main.async {
+					errorClosure(e)
 				}
 			}  else {
-				dispatch_async(dispatch_get_main_queue()) {
-					errorClosure(error:SQLiteManagerError.unknownError(weakSelf.databaseName!))
+				DispatchQueue.main.async {
+					errorClosure(SQLiteManagerError.unknownError(weakSelf.databaseName!))
 				}
 			}
 			
 		}
 		
-        blockOp.qualityOfService = NSQualityOfService.Background
-        blockOp.queuePriority    = NSOperationQueuePriority.Normal
+        blockOp.qualityOfService = QualityOfService.background
+        blockOp.queuePriority    = Operation.QueuePriority.normal
 		self.databaseOperationQueue.addOperation(blockOp)
 
 	}
 	
 	// Gets an sql statement and returns result
-	private func submitQuery(sqlStatement sql:String!) throws -> SQLiteQueryResult {
+	fileprivate func submitQuery(sqlStatement sql:String) throws -> SQLiteQueryResult {
 		
 		unowned let weakSelf = self
 		var r:SQLiteQueryResult!
 		var blockError: NSError? = nil
 		
-		dispatch_sync(database_operation_queue) {
+		database_operation_queue.sync {
 			do {
 				r = try weakSelf.executeSQL(sql)
 			} catch let e as NSError {
@@ -360,12 +365,12 @@ public extension SQLite {
 	
 	- returns: result
 	*/
-	private func executeSQL(sqlString:String!) throws -> SQLiteQueryResult {
+	fileprivate func executeSQL(_ sqlString:String) throws -> SQLiteQueryResult {
 		
         var returnCode: Int32 = SQLITE_FAIL
         unowned let weakSelf  = self
     
-		var statement: COpaquePointer = nil
+		var statement: OpaquePointer? = nil
 		
 		let closeClosure:(()->(Int32)) = {
 			sqlite3_exec(weakSelf.database, "COMMIT", nil, nil, nil);
@@ -376,20 +381,20 @@ public extension SQLite {
 		returnCode = sqlite3_prepare_v2(weakSelf.database, sqlString, -1, &statement, nil)
 		
 		if returnCode != SQLITE_OK {
-			let errorMessage = "\(String.fromCString(sqlite3_errmsg(weakSelf.database))!) SQL:\(sqlString) at line:\(#line) on file:\(#file)"
+			let errorMessage = "\(String(cString: sqlite3_errmsg(weakSelf.database))) SQL:\(sqlString) at line:\(#line) on file:\(#file)"
 			let code = sqlite3_extended_errcode(weakSelf.database)
 			closeClosure()
-			throw SQLiteManagerError(code: Int(code), userInfo: [kCFErrorDescriptionKey:errorMessage])
+			throw SQLiteManagerError(code: Int(code), userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):errorMessage])
 		}
 		
 		returnCode = sqlite3_exec(weakSelf.database, sqlString, nil, nil, nil)
 		
 		if(returnCode != SQLITE_OK) {
 			
-			let errorMessage = "\(String.fromCString(sqlite3_errmsg(weakSelf.database))!) SQL:\(sqlString) at line:\(#line) on file:\(#file)"
+			let errorMessage = "\(String(cString: sqlite3_errmsg(weakSelf.database))) SQL:\(sqlString) at line:\(#line) on file:\(#file)"
 			let code = sqlite3_extended_errcode(weakSelf.database)
 			closeClosure()
-			throw SQLiteManagerError(code: Int(code), userInfo: [kCFErrorDescriptionKey:errorMessage])
+			throw SQLiteManagerError(code: Int(code), userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):errorMessage])
 			
 		}
 
@@ -397,7 +402,7 @@ public extension SQLite {
 		
 		if (isSelectStatement(sqlString)) {
 			
-			let resultObjects:[[NSString:NSObject]]? = castSelectStatementValuesToNSObjects(statement)
+			let resultObjects = castSelectStatementValuesToNSObjects(statement!)
 
 			returnCode = closeClosure()
 			
@@ -423,11 +428,10 @@ public extension SQLite {
 		
 	}
 	
-	private func isSelectStatement(sqlStatement:String!) -> Bool {
+	fileprivate func isSelectStatement(_ sqlStatement:String!) -> Bool {
 		
-		let trim       = sqlStatement.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
 		let selectWord = "SELECT"
-		return (trim.substringToIndex(selectWord.endIndex).uppercaseString == selectWord)
+		return (sqlStatement.trimmingCharacters(in: CharacterSet.whitespaces).substring(to: selectWord.endIndex).uppercased()) == selectWord
 		
 	}
 	
@@ -437,56 +441,56 @@ public extension SQLite {
 public extension SQLite {
 
 	
-	public func bindQuery(sqlStatement sql:String!, bindValues:[NSObject]) throws -> SQLiteQueryResult {
+	public func bindQuery(_ sql:String!, bindValues:[NSObject]) throws -> SQLiteQueryResult {
 		
-		do { return try submitBindQuery(sqlStatement: sql, bindValues: bindValues) } catch let e as NSError { throw e }
+		do { return try submitBindQuery(sql, bindValues: bindValues) } catch let e as NSError { throw e }
 		
 	}
 	
-	public func bindQuery(sqlStatement sql:String!, bindValues:[NSObject], successClosure:SuccessClosure,errorClosure:ErrorClosure) {
+	public func bindQuery(_ sql:String!, bindValues:[NSObject], successClosure:@escaping SuccessClosure,errorClosure:@escaping ErrorClosure) {
 		
 		var error:NSError?
 		unowned let weakSelf = self
 		var result:SQLiteQueryResult?
 		
-		let blockOp = NSBlockOperation(block: {
-			do { result = try weakSelf.submitBindQuery(sqlStatement: sql, bindValues: bindValues) } catch let e as NSError { error = e }
+		let blockOp = BlockOperation(block: {
+			do { result = try weakSelf.submitBindQuery(sql, bindValues: bindValues) } catch let e as NSError { error = e }
 		})
 		
 		blockOp.completionBlock = {
 			
 			if let r = result {
-				dispatch_async(dispatch_get_main_queue()) {
-					successClosure(result: r)
+				DispatchQueue.main.async {
+					successClosure(r)
 				}
 			} else if let e = error {
-				dispatch_async(dispatch_get_main_queue()) {
-					errorClosure(error:e)
+				DispatchQueue.main.async {
+					errorClosure(e)
 				}
 			}  else {
-				dispatch_async(dispatch_get_main_queue()) {
-					errorClosure(error:SQLiteManagerError.unknownError(weakSelf.databaseName!))
+				DispatchQueue.main.async {
+					errorClosure(SQLiteManagerError.unknownError(weakSelf.databaseName!))
 				}
 			}
 			
 		}
 		
-		blockOp.qualityOfService = NSQualityOfService.Background
-		blockOp.queuePriority    = NSOperationQueuePriority.Normal
+		blockOp.qualityOfService = QualityOfService.background
+		blockOp.queuePriority    = Operation.QueuePriority.normal
 		self.databaseOperationQueue.addOperation(blockOp)
 		
 	}
 	
 	// Gets an sql statement and returns result
-	private func submitBindQuery(sqlStatement sql:String!, bindValues:[NSObject]) throws -> SQLiteQueryResult {
+	fileprivate func submitBindQuery(_ sql:String!, bindValues:[NSObject]) throws -> SQLiteQueryResult {
 		
 		unowned let weakSelf = self
 		var r:SQLiteQueryResult!
 		var blockError: NSError? = nil
 		
-		dispatch_sync(database_operation_queue) {
+		database_operation_queue.sync {
 			do {
-				r = try weakSelf.executeBindSQL(sqlStatement: sql, bindValues: bindValues)
+				r = try weakSelf.executeBindSQL(sql, bindValues: bindValues)
 			} catch let e as NSError {
 				blockError = e
 			}
@@ -500,15 +504,15 @@ public extension SQLite {
 		
 	}
 	
-	public func executeBindSQL(sqlStatement sql:String, bindValues:[NSObject]) throws -> SQLiteQueryResult {
+	public func executeBindSQL(_ sql:String, bindValues:[NSObject]) throws -> SQLiteQueryResult {
 		
-        let SQLITE_STATIC    = unsafeBitCast(0, sqlite3_destructor_type.self)
-        let SQLITE_TRANSIENT = unsafeBitCast(-1, sqlite3_destructor_type.self)
+        let SQLITE_STATIC    = unsafeBitCast(0, to: sqlite3_destructor_type.self)
+        let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
 		
 		var returnCode: Int32 = SQLITE_FAIL
 		unowned let weakSelf  = self
 		
-		var statement: COpaquePointer = nil
+		var statement: OpaquePointer? = nil
 		
 		let closeClosure:(()->(Int32)) = {
 			sqlite3_exec(weakSelf.database, "COMMIT", nil, nil, nil);
@@ -519,10 +523,10 @@ public extension SQLite {
 		returnCode = sqlite3_prepare_v2(weakSelf.database, sql, -1, &statement, nil)
 		
 		if returnCode != SQLITE_OK {
-			let errorMessage = "\(String.fromCString(sqlite3_errmsg(weakSelf.database))!) SQL:\(sql) at line:\(#line) on file:\(#file)"
+			let errorMessage = "\(String(cString: sqlite3_errmsg(weakSelf.database))) SQL:\(sql) at line:\(#line) on file:\(#file)"
 			let code = sqlite3_extended_errcode(weakSelf.database)
 			closeClosure()
-			throw SQLiteManagerError(code: Int(code), userInfo: [kCFErrorDescriptionKey:errorMessage])
+			throw SQLiteManagerError(code: Int(code), userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):errorMessage])
 		}
 		
 		let bindCount = Int(sqlite3_bind_parameter_count(statement))
@@ -536,26 +540,26 @@ public extension SQLite {
 		for val in bindValues {
 			if val is NSString {
 				let str = val as! NSString
-				sqlite3_bind_text(statement, position, str.UTF8String, -1, SQLITE_STATIC);
+				sqlite3_bind_text(statement, position, str.utf8String, -1, SQLITE_STATIC);
 			} else if val is NSNumber {
 				let num = val as! NSNumber
 				
 				let numberType:CFNumberType = CFNumberGetType(num as CFNumber)
 				
 				switch numberType {
-					case .SInt8Type, .SInt16Type , .SInt32Type, .ShortType, .CharType:
-						sqlite3_bind_int(statement, position, num.intValue)
-					case .SInt64Type, .IntType, .LongType, .LongLongType, .CFIndexType, .NSIntegerType:
-						sqlite3_bind_int64(statement, position, num.integerValue as! sqlite_int64)
+					case .sInt8Type, .sInt16Type , .sInt32Type, .shortType, .charType:
+						sqlite3_bind_int(statement, position, num.int32Value)
+					case .sInt64Type, .intType, .longType, .longLongType, .cfIndexType, .nsIntegerType:
+						sqlite3_bind_int64(statement, position, num.int64Value)
 					default:
 						sqlite3_bind_double(statement, position, num.doubleValue)
 				}
 
 			} else if val is NSNull {
 				sqlite3_bind_null(statement, position)
-			} else if val is NSData {
-				let data = val as! NSData
-				sqlite3_bind_blob(statement, position, data.bytes, Int32(data.length), SQLITE_TRANSIENT)
+			} else if val is Data {
+				let data = val as! Data
+				sqlite3_bind_blob(statement, position, (data as NSData).bytes, Int32(data.count), SQLITE_TRANSIENT)
 			}
 			
 			position += 1
@@ -566,7 +570,7 @@ public extension SQLite {
 		
 		if (isSelectStatement(sql)) {
 			
-			let resultObjects:[[NSString:NSObject]]? = castSelectStatementValuesToNSObjects(statement)
+			let resultObjects:SQLiteDataDictionary? = castSelectStatementValuesToNSObjects(statement!)
 			
 			if (log) {
 				print("SQL: \(sql) -> results: { \(resultObjects) } ")
@@ -583,10 +587,10 @@ public extension SQLite {
 		returnCode = sqlite3_step(statement)
 		
 		if returnCode != SQLITE_DONE {
-			let errorMessage = "\(String.fromCString(sqlite3_errmsg(weakSelf.database))!) SQL:\(sql) at line:\(#line) on file:\(#file)"
+			let errorMessage = "\(String(cString: sqlite3_errmsg(weakSelf.database))) SQL:\(sql) at line:\(#line) on file:\(#file)"
 			let code = sqlite3_extended_errcode(weakSelf.database)
 			let _ = closeClosure()
-			throw SQLiteManagerError(code: Int(code), userInfo: [kCFErrorDescriptionKey:errorMessage])
+			throw SQLiteManagerError(code: Int(code), userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):errorMessage])
 		}
 		
         let count:Int32 = sqlite3_changes(weakSelf.database)
@@ -607,20 +611,20 @@ public extension SQLite {
 //MARK: - Utility extension
 private extension SQLite {
 	
-	private func hasDatabaseMovedToDocumentsDir() -> Bool {
+	func hasDatabaseMovedToDocumentsDir() -> Bool {
 		
 		guard let databasePath = databasePath else {
 			return false
 		}
 		
-		let fileManager = NSFileManager.defaultManager()
-		return fileManager.fileExistsAtPath(databasePath)
+		let fileManager = FileManager.default
+		return fileManager.fileExists(atPath: databasePath)
 		
 	}
 	
-	private func copyDatabaseFromBundleToDocumentsDir () throws -> Bool {
+	func copyDatabaseFromBundleToDocumentsDir () throws -> Bool {
 		
-		guard let databaseBundlePath = NSBundle.mainBundle().pathForResource(_databaseName, ofType: _databaseExtension) else {
+		guard let databaseBundlePath = Bundle.main.path(forResource: _databaseName, ofType: _databaseExtension) else {
             
             if (_createIfNotExists) {
                 guard let filePath = databasePath else {
@@ -644,8 +648,8 @@ private extension SQLite {
 	
 		do {
 	
-			let fileManager = NSFileManager.defaultManager()
-			try fileManager.copyItemAtPath(databaseBundlePath, toPath: databasePath!)
+			let fileManager = FileManager.default
+			try fileManager.copyItem(atPath: databaseBundlePath, toPath: databasePath!)
 			log("Success, database file has been copied")
 			if (!backupToICloud) {
 				addSkipBackupAttributeToItemAtPath(databaseUrl!)
@@ -658,26 +662,21 @@ private extension SQLite {
 		return true
 	}
 	
-    private func createDatabaseFileAtPath(path:String)->Bool {
+    func createDatabaseFileAtPath(_ path:String)->Bool {
      
-        let fileManager = NSFileManager.defaultManager()
-        let created =  fileManager.createFileAtPath(path, contents: nil, attributes: [NSFileCreationDate:NSDate(),NSFileType:NSFileTypeRegular])
+        let fileManager = FileManager.default
+        let created =  fileManager.createFile(atPath: path, contents: nil, attributes: [FileAttributeKey.creationDate.rawValue:Date(),FileAttributeKey.type.rawValue:FileAttributeType.typeRegular])
         
         return created
     }
     
 	// Exclude file at URL from iCloud backup
-	private func addSkipBackupAttributeToItemAtPath(url: NSURL) {
+	func addSkipBackupAttributeToItemAtPath(_ url: URL) {
 		
-		guard let path = url.path else {
-			log("Could not att 'skip backup' attribute, file path did not exist at url: \(url)")
-			return
-		}
-		
-		let fileManager = NSFileManager.defaultManager()
-		if fileManager.fileExistsAtPath(path) {
+		let fileManager = FileManager.default
+		if fileManager.fileExists(atPath: url.path) {
 			do {
-				try url.setResourceValue(NSNumber(bool: true),forKey: NSURLIsExcludedFromBackupKey)
+				try (url as NSURL).setResourceValue(NSNumber(value: true as Bool),forKey: URLResourceKey.isExcludedFromBackupKey)
 			} catch let error as NSError {
 				log("Error while setting 'skip backup' attribute on url \(url): \(error)")
 			}
@@ -687,18 +686,21 @@ private extension SQLite {
 		}
 	}
 	
-	private func castSelectStatementValuesToNSObjects(statement:COpaquePointer) -> [[NSString:NSObject]]? {
+	func castSelectStatementValuesToNSObjects(_ statement:OpaquePointer) -> SQLiteDataDictionary? {
 		
 		let columnCount:Int32 = sqlite3_column_count(statement)
 		
 		var keys:[NSString] = []
 		
 		for i in 0..<columnCount {
-			let columnName = NSString(CString: UnsafePointer<Int8>(sqlite3_column_name(statement, i)), encoding: NSString.defaultCStringEncoding())
-			keys.append(columnName!)
+			let str = sqlite3_column_name(statement, i)
+			if let _ = str {
+				let columnName = NSString(cString: str!, encoding: NSString.defaultCStringEncoding)
+				keys.append(columnName!)
+			}
 		}
 		
-		var resultObjects:[[NSString:NSObject]]?
+		var resultObjects:SQLiteDataDictionary?
 		
 		while sqlite3_step(statement) == SQLITE_ROW {
 			
@@ -713,13 +715,18 @@ private extension SQLite {
 				
 				switch valueType {
 				case SQLITE_TEXT:
-					actualValue = NSString(CString: UnsafePointer<Int8>(sqlite3_value_text(value)), encoding: NSString.defaultCStringEncoding())
+					
+					let strPointer	= sqlite3_value_text(value)
+					if let (str, _) = String.decodeCString(strPointer, as: UTF8.self, repairingInvalidCodeUnits: false) {
+						actualValue = NSString(string: str)
+					}
+					
 					break
 				case SQLITE_FLOAT:
-					actualValue = NSNumber(double: sqlite3_value_double(value))
+					actualValue = NSNumber(value: sqlite3_value_double(value) as Double)
 					break
 				case SQLITE_INTEGER:
-					actualValue = NSNumber(longLong: sqlite3_value_int64(value))
+					actualValue = NSNumber(value: sqlite3_value_int64(value) as Int64)
 					break
 				case SQLITE_BLOB:
 					let length = Int(sqlite3_column_bytes(statement, c))
@@ -760,7 +767,7 @@ private extension SQLite {
 //MARK: - Log extension
 private extension SQLite {
 	
-	func log(message:String!, tag:String? = nil, file:String? = nil, line:String? = nil) {
+	func log(_ message:String!, tag:String? = nil, file:String? = nil, line:String? = nil) {
 		
 		if (!log){
 			return

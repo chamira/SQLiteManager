@@ -32,21 +32,21 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 		
-		executeButton.enabled = false
+		executeButton.isEnabled = false
         do {
             
             database =  try SQLitePool.manager().initialize(database: "app_test_database_1", withExtension: "db")
             database.log = true
             
             headerLabel.text = "Database '\(database.databaseName!)' is initialized successfully!\nWrite your SQL Query Below:"
-            headerLabel.textColor = UIColor.blackColor()
-            executeButton.enabled = true
+            headerLabel.textColor = UIColor.black
+            executeButton.isEnabled = true
             
         } catch let e as NSError {
             headerLabel.text = "Error initializing database app_test_database_1.db \(e)"
 
-            headerLabel.textColor = UIColor.redColor()
-            executeButton.enabled = false
+            headerLabel.textColor = UIColor.red
+            executeButton.isEnabled = false
         }
     
     }
@@ -62,9 +62,9 @@ class ViewController: UIViewController {
      
      - parameter sender: button
      */
-    @IBAction func tapExecuteQueryButton(sender: AnyObject) {
+    @IBAction func tapExecuteQueryButton(_ sender: AnyObject) {
     
-        let q = queryTextView.text.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+        let q = queryTextView.text.trimmingCharacters(in: CharacterSet.whitespaces)
         
         unowned let refSelf = self
         
@@ -82,10 +82,10 @@ class ViewController: UIViewController {
             refSelf.resultTextView.text = "Error:\n\(error)"
         }
         
-        if (!asyncButton.on) {
+        if (!asyncButton.isOn) {
             
             do {
-                let result = try database.query(sqlStatement: q)
+                let result = try database.query(q)
                 successClosure(result)
             } catch let e as NSError {
                 errorClosure(e)
@@ -93,7 +93,7 @@ class ViewController: UIViewController {
             
         } else {
            
-            database.query(sqlStatement: q, successClosure: { (result) in
+            database.query(q, successClosure: { (result) in
                 successClosure(result)
             }, errorClosure: { (error) in
                 errorClosure(error)
@@ -102,29 +102,29 @@ class ViewController: UIViewController {
         }
     }
     
-    @IBAction func tapCreateButton(sender: AnyObject) {
+    @IBAction func tapCreateButton(_ sender: AnyObject) {
         let q = "CREATE TABLE IF NOT EXISTS tb_company(pkId INT PRIMARY KEY NOT NULL,name TEXT NOT NULL, age INT NOT NULL,address CHAR(50), salary REAL)"
         queryTextView.text = q
         
     }
     
-    @IBAction func tapInsertButton(sender: AnyObject) {
-        let dob = NSDate(timeIntervalSince1970: 3600*24*3650)
+    @IBAction func tapInsertButton(_ sender: AnyObject) {
+        let dob = Date(timeIntervalSince1970: 3600*24*3650)
         let q = "INSERT INTO 'tb_user' (first_name, last_name, username, date_of_birth) VALUES ('Joohn','Frenando', 'some_user_name', \(dob.timeIntervalSince1970))"
         queryTextView.text = q
     }
     
-    @IBAction func tapUpdateButton(sender: AnyObject) {
+    @IBAction func tapUpdateButton(_ sender: AnyObject) {
         let q = "UPDATE 'tb_user' SET first_name = 'John', last_name = 'Fernando' WHERE first_name = 'Joohn'"
         queryTextView.text = q
     }
 
-    @IBAction func tapDeleteButton(sender: AnyObject) {
+    @IBAction func tapDeleteButton(_ sender: AnyObject) {
         let q = "DELETE FROM 'tb_user' WHERE first_name = 'John'"
         queryTextView.text = q
     }
     
-    @IBAction func tapSelectButton(sender: AnyObject) {
+    @IBAction func tapSelectButton(_ sender: AnyObject) {
         let q = "SELECT first_name, username, date_of_birth as dob from 'tb_user'"
         queryTextView.text = q
     }

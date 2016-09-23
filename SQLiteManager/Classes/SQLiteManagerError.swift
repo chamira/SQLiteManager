@@ -10,11 +10,11 @@ import Foundation
 
 //MARK: - SQLiteManagerError class
 /// This class is a manager class to put app related errors
-public class SQLiteManagerError: NSError {
+open class SQLiteManagerError: NSError {
 	
-	public static var kErrorDomain = "lib.SQLiteManager.error"
+	open static var kErrorDomain = "lib.SQLiteManager.error"
 	
-	public init(code: Int, userInfo dict: [NSObject : AnyObject]?) {
+	public init(code: Int, userInfo dict: [String: String]?) {
 		super.init(domain: SQLiteManagerError.kErrorDomain, code: code, userInfo: dict)
 	}
 	
@@ -24,7 +24,7 @@ public class SQLiteManagerError: NSError {
 
 
 	// Unknown error code = 10000
-	public static let  kUknownErrorCode = 10000
+	open static let  kUknownErrorCode = 10000
 	
 	/**
 	Returns an error with error code 10000 and [kCFErrorDescriptionKey:"\(databaseName) Unknown error"]
@@ -33,12 +33,12 @@ public class SQLiteManagerError: NSError {
 	
 	- returns: SQLiteManagerError(NSError)
 	*/
-	public static func unknownError(databaseName:String) -> SQLiteManagerError {
-		return SQLiteManagerError(code: kUknownErrorCode, userInfo: [kCFErrorDescriptionKey:"\(databaseName) Unknown error"])
+	open static func unknownError(_ databaseName:String) -> SQLiteManagerError {
+		return SQLiteManagerError(code: kUknownErrorCode, userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):"\(databaseName) Unknown error"])
 	}
 	
 	// Database file does not exist code = 10001
-	public static let  kDatabaseFileDoesNotExistInAppBundleCode = 10001
+	open static let  kDatabaseFileDoesNotExistInAppBundleCode = 10001
 	
 	/**
 	Returns an error with error code 10001. Use when database file does not exist in app bundle
@@ -47,13 +47,13 @@ public class SQLiteManagerError: NSError {
 	
 	- returns: SQLiteManagerError(NSError)
 	*/
-	public static func databaseFileDoesNotExistInAppBundle(databaseName:String) -> SQLiteManagerError {
-		return SQLiteManagerError(code: kDatabaseFileDoesNotExistInAppBundleCode, userInfo: [kCFErrorDescriptionKey:"\(databaseName) file does not exist in app bundle to move to document dir",kCFErrorLocalizedRecoverySuggestionKey:"Drag and drop \(databaseName) file to app bundle"])
+	open static func databaseFileDoesNotExistInAppBundle(_ databaseName:String) -> SQLiteManagerError {
+		return SQLiteManagerError(code: kDatabaseFileDoesNotExistInAppBundleCode, userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):"\(databaseName) file does not exist in app bundle to move to document dir",errorKeyStr(forCFStr:kCFErrorLocalizedRecoverySuggestionKey):"Drag and drop \(databaseName) file to app bundle"])
 	}
 	
 	
 	// Database file path is nil code = 10002
-	public static let  kDatabaseFilePathIsNilCode = 10002
+	open static let  kDatabaseFilePathIsNilCode = 10002
 	
 	/**
 	Returns an error with error code 10002
@@ -63,13 +63,13 @@ public class SQLiteManagerError: NSError {
 	- returns: SQLiteManagerError(NSError)
 
 	*/
-	public static func kDatabaseFilePathIsNil(databaseName:String) -> SQLiteManagerError {
-		return SQLiteManagerError(code: kDatabaseFilePathIsNilCode, userInfo: [kCFErrorDescriptionKey:"\(databaseName) file path is nil"])
+	open static func kDatabaseFilePathIsNil(_ databaseName:String) -> SQLiteManagerError {
+		return SQLiteManagerError(code: kDatabaseFilePathIsNilCode, userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):"\(databaseName) file path is nil"])
 	}
 	
 	
 	// Database Binding values miss match = 10003
-	public static let  kDatabaseBindingValuesCountMissMatch = 10003
+	open static let  kDatabaseBindingValuesCountMissMatch = 10003
 	
 	/**
 	Returns as error with error code 10003. Use when bindQuery method has inequal number of binding params and binding values count.
@@ -81,8 +81,9 @@ public class SQLiteManagerError: NSError {
 	
 	- returns: SQLiteManagerError(NSError)
 	*/
-	public static func bindingValuesCountMissMatch(databaseName:String, sqlQeuery:String, bindingParamCount:Int, valuesCount:Int ) -> SQLiteManagerError {
-		return SQLiteManagerError(code: kDatabaseBindingValuesCountMissMatch, userInfo: [kCFErrorDescriptionKey:"\(databaseName), query:\(sqlQeuery) has \(bindingParamCount) binding params, but binding array has \(valuesCount) values. ",
-			kCFErrorLocalizedRecoverySuggestionKey:"Binding Param count and Number of binding values count MUST be equal"])
+	open static func bindingValuesCountMissMatch(_ databaseName:String, sqlQeuery:String, bindingParamCount:Int, valuesCount:Int ) -> SQLiteManagerError {
+		return SQLiteManagerError(code: kDatabaseBindingValuesCountMissMatch, userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):"\(databaseName), query:\(sqlQeuery) has \(bindingParamCount) binding params, but binding array has \(valuesCount) values. ",
+			errorKeyStr(forCFStr:kCFErrorLocalizedRecoverySuggestionKey):"Binding Param count and Number of binding values count MUST be equal"])
 	}
+	
 }

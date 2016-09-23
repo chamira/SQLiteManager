@@ -29,7 +29,7 @@ class ViewController: UIViewController {
 		// Do any additional setup after loading the view, typically from a nib.
 		queryTextView.text = insertQuery
 		queryTextView.delegate = self
-		queryTextView.keyboardType = .Default
+		queryTextView.keyboardType = .default
 		queryTextView.becomeFirstResponder()
 		
 		do {
@@ -60,18 +60,18 @@ class ViewController: UIViewController {
 
 	
 	var insertQuery:String {
-		let dob = NSDate(timeIntervalSince1970: 3600*24*3650)
+		let dob = Date(timeIntervalSince1970: 3600*24*3650)
 		let q = "INSERT INTO 'tb_user' (first_name, last_name, username, date_of_birth) VALUES ('Joohn','Frenando', 'some_user_name', \(dob.timeIntervalSince1970))"
 		return q
 	}
 	
-	@IBAction func tapRunButton(sender: AnyObject) {
+	@IBAction func tapRunButton(_ sender: AnyObject) {
 		runQuery()
 	}
 	
 	func runQuery() {
 		
-		let q = queryTextView.text.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+		let q = queryTextView.text.trimmingCharacters(in: CharacterSet.whitespaces)
 		
 		unowned let refSelf = self
 		
@@ -92,7 +92,7 @@ class ViewController: UIViewController {
 		if (asyncSegCnt.selectedSegmentIndex == 0) {
 		
 			do {
-				let result = try database.query(sqlStatement: q)
+				let result = try database.query(q)
 				successClosure(result)
 			} catch let e as NSError {
 				errorClosure(e)
@@ -100,7 +100,7 @@ class ViewController: UIViewController {
 		
 		} else {
 
-			database.query(sqlStatement: q, successClosure: { (result) in
+			database.query(q, successClosure: { (result) in
 				successClosure(result)
 				}, errorClosure: { (error) in
 					errorClosure(error)
@@ -138,7 +138,7 @@ class ViewController: UIViewController {
 }
 
 extension ViewController : UITextViewDelegate {
-	func textViewShouldBeginEditing(textView: UITextView) -> Bool {
+	func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
 		return true
 	}
 	
