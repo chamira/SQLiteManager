@@ -30,11 +30,11 @@ it, simply add the following line to your Podfile:
 
 ## Usage
 
-Drag and drop SQLite database file to project bundle. example database file name : ```app_test_database_1`` and extension is ``db`
+Drag and drop SQLite database file to project bundle. example database file name : ```app_test_database_1``` and extension is ```db```
 
 ```ruby
 pod "SQLiteManager"
-``
+```
 
 ``` swift
 import SQLiteManager
@@ -75,12 +75,12 @@ class ViewController: UIViewController {
 
 }
 
-``
+```
 
 ## Legacy 
 
 If you want to hook up with swift 2.3 point to swift2.3 branch 
-```pod 'SQLiteManager', :git => 'https://github.com/chamira/SQLiteManager.git', :branch => 'swift2.3'``
+```pod 'SQLiteManager', :git => 'https://github.com/chamira/SQLiteManager.git', :branch => 'swift2.3'```
 
 ## Author
 
