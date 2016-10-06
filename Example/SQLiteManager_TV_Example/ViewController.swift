@@ -81,7 +81,9 @@ class ViewController: UIViewController {
 			refSelf.countLabel.text = "Affected Row Count Count:\(result.affectedRowCount)"
 			if let r = result.results {
 				refSelf.resultTextView.text = "\(r)"
-			}
+            } else {
+                refSelf.resultTextView.text = nil;
+            }
 			
 		}
 		

@@ -38,7 +38,7 @@ class ViewController: UIViewController {
             database =  try SQLitePool.manager().initialize(database: "app_test_database_1", withExtension: "db")
             database.log = true
             
-            headerLabel.text = "Database '\(database.databaseName!)' is initialized successfully!\nWrite your SQL Query Below:"
+            headerLabel.text = "Database '\(database.databaseName)' is initialized successfully!\nWrite your SQL Query Below:"
             headerLabel.textColor = UIColor.black
             executeButton.isEnabled = true
             

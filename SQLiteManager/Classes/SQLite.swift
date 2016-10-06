@@ -115,28 +115,54 @@ open class SQLitePool {
 open class SQLite {
 	
 	open var description:String {
-		return databaseName!
+		return databaseName
 	}
 	
+    fileprivate var sharedManager:SQLite?
+    
+    //Private members
+    fileprivate var backupToICloud:Bool = false
+    
+    fileprivate var _databaseName:String = ""
+    
+    fileprivate var _databaseExtension = "db"
+    
+    fileprivate var database:OpaquePointer? = nil
+    
+    fileprivate var _createIfNotExists:Bool = false
+    
+    fileprivate var createIfNotExists:Bool {
+        return _createIfNotExists
+    }
+    
+    fileprivate var database_operation_queue:DispatchQueue!
+
+    
 	/// Database name with extension
-	open var databaseName:String?  {
+	open var databaseName:String {
 		return _databaseName+"."+_databaseExtension
 	}
 	
 	/// app document url
-	open var documentsUrl:URL {
+	open var documentsUrl:URL = {
 		let fileManager = FileManager.default
-		let urls = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
+        
+        #if os(tvOS)
+            let urls = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
+        #else
+            let urls = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
+        #endif
+		
 		let docUrl: URL = urls[0]
 		return docUrl
-	}
+	}()
 	
-		/// Database URL
+    /// Database URL
 	open var databaseUrl:URL? {
 		if (databaseName == nil) {
 			return nil
 		}
-		return documentsUrl.appendingPathComponent(databaseName!)
+		return documentsUrl.appendingPathComponent(databaseName)
 	}
 	
 		/// Database path
@@ -156,26 +182,7 @@ open class SQLite {
 	deinit {
 		closeDatabase()
 	}
-	
-	fileprivate var sharedManager:SQLite?
-
-	//Private members
-	fileprivate var backupToICloud:Bool = false
-	
-	fileprivate var _databaseName:String = ""
-	
-	fileprivate var _databaseExtension = "db"
-	
-	fileprivate var database:OpaquePointer? = nil
-	
-    fileprivate var _createIfNotExists:Bool = false
-    
-    fileprivate var createIfNotExists:Bool {
-        return _createIfNotExists
-    }
-    
-	fileprivate var database_operation_queue:DispatchQueue!
-	
+		
 	lazy fileprivate var databaseOperationQueue:OperationQueue = {
 	
 		let queue = OperationQueue()
@@ -215,7 +222,7 @@ open class SQLite {
 		log(_databaseName + " is open")
         database_operation_queue    = DispatchQueue(label: "lib.SQLiteManager.database_operation_queue."+_databaseName, attributes: [])
         databaseOperationQueue.name = "lib.SQLiteManager.database_operation_queue."+_databaseName
-		SQLitePool.addInstanceFor(database: databaseName!, instance: self)
+		SQLitePool.addInstanceFor(database: databaseName, instance: self)
 		sharedManager = self
 		
 		return self
@@ -231,12 +238,12 @@ open class SQLite {
 	open func openDatabase() throws {
 		
 		if (database != nil) {
-			log("Database is already open:" + databaseName!)
+			log("Database is already open:" + databaseName)
 			return
 		}
 		
 		guard let databasePath = databasePath else {
-			throw SQLiteManagerError.kDatabaseFilePathIsNil(databaseName!)
+			throw SQLiteManagerError.kDatabaseFilePathIsNil(databaseName)
 		}
 		
 		if sqlite3_open(databasePath, &database) != SQLITE_OK {
@@ -246,12 +253,12 @@ open class SQLite {
 			}
 			
 			let code = sqlite3_errcode(database)
-			log(" ***** Failed to open database:" + databaseName!)
+			log(" ***** Failed to open database:" + databaseName)
 			throw SQLiteManagerError(code: Int(code), userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):errorMessage])
 		}
 		
 		if (log) {
-			print("Database is open:",databaseName!)
+			print("Database is open:",databaseName)
 		}
 		
 	}
@@ -264,7 +271,7 @@ open class SQLite {
 		if (sqlite3_close(database) == SQLITE_OK) {
 			sharedManager = nil
 			database = nil
-			log("Database Closed successfully:" + databaseName!);
+			log("Database Closed successfully:" + databaseName);
 		}
 		
 	}
@@ -320,7 +327,7 @@ public extension SQLite {
 				}
 			}  else {
 				DispatchQueue.main.async {
-					errorClosure(SQLiteManagerError.unknownError(weakSelf.databaseName!))
+					errorClosure(SQLiteManagerError.unknownError(weakSelf.databaseName))
 				}
 			}
 			
@@ -469,7 +476,7 @@ public extension SQLite {
 				}
 			}  else {
 				DispatchQueue.main.async {
-					errorClosure(SQLiteManagerError.unknownError(weakSelf.databaseName!))
+					errorClosure(SQLiteManagerError.unknownError(weakSelf.databaseName))
 				}
 			}
 			
@@ -533,7 +540,7 @@ public extension SQLite {
 		
 		if bindCount != bindValues.count {
 			closeClosure()
-			throw SQLiteManagerError.bindingValuesCountMissMatch(databaseName!, sqlQeuery: sql, bindingParamCount: bindCount, valuesCount: bindValues.count)
+			throw SQLiteManagerError.bindingValuesCountMissMatch(databaseName, sqlQeuery: sql, bindingParamCount: bindCount, valuesCount: bindValues.count)
 		}
 		
 		var position:Int32 = 1
@@ -628,11 +635,11 @@ private extension SQLite {
             
             if (_createIfNotExists) {
                 guard let filePath = databasePath else {
-                    throw SQLiteManagerError.unknownError(databaseName!)
+                    throw SQLiteManagerError.unknownError(databaseName)
                 }
                 
                 if (!createDatabaseFileAtPath(filePath)) {
-                     throw SQLiteManagerError.unknownError(databaseName!)
+                     throw SQLiteManagerError.unknownError(databaseName)
                 }
                 
                 if (!backupToICloud) {
@@ -642,7 +649,7 @@ private extension SQLite {
                 return true
                 
             } else {
-                throw SQLiteManagerError.databaseFileDoesNotExistInAppBundle(databaseName!)
+                throw SQLiteManagerError.databaseFileDoesNotExistInAppBundle(databaseName)
             }
 		}
 	
