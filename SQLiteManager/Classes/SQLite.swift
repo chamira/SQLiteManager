@@ -121,7 +121,12 @@ public class SQLite {
 		/// app document url
 	public var documentsUrl:NSURL {
 		let fileManager = NSFileManager.defaultManager()
-		let urls = fileManager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
+		
+        #if os(tvOS)
+            let urls = fileManager.URLsForDirectory(.CachesDirectory, inDomains: .UserDomainMask)
+        #else
+            let urls = fileManager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
+        #endif
 		let docUrl: NSURL = urls[0]
 		return docUrl
 	}
