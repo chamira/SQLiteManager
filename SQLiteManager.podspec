@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'SQLiteManager'
-  s.version          = '0.1.11'
+  s.version          = '0.1.12'
   s.summary          = 'Simple SQLite Manager class to do operations such as open database, close database, insert, update, delete and select'
 
   s.description      = <<-DESC
@@ -9,6 +9,8 @@ There are many iOS libraries that are well capable of doing complicated SQLite s
 Thus, the idea is to get rid of all the boilerplate code and keep things very simple. You write your own SQL.
 
 Handling objects, writing business logic is all up to the developers.
+
+super lightweight
                        DESC
 
     s.homepage         = 'https://github.com/chamira/'
