@@ -25,6 +25,7 @@ public typealias ErrorClosure = (_ error:NSError)->()
 
 
 //MARK: - SQLitePool Class
+//SQLitePool class
 open class SQLitePool {
 	
 	fileprivate init() {}
@@ -112,6 +113,7 @@ open class SQLitePool {
 
 
 //MARK: - SQLite Class
+///SQLite class
 open class SQLite {
 	
 	open var description:String {
@@ -257,10 +259,8 @@ open class SQLite {
 			throw SQLiteManagerError(code: Int(code), userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):errorMessage])
 		}
 		
-		if (log) {
-			print("Database is open:",databaseName)
-		}
-		
+        log("Database is open:\(databaseName)")
+    
 	}
 	
 	/**
@@ -280,6 +280,8 @@ open class SQLite {
 
 
 //MARK: - Query extension
+
+///Normal queries
 public extension SQLite {
 	
 	/**
@@ -384,25 +386,28 @@ public extension SQLite {
 			return sqlite3_finalize(statement);
 		}
 		
+        let errorClosure:((_ errorCode:Int32,_ erorMessage:String)->(SQLiteManagerError)) = {code ,message in
+            closeClosure()
+            return SQLiteManagerError(code: Int(code), userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):message])
+        }
+        
 		sqlite3_exec(weakSelf.database, "BEGIN", nil,nil,nil);
 		returnCode = sqlite3_prepare_v2(weakSelf.database, sqlString, -1, &statement, nil)
-		
+        var line = #line - 1
+        
 		if returnCode != SQLITE_OK {
-			let errorMessage = "\(String(cString: sqlite3_errmsg(weakSelf.database))) SQL:\(sqlString) at line:\(#line) on file:\(#file)"
+			let errorMessage = "\(String(cString: sqlite3_errmsg(weakSelf.database))) SQL:\(sqlString) at line:\(line) on file:\(#file)"
 			let code = sqlite3_extended_errcode(weakSelf.database)
-			closeClosure()
-			throw SQLiteManagerError(code: Int(code), userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):errorMessage])
+            throw errorClosure(code,errorMessage)
 		}
 		
 		returnCode = sqlite3_exec(weakSelf.database, sqlString, nil, nil, nil)
-		
+        line = #line - 1
+        
 		if(returnCode != SQLITE_OK) {
-			
-			let errorMessage = "\(String(cString: sqlite3_errmsg(weakSelf.database))) SQL:\(sqlString) at line:\(#line) on file:\(#file)"
+			let errorMessage = "\(String(cString: sqlite3_errmsg(weakSelf.database))) SQL:\(sqlString) at line:\(line) on file:\(#file)"
 			let code = sqlite3_extended_errcode(weakSelf.database)
-			closeClosure()
-			throw SQLiteManagerError(code: Int(code), userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):errorMessage])
-			
+            throw errorClosure(code,errorMessage)
 		}
 
 		let count:Int32 = sqlite3_changes(weakSelf.database)
@@ -412,11 +417,9 @@ public extension SQLite {
 			let resultObjects = castSelectStatementValuesToNSObjects(statement!)
 
 			returnCode = closeClosure()
-			
-			if (log) {
-				print("SQL: \(sqlString) -> results:{ \(resultObjects) }")
-			}
-			
+        
+            log("SQL: \(sqlString) -> results:{\(resultObjects)}")
+        
 			var resultCount:Int = 0
 			if let c = resultObjects?.count {
 				resultCount = c
@@ -427,10 +430,8 @@ public extension SQLite {
 		
 		returnCode = closeClosure()
 		
-		if (log) {
-			print("SQL: \(sqlString) -> count: { \(count)}")
-		}
-		
+        log("SQL: \(sqlString) -> count: {\(count)}")
+    
 		return (returnCode,Int(count),nil)
 		
 	}
@@ -445,15 +446,31 @@ public extension SQLite {
 }
 
 //MARK: - Bind
+
+///Bind Queries
 public extension SQLite {
 
-	
+	/// Binds SQL statement with bind values and executes
+	///
+	/// - parameter sql:        sql statement
+	/// - parameter bindValues: values to bind (NSString,NSNumber,NSData,NSNull)
+	///
+	/// - throws: throw binding exception and query execution exceptions
+	///
+	/// - returns: SQLiteQueryResult
 	public func bindQuery(_ sql:String!, bindValues:[NSObject]) throws -> SQLiteQueryResult {
 		
 		do { return try submitBindQuery(sql, bindValues: bindValues) } catch let e as NSError { throw e }
 		
 	}
 	
+    
+	/// Binds SQL statement with bind values and executes in a background thread
+	///
+	/// - parameter sql:            sql statement
+	/// - parameter bindValues:     values to bind (NSString,NSNumber,NSData,NSNull)
+	/// - parameter successClosure: success closure with result
+	/// - parameter errorClosure:   error closure
 	public func bindQuery(_ sql:String!, bindValues:[NSObject], successClosure:@escaping SuccessClosure,errorClosure:@escaping ErrorClosure) {
 		
 		var error:NSError?
@@ -511,10 +528,16 @@ public extension SQLite {
 		
 	}
 	
+    
+	/// Execute bind query
+	///
+	/// - parameter sql:        sql statement
+	/// - parameter bindValues: values to bind (NSString,NSNumber,NSData,NSNull)
+	///
+	/// - throws: error in any kind while execution
+	///
+	/// - returns: SQLiteQueryResult
 	public func executeBindSQL(_ sql:String, bindValues:[NSObject]) throws -> SQLiteQueryResult {
-		
-        let SQLITE_STATIC    = unsafeBitCast(0, to: sqlite3_destructor_type.self)
-        let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
 		
 		var returnCode: Int32 = SQLITE_FAIL
 		unowned let weakSelf  = self
@@ -526,14 +549,19 @@ public extension SQLite {
 			return sqlite3_finalize(statement);
 		}
 		
+        let errorClosure:((_ errorCode:Int32,_ erorMessage:String)->(SQLiteManagerError)) = {code ,message in
+            closeClosure()
+            return SQLiteManagerError(code: Int(code), userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):message])
+        }
+        
 		sqlite3_exec(weakSelf.database, "BEGIN", nil,nil,nil);
 		returnCode = sqlite3_prepare_v2(weakSelf.database, sql, -1, &statement, nil)
-		
+		var line = #line - 1
+        
 		if returnCode != SQLITE_OK {
-			let errorMessage = "\(String(cString: sqlite3_errmsg(weakSelf.database))) SQL:\(sql) at line:\(#line) on file:\(#file)"
+			let errorMessage = "\(String(cString: sqlite3_errmsg(weakSelf.database))) SQL:\(sql) at line:\(line) on file:\(#file)"
 			let code = sqlite3_extended_errcode(weakSelf.database)
-			closeClosure()
-			throw SQLiteManagerError(code: Int(code), userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):errorMessage])
+			throw errorClosure(code,errorMessage)
 		}
 		
 		let bindCount = Int(sqlite3_bind_parameter_count(statement))
@@ -543,75 +571,85 @@ public extension SQLite {
 			throw SQLiteManagerError.bindingValuesCountMissMatch(databaseName, sqlQeuery: sql, bindingParamCount: bindCount, valuesCount: bindValues.count)
 		}
 		
-		var position:Int32 = 1
-		for val in bindValues {
-			if val is NSString {
-				let str = val as! NSString
-				sqlite3_bind_text(statement, position, str.utf8String, -1, SQLITE_STATIC);
-			} else if val is NSNumber {
-				let num = val as! NSNumber
-				
-				let numberType:CFNumberType = CFNumberGetType(num as CFNumber)
-				
-				switch numberType {
-					case .sInt8Type, .sInt16Type , .sInt32Type, .shortType, .charType:
-						sqlite3_bind_int(statement, position, num.int32Value)
-					case .sInt64Type, .intType, .longType, .longLongType, .cfIndexType, .nsIntegerType:
-						sqlite3_bind_int64(statement, position, num.int64Value)
-					default:
-						sqlite3_bind_double(statement, position, num.doubleValue)
-				}
-
-			} else if val is NSNull {
-				sqlite3_bind_null(statement, position)
-			} else if val is Data {
-				let data = val as! Data
-				sqlite3_bind_blob(statement, position, (data as NSData).bytes, Int32(data.count), SQLITE_TRANSIENT)
-			}
-			
-			position += 1
-			
-		}
-		
+        if let stm = statement {
+            bindValue(stm, bindValues)
+        }
+        
 		var resultCount:Int = 0
 		
 		if (isSelectStatement(sql)) {
 			
 			let resultObjects:SQLiteDataArray? = castSelectStatementValuesToNSObjects(statement!)
-			
-			if (log) {
-				print("SQL: \(sql) -> results: { \(resultObjects) } ")
-			}
-						
+            log("SQL: \(sql) -> results: { \(resultObjects) } ")
 			returnCode = closeClosure()
-			
 			let c:Int! = resultObjects == nil ? 0 : resultObjects?.count
-			
 			return (returnCode, c ,resultObjects)
 			
 		}
 		
 		returnCode = sqlite3_step(statement)
-		
+        line = #line - 1
+        
 		if returnCode != SQLITE_DONE {
-			let errorMessage = "\(String(cString: sqlite3_errmsg(weakSelf.database))) SQL:\(sql) at line:\(#line) on file:\(#file)"
+			let errorMessage = "\(String(cString: sqlite3_errmsg(weakSelf.database))) SQL:\(sql) at line:\(line) on file:\(#file)"
 			let code = sqlite3_extended_errcode(weakSelf.database)
-			let _ = closeClosure()
-			throw SQLiteManagerError(code: Int(code), userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):errorMessage])
+			throw errorClosure(code,errorMessage)
 		}
 		
-        let count:Int32 = sqlite3_changes(weakSelf.database)
-        resultCount     = Int(count)
+        let count   = sqlite3_changes(weakSelf.database)
+        resultCount = Int(count)
 		
 		returnCode = closeClosure()
 		
-		if (log) {
-			print("SQL: \(sql) -> results count: ", resultCount)
-		}
+        log("SQL: \(sql) -> results count: \(resultCount)")
 		
 		return (returnCode,resultCount ,nil)
 		
 	}
+    
+    
+    /// Bind values
+    private func bindValue(_ statement:OpaquePointer, _ bindValues:[NSObject]) {
+        
+        let SQLITE_STATIC    = unsafeBitCast(0, to: sqlite3_destructor_type.self)
+        let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
+        
+        var position:Int32 = 1
+        
+        for val in bindValues {
+            
+            if val is NSString {
+            
+                let str = val as! NSString
+                sqlite3_bind_text(statement, position, str.utf8String, -1, SQLITE_STATIC);
+            
+            } else if val is NSNumber {
+                
+                let num = val as! NSNumber
+                
+                let numberType:CFNumberType = CFNumberGetType(num as CFNumber)
+                
+                switch numberType {
+                case .sInt8Type, .sInt16Type , .sInt32Type, .shortType, .charType:
+                    sqlite3_bind_int(statement, position, num.int32Value)
+                case .sInt64Type, .intType, .longType, .longLongType, .cfIndexType, .nsIntegerType:
+                    sqlite3_bind_int64(statement, position, num.int64Value)
+                default:
+                    sqlite3_bind_double(statement, position, num.doubleValue)
+                }
+                
+            } else if val is NSNull {
+                sqlite3_bind_null(statement, position)
+            } else if val is Data {
+                let data = val as! Data
+                sqlite3_bind_blob(statement, position, (data as NSData).bytes, Int32(data.count), SQLITE_TRANSIENT)
+            }
+            
+            position += 1
+            
+        }
+        
+    }
 	
 }
 
@@ -693,74 +731,21 @@ private extension SQLite {
 		}
 	}
 	
+    /// Cast Pointer value to NSObjects
 	func castSelectStatementValuesToNSObjects(_ statement:OpaquePointer) -> SQLiteDataArray? {
 		
-		let columnCount:Int32 = sqlite3_column_count(statement)
-		
-		var keys:[NSString] = []
-		
-		for i in 0..<columnCount {
-			let str = sqlite3_column_name(statement, i)
-			if let _ = str {
-				let columnName = NSString(cString: str!, encoding: NSString.defaultCStringEncoding)
-				keys.append(columnName!)
-			}
-		}
+		var keys:[NSString] = getResultKeys(statement)
 		
 		var resultObjects:SQLiteDataArray?
 		
 		while sqlite3_step(statement) == SQLITE_ROW {
 			
-			var c:Int32 = 0
-			var row:[NSString:NSObject] = [:]
-		
-			for key in keys {
-				let value     = sqlite3_column_value(statement, c)
-				
-				let valueType = sqlite3_value_type(value)
-				var actualValue:NSObject?
-				
-				switch valueType {
-				case SQLITE_TEXT:
-					
-					let strPointer	= sqlite3_value_text(value)
-					if let (str, _) = String.decodeCString(strPointer, as: UTF8.self, repairingInvalidCodeUnits: false) {
-						actualValue = NSString(string: str)
-					}
-					
-					break
-				case SQLITE_FLOAT:
-					actualValue = NSNumber(value: sqlite3_value_double(value) as Double)
-					break
-				case SQLITE_INTEGER:
-					actualValue = NSNumber(value: sqlite3_value_int64(value) as Int64)
-					break
-				case SQLITE_BLOB:
-					let length = Int(sqlite3_column_bytes(statement, c))
-					let bytes  = sqlite3_column_blob(statement, c)
-					actualValue = NSData(bytes: bytes, length: length)
-					break
-				default:
-					actualValue = NSNull()
-					break
-				}
-				
-				if let v = actualValue {
-					
-					if (resultObjects == nil) {
-						resultObjects = []
-					}
-					
-					row[key] = v
-					
-				} else {
-					row[key] = NSNull()
-				}
-				
-				c += 1
-				
-			}
-			
+			let row:[NSString:NSObject] = getColumnValues(statement, keys: keys)
+            
+            if (resultObjects == nil) {
+                resultObjects = []
+            }
+
 			resultObjects?.append(row)
 			
 		}
@@ -768,6 +753,72 @@ private extension SQLite {
 		return resultObjects
 		
 	}
+    
+    /// Get column keys
+    private func getResultKeys(_ statement:OpaquePointer) -> [NSString] {
+        
+        let columnCount:Int32 = sqlite3_column_count(statement)
+        
+        var keys:[NSString] = []
+        
+        for i in 0..<columnCount {
+            let str = sqlite3_column_name(statement, i)
+            if let _ = str {
+                let columnName = NSString(cString: str!, encoding: NSString.defaultCStringEncoding)
+                keys.append(columnName!)
+            }
+        }
+        
+        return keys
+
+    }
+    
+    /// Get column values
+    private func getColumnValues(_ statement:OpaquePointer,keys:[NSString]) -> [NSString:NSObject] {
+        
+        var c:Int32 = 0
+        var row:[NSString:NSObject] = [:]
+        
+        for key in keys {
+            let value     = sqlite3_column_value(statement, c)
+            
+            let valueType = sqlite3_value_type(value)
+            var dataValue:NSObject!
+            
+            switch valueType {
+                case SQLITE_TEXT:
+                    
+                    let strPointer	= sqlite3_value_text(value)
+                    if let (str, _) = String.decodeCString(strPointer, as: UTF8.self, repairingInvalidCodeUnits: false) {
+                        dataValue = NSString(string: str)
+                    } else {
+                        dataValue = NSNull()
+                    }
+                    break
+                case SQLITE_FLOAT:
+                    dataValue = NSNumber(value: sqlite3_value_double(value) as Double)
+                    break
+                case SQLITE_INTEGER:
+                    dataValue = NSNumber(value: sqlite3_value_int64(value) as Int64)
+                    break
+                case SQLITE_BLOB:
+                    let length = Int(sqlite3_column_bytes(statement, c))
+                    let bytes  = sqlite3_column_blob(statement, c)
+                    dataValue = NSData(bytes: bytes, length: length)
+                    break
+                default:
+                    dataValue = NSNull()
+                    break
+            }
+            
+            row[key] = dataValue
+            c += 1;
+            
+        }
+        
+        return row
+        
+    }
 	
 }
 
