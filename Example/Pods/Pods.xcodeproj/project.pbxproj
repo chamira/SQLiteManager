@@ -22,6 +22,8 @@
 		496B6F6319F94ED25BBE3DE02195F33C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C8269EA575417E881641B52D115339E /* Foundation.framework */; };
 		4C39F8720FF9108876A4BD5F30E109D9 /* sqlite3-iOS-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = E018F7115F38ED991E403CB1C15958AD /* sqlite3-iOS-dummy.m */; };
 		4D953551A269575062BB25C2A92CC4B8 /* sqlite3ext.h in Headers */ = {isa = PBXBuildFile; fileRef = 8C427E612582D48E86D791D25D60CE68 /* sqlite3ext.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		53CAA1CF1DE44011004C4E31 /* SQLitePool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53CAA1C61DE43E16004C4E31 /* SQLitePool.swift */; };
+		53CAA1D01DE44012004C4E31 /* SQLitePool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53CAA1C61DE43E16004C4E31 /* SQLitePool.swift */; };
 		540340FCF9B518CB19E300F165437470 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 840D1770B53FEBAA9EC241511E56F718 /* Foundation.framework */; };
 		5A591EC0F795EEC983A9420F0476D094 /* Pods-SQLiteManager_TV_Example-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = A5EE325064304639AC5C3BD1761FC523 /* Pods-SQLiteManager_TV_Example-dummy.m */; };
 		5DDFDF520792FF9D3A4DAAEFD82F4CAA /* sqlite3ext.h in Headers */ = {isa = PBXBuildFile; fileRef = 8C427E612582D48E86D791D25D60CE68 /* sqlite3ext.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -120,6 +122,7 @@
 		4EB4CD9FD564970A620F5E29CE15ABF1 /* Pods-SQLiteManager_Tests-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-SQLiteManager_Tests-acknowledgements.plist"; sourceTree = "<group>"; };
 		4EF14A48AE7FE85385F3979E80E4CF6C /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4F4ED11157C5D225C35E4B3B0DDC4E6B /* Pods-SQLiteManager_Example-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-SQLiteManager_Example-umbrella.h"; sourceTree = "<group>"; };
+		53CAA1C61DE43E16004C4E31 /* SQLitePool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SQLitePool.swift; sourceTree = "<group>"; };
 		53E229334EA1D4424EE556B82C13BE39 /* Pods-SQLiteManager_Example-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-SQLiteManager_Example-frameworks.sh"; sourceTree = "<group>"; };
 		547DCB9B4F3ADB3C65002C78536A15AE /* SQLiteManager-iOS-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "SQLiteManager-iOS-umbrella.h"; sourceTree = "<group>"; };
 		54C8241BBA131B5BDB7A33A44C0D6CB7 /* Pods-SQLiteManager_TV_ExampleTests-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-SQLiteManager_TV_ExampleTests-dummy.m"; sourceTree = "<group>"; };
@@ -344,6 +347,7 @@
 			isa = PBXGroup;
 			children = (
 				2A70E7E53EBFE2D4D775095A05D74E72 /* HelperFunctions.swift */,
+				53CAA1C61DE43E16004C4E31 /* SQLitePool.swift */,
 				C3B19388CE80D9C6F15122058735DF67 /* SQLite.swift */,
 				F01EF43988C2A0EF295FBC8A0A9F2562 /* SQLiteManagerError.swift */,
 			);
@@ -710,6 +714,20 @@
 			attributes = {
 				LastSwiftUpdateCheck = 0730;
 				LastUpgradeCheck = 0700;
+				TargetAttributes = {
+					3385A7645CB67641DD61C26D5CF6ABD8 = {
+						LastSwiftMigration = 0810;
+					};
+					AA33783D19FA60ED46C66108101FDAB9 = {
+						LastSwiftMigration = 0810;
+					};
+					EA21AA2649C682D09177067390F1D955 = {
+						LastSwiftMigration = 0810;
+					};
+					F8815B7CCA82DC223891F1092B147512 = {
+						LastSwiftMigration = 0810;
+					};
+				};
 			};
 			buildConfigurationList = 2D8E8EC45A3A1A1D94AE762CB5028504 /* Build configuration list for PBXProject "Pods" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -743,6 +761,7 @@
 				0FCF1BEF96697FF764F1C3AE71911E34 /* HelperFunctions.swift in Sources */,
 				F846D1E6C002C70572D4A8A08B9491C9 /* SQLite.swift in Sources */,
 				3E03EC7951507498CAD12D067FACEC9C /* SQLiteManager-tvOS-dummy.m in Sources */,
+				53CAA1D01DE44012004C4E31 /* SQLitePool.swift in Sources */,
 				AD5D2B47E2D3B96ACE0B77ADBD3CBAF7 /* SQLiteManagerError.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -795,6 +814,7 @@
 				9A71C79F17AEA8796E8594930CD7432E /* HelperFunctions.swift in Sources */,
 				43EB4C423619DD00F157D5D0A26F7EFB /* SQLite.swift in Sources */,
 				1FB652A6457B0D9880DF9AEA618D7AB5 /* SQLiteManager-iOS-dummy.m in Sources */,
+				53CAA1CF1DE44011004C4E31 /* SQLitePool.swift in Sources */,
 				0E12B1C856047C6BA9FD05BC030D082D /* SQLiteManagerError.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -886,6 +906,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 8D82D7C55408F185BC35432458A4A81A /* Pods-SQLiteManager_Example.debug.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
@@ -912,6 +933,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -922,6 +944,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 089759146DF82AA238F271E6E6F7EAF5 /* Pods-SQLiteManager_TV_Example.debug.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
@@ -947,6 +970,7 @@
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -990,6 +1014,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = B0CAD570394EDA5D0AA2178891653FB4 /* Pods-SQLiteManager_TV_ExampleTests.debug.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
@@ -1014,6 +1039,8 @@
 				PRODUCT_NAME = Pods_SQLiteManager_TV_ExampleTests;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1132,6 +1159,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 139CA3C050FBBE1F90E611CB0CFCAE04 /* Pods-SQLiteManager_Tests.release.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
@@ -1157,6 +1185,7 @@
 				PRODUCT_NAME = Pods_SQLiteManager_Tests;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -1245,6 +1274,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 813E6E8DB3E9AA6562564455505293A5 /* Pods-SQLiteManager_TV_ExampleTests.release.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
@@ -1269,6 +1299,7 @@
 				PRODUCT_NAME = Pods_SQLiteManager_TV_ExampleTests;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1280,6 +1311,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 89E5CFB14223F6767D77A01771A4F0C8 /* Pods-SQLiteManager_Example.release.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
@@ -1305,6 +1337,7 @@
 				PRODUCT_NAME = Pods_SQLiteManager_Example;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -1380,6 +1413,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 73660101CFFB9E1F8B960BCB3FDD75E5 /* Pods-SQLiteManager_TV_Example.release.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
@@ -1404,6 +1438,7 @@
 				PRODUCT_NAME = Pods_SQLiteManager_TV_Example;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1447,6 +1482,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E419756942917E23A4F3A94CCA7160C5 /* Pods-SQLiteManager_Tests.debug.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
@@ -1472,6 +1508,8 @@
 				PRODUCT_NAME = Pods_SQLiteManager_Tests;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";

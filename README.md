@@ -13,6 +13,11 @@ Modeling, Handling objects, writing business logic is all up to the developers.
 [![License](https://img.shields.io/cocoapods/l/SQLiteManager.svg?style=flat)](http://cocoapods.org/pods/SQLiteManager)
 [![Platform](https://img.shields.io/cocoapods/p/SQLiteManager.svg?style=flat)](http://cocoapods.org/pods/SQLiteManager)
 
+## 0.2.0
+
+Read and Write queries are executed in two different database connections to make it faster
+Added functionality to execute array of queries in the same transaction block, (not supported for bind queries yet), this happens in an another database connection other than normal read/write connections
+NOTE:These new features are not available in swift2.3 version 
 
 ## Example
 
@@ -44,6 +49,7 @@ class ViewController: UIViewController {
 	@IBOutlet weak var countLabel: UILabel!
 
 	override func viewDidLoad() {
+
 		super.viewDidLoad()
 
 		let database =  try! SQLitePool.manager().initialize(database: "app_test_database_1", withExtension: "db")
@@ -58,21 +64,38 @@ class ViewController: UIViewController {
 		unowned let refSelf = self
 		database.query("select count(*) as user_count from tb_user", successClosure: { (result) in
 
-				if let r = result.results?.first!["user_count"] {
-					refSelf.countLabel.text = "\(r)"
-				}
+		if let r = result.results?.first!["user_count"] {
+			refSelf.countLabel.text = "\(r)"
+		}
 
-			}, errorClosure: { (error) in
-				print("Database Error",error)
-			})
+		}, errorClosure: { (error) in
+			print("Database Error",error)
+		})
 
 		//bind values
-		let dob = NSDate(timeIntervalSince1970: 3600*24*3650)
-		let profilePic  = NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("chamira_fernando", ofType: "jpg")!)
-		let _ = try! database.bindQuery("INSERT INTO 'tb_user' (first_name, last_name, username, date_of_birth, company_id, profile_picture) VALUES (?,?,?,?,?,?)", bindValues: ["Chameera","Fernando","some_user_name", NSNumber(double: dob.timeIntervalSince1970),NSNumber(int:1),profilePic!])
+		let dob = Date(timeIntervalSince1970: 3600*24*3650)
 
+		let imagePath = URL(fileURLWithPath: Bundle.main.path(forResource: "chamira_fernando", ofType: "jpg")!)
+		let profilePic  = try! Data(contentsOf: imagePath)
+
+		let _ = try! database.bindQuery("INSERT INTO 'tb_user' (first_name, last_name, username, date_of_birth, company_id, profile_picture) VALUES (?,?,?,?,?,?)", bindValues: [sqlStr("Chameera"),sqlStr("Fernando"),sqlStr("some_user_name"), sqlNumber(dob.timeIntervalSince1970),sqlNumber(1),sqlData(profilePic)])
+
+
+		//batch
+		let q1 = "SELECT * FROM tb_user"
+		let q2 = "SELECT username FROM tb_user"
+
+		database.query([q1,q2], successClosure: { (batchResult) in
+
+			print("Time taken to proces",batchResult.timeTaken)
+			for r in batchResult.results {
+			print("Batch r:",r.results ?? "")
+		}
+
+		}, errorClosure: { (e) in
+			print(e)
+		})
 	}
-
 }
 
 ```

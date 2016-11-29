@@ -200,8 +200,8 @@ class SQLiteManger_Tests: XCTestCase {
 			})
 			
 			self.waitForExpectations(timeout: 2.0, handler: { (error) in
-				if let _ = error {
-					print("Expectation error:",error)
+				if let e = error {
+					print("Expectation error:",e)
 				}
 			})
 			
@@ -225,8 +225,8 @@ class SQLiteManger_Tests: XCTestCase {
 			})
 			
 			self.waitForExpectations(timeout: 2.0, handler: { (error) in
-				if let _ = error {
-					print("Expectation error:",error)
+				if let e = error {
+					print("Expectation error:",e)
 				}
 			})
 			
@@ -255,8 +255,8 @@ class SQLiteManger_Tests: XCTestCase {
 			})
 			
 			self.waitForExpectations(timeout: 2.0, handler: { (error) in
-				if let _ = error {
-					print("Expectation error:",error)
+				if let e = error {
+					print("Expectation error:",e)
 				}
 			})
 			
@@ -283,8 +283,8 @@ class SQLiteManger_Tests: XCTestCase {
 			})
 			
 			self.waitForExpectations(timeout: 2.0, handler: { (error) in
-				if let _ = error {
-					print("Expectation error:",error)
+				if let e = error {
+					print("Expectation error:",e)
 				}
 			})
 			
@@ -313,8 +313,8 @@ class SQLiteManger_Tests: XCTestCase {
 			})
 			
 			self.waitForExpectations(timeout: 2.0, handler: { (error) in
-				if let _ = error {
-					print("Expectation error:",error)
+				if let e = error {
+					print("Expectation error:",e)
 				}
 			})
 		}
@@ -337,8 +337,8 @@ class SQLiteManger_Tests: XCTestCase {
 			})
 			
 			self.waitForExpectations(timeout: 2.0, handler: { (error) in
-				if let _ = error {
-					print("Expectation error:",error)
+				if let e = error {
+					print("Expectation error:",e)
 				}
 			})
 			
@@ -377,8 +377,8 @@ class SQLiteManger_Tests: XCTestCase {
 			})
 			
 			self.waitForExpectations(timeout: 2.0, handler: { (error) in
-				if let _ = error {
-					print("Expectation error:",error)
+				if let e = error {
+					print("Expectation error:",e)
 				}
 			})
 			
@@ -404,8 +404,8 @@ class SQLiteManger_Tests: XCTestCase {
 			})
 			
 			self.waitForExpectations(timeout: 2.0, handler: { (error) in
-				if let _ = error {
-					print("Expectation error:",error)
+				if let e = error {
+					print("Expectation error:",e)
 				}
 			})
 			
@@ -435,8 +435,8 @@ class SQLiteManger_Tests: XCTestCase {
 			})
 			
 			self.waitForExpectations(timeout: 2.0, handler: { (error) in
-				if let _ = error {
-					print("Expectation error:",error)
+				if let e = error {
+					print("Expectation error:",e)
 				}
 			})
 			
@@ -462,8 +462,8 @@ class SQLiteManger_Tests: XCTestCase {
 			})
 			
 			self.waitForExpectations(timeout: 2.0, handler: { (error) in
-				if let _ = error {
-					print("Expectation error:",error)
+				if let e = error {
+					print("Expectation error:",e)
 				}
 			})
 			
@@ -473,4 +473,159 @@ class SQLiteManger_Tests: XCTestCase {
 		
 	}
 	
+	func testBatchQueries() {
+		
+		let dbName = "app_test_database_x_big_dump"
+		let ext = "db"
+		
+		let database = try! SQLitePool.manager().initialize(database: dbName, withExtension: ext, createIfNotExist: true)
+		
+		XCTAssertEqual(dbName+"."+ext, database.databaseName, "Database is not iinitialized correctly")
+		
+		
+		let createTable = {
+			let q = "CREATE TABLE IF NOT EXISTS tb_company(ID INT PRIMARY KEY NOT NULL,NAME TEXT NOT NULL)"
+			let ret = try! database.query(q)
+		
+			XCTAssertEqual(SQLITE_OK, ret.SQLiteSatusCode, "Table is not created successfully SQLStatusCode:\(ret.SQLiteSatusCode)")
+		}
+		
+		let deleteTable = {
+			let drop = "DROP TABLE  IF EXISTS tb_company"
+			let dropq = try! database.query(drop)
+			
+			XCTAssertEqual(SQLITE_OK, dropq.SQLiteSatusCode, "Table is not deleted successfully SQLStatusCode:\(dropq.SQLiteSatusCode)")
+		}
+		
+		deleteTable() // drop company table if there is a any
+		
+		createTable()
+		
+		var queries = [String]()
+		var updateQuries = [String]()
+		
+		for i in 1..<10000 {
+			
+			let x = randomString(withLength: Int.random(lower: 0, upper: 100))
+			let q = "INSERT INTO 'tb_company' (ID,NAME) VALUES (\(i),'\(x)')"
+			queries.append(q)
+			
+			let y = randomString(withLength: Int.random(lower: 0, upper: 100))
+			
+			let u = "UPDATE 'tb_company' SET name = '\(y)' WHERE ID = \(i)"
+			updateQuries.append(u)
+			
+		}
+		
+		let insertSync:(_ queries:[String])->() = { (queries)->Void in
+			let r = try! database.query(queries)
+			XCTAssert(r.results.count == queries.count,"queries count \(queries.count) ≠ \(r.results.count)")
+			print("Time taken to execute \(queries.count) queries",r.timeTaken)
+		}
+		
+		let updateSync:(_ updateQuries:[String])->() = { (updateQuries)->Void in
+			
+			let updateR = try! database.query(updateQuries)
+			XCTAssert(updateR.results.count == updateQuries.count,"queries count \(updateQuries.count) ≠ \(updateR.results.count)")
+			print("Time taken to update \(updateQuries.count) queries",updateR.timeTaken)
+			
+			
+			for i in updateR.results {
+				XCTAssert(i.SQLiteSatusCode == SQLITE_OK,"Status code must be SQLITE_OK got \(i.SQLiteSatusCode)")
+				XCTAssert(i.affectedRowCount == 1,"Affected row count must be 1 got \(i.affectedRowCount)")
+			}
+		}
+
+		insertSync(queries)
+		updateSync(updateQuries)
+		
+		deleteTable()
+		
+		
+		createTable()
+		
+		let expectationInsert = self.expectation(description: "BatchStatementsAsync")
+		
+		database.query(queries, successClosure: { (batchResult) in
+		
+			XCTAssert(batchResult.results.count == queries.count,"queries count \(queries.count) ≠ \(batchResult.results.count)")
+			print("Async: Time taken to execute \(queries.count) queries",batchResult.timeTaken)
+			
+			database.query(updateQuries, successClosure: { (updateResult) in
+				
+				XCTAssert(updateResult.results.count == updateQuries.count,"queries count \(updateQuries.count) ≠ \(updateResult.results.count)")
+				print("Async: Time taken to update \(updateQuries.count) queries",updateResult.timeTaken)
+				
+				for i in updateResult.results {
+					XCTAssert(i.SQLiteSatusCode == SQLITE_OK,"Status code must be SQLITE_OK got \(i.SQLiteSatusCode)")
+					XCTAssert(i.affectedRowCount == 1,"Affected row count must be 1 got \(i.affectedRowCount)")
+				}
+				
+				expectationInsert.fulfill()
+				deleteTable()
+			}, errorClosure: { (e) in
+				expectationInsert.fulfill()
+				deleteTable()
+			})
+			
+			
+		}, errorClosure: { (e) in
+			
+			expectationInsert.fulfill()
+			deleteTable()
+			
+		})
+
+		self.waitForExpectations(timeout: 5.0, handler: { (error) in
+			if let e = error {
+				print("Expectation error:",e)
+			}
+		})
+		
+	}
+	
+	func randomString(withLength length:Int) -> String {
+		
+		let s = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\nøåÅØæÆ "
+		var word:String = ""
+		
+		for _ in 0 ..< length {
+			let rand = Int.random(lower:0, upper:s.characters.count)
+			let char =  s.substring(with: rand..<rand+1)
+			
+			word += char
+		}
+		
+		return word
+	}
+	
+}
+
+extension String {
+	func index(from: Int) -> Index {
+		return self.index(startIndex, offsetBy: from)
+	}
+	
+	func substring(from: Int) -> String {
+		let fromIndex = index(from: from)
+		return substring(from: fromIndex)
+	}
+	
+	func substring(to: Int) -> String {
+		let toIndex = index(from: to)
+		return substring(to: toIndex)
+	}
+	
+	func substring(with r: Range<Int>) -> String {
+		let startIndex = index(from: r.lowerBound)
+		let endIndex = index(from: r.upperBound)
+		return substring(with: startIndex..<endIndex)
+	}
+}
+
+
+public extension Int {
+	public static func random(lower: Int = min, upper: Int = max) -> Int {
+		return Int(arc4random_uniform(UInt32(upper) - UInt32(lower)) + UInt32(lower))
+	}
 }

@@ -358,7 +358,7 @@
 					app_test_database_tag,
 				);
 				LastSwiftUpdateCheck = 0800;
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0810;
 				ORGANIZATIONNAME = CocoaPods;
 				TargetAttributes = {
 					538CA9BD1D93C334004222E2 = {
