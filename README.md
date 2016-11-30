@@ -15,9 +15,9 @@ Modeling, Handling objects, writing business logic is all up to the developers.
 
 ## 0.2.0
 
-Read and Write queries are executed in two different database connections to make it faster
-Added functionality to execute array of queries in the same transaction block, (not supported for bind queries yet), this happens in an another database connection other than normal read/write connections
-NOTE:These new features are not available in swift2.3 version 
+Read and Write queries are executed in two different database connections to make it faster<br />
+Added functionality to execute array of queries in the same transaction block, (not supported for bind queries yet), this happens in an another database connection other than normal read/write connections<br />
+NOTE:These new features are not available in swift2.3 version<br /> 
 
 ## Example
 
