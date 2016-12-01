@@ -5,11 +5,33 @@ import sqlite3
 
 class SQLiteManger_Tests: XCTestCase {
 
+	var insertqueries = [String]()
+	var updateQuries = [String]()
+	var selectQuerires = [String]()
+	
 	override func setUp() {
 		super.setUp()
+
+		for i in 1..<10000 {
+			
+			let x = randomString(withLength: Int.random(lower: 0, upper: 100))
+			let q = "INSERT INTO 'tb_company' (ID,NAME) VALUES (\(i),'\(x)')"
+			insertqueries.append(q)
+			
+			let y = randomString(withLength: Int.random(lower: 0, upper: 100))
+			
+			let u = "UPDATE 'tb_company' SET name = '\(y)' WHERE ID = \(i)"
+			updateQuries.append(u)
+			
+			let select = "Select * from 'tb_company' where ID = \(i)"
+			selectQuerires.append(select)
+			
+		}
+		
 	}
 	
 	override func tearDown() {
+
 		super.tearDown()
 	}
 	
@@ -492,30 +514,19 @@ class SQLiteManger_Tests: XCTestCase {
 		
 		let deleteTable = {
 			let drop = "DROP TABLE  IF EXISTS tb_company"
-			let dropq = try! database.query(drop)
 			
-			XCTAssertEqual(SQLITE_OK, dropq.SQLiteSatusCode, "Table is not deleted successfully SQLStatusCode:\(dropq.SQLiteSatusCode)")
+			do {
+				let dropq = try database.query(drop)
+				XCTAssertEqual(SQLITE_OK, dropq.SQLiteSatusCode, "Table is not deleted successfully SQLStatusCode:\(dropq.SQLiteSatusCode)")
+			} catch {
+				print("Exception",error)
+			}
+			
 		}
 		
 		deleteTable() // drop company table if there is a any
 		
 		createTable()
-		
-		var queries = [String]()
-		var updateQuries = [String]()
-		
-		for i in 1..<10000 {
-			
-			let x = randomString(withLength: Int.random(lower: 0, upper: 100))
-			let q = "INSERT INTO 'tb_company' (ID,NAME) VALUES (\(i),'\(x)')"
-			queries.append(q)
-			
-			let y = randomString(withLength: Int.random(lower: 0, upper: 100))
-			
-			let u = "UPDATE 'tb_company' SET name = '\(y)' WHERE ID = \(i)"
-			updateQuries.append(u)
-			
-		}
 		
 		let insertSync:(_ queries:[String])->() = { (queries)->Void in
 			let r = try! database.query(queries)
@@ -524,37 +535,86 @@ class SQLiteManger_Tests: XCTestCase {
 		}
 		
 		let updateSync:(_ updateQuries:[String])->() = { (updateQuries)->Void in
+		
+			let selectWorkItem = DispatchWorkItem {
+				print("Selecting ......")
+				for query in self.selectQuerires {
 			
-			let updateR = try! database.query(updateQuries)
-			XCTAssert(updateR.results.count == updateQuries.count,"queries count \(updateQuries.count) ≠ \(updateR.results.count)")
-			print("Time taken to update \(updateQuries.count) queries",updateR.timeTaken)
-			
-			
-			for i in updateR.results {
-				XCTAssert(i.SQLiteSatusCode == SQLITE_OK,"Status code must be SQLITE_OK got \(i.SQLiteSatusCode)")
-				XCTAssert(i.affectedRowCount == 1,"Affected row count must be 1 got \(i.affectedRowCount)")
+					do {
+						let selectResult1 = try database.query(query)
+						XCTAssert(selectResult1.affectedRowCount == 1, "Something wrong result\(selectResult1)")
+					} catch {
+						print("Exception:",error)
+					}
+					
+				}
+				
 			}
+
+			let updateWorkItem = DispatchWorkItem {
+				print("Updating......")
+				let updateR = try! database.query(updateQuries)
+				
+				XCTAssert(updateR.results.count == updateQuries.count,"queries count \(updateQuries.count) ≠ \(updateR.results.count)")
+				print("Time taken to update \(updateQuries.count) queries",updateR.timeTaken)
+				for i in updateR.results {
+					XCTAssert(i.SQLiteSatusCode == SQLITE_OK,"Status code must be SQLITE_OK got \(i.SQLiteSatusCode)")
+					XCTAssert(i.affectedRowCount == 1,"Affected row count must be 1 got \(i.affectedRowCount)")
+				}
+				
+			}
+			
+			DispatchQueue.main.async(execute: updateWorkItem)
+			DispatchQueue.global().async(execute: selectWorkItem)
+
 		}
 
-		insertSync(queries)
+		insertSync(insertqueries)
 		updateSync(updateQuries)
 		
-		deleteTable()
+	}
+	
+	func testBatchAsyncQueries () {
 		
+		let dbName = "app_test_database_y_big_dump"
+		let ext = "db"
+		
+		let database = try! SQLitePool.manager().initialize(database: dbName, withExtension: ext, createIfNotExist: true)
+		
+		XCTAssertEqual(dbName+"."+ext, database.databaseName, "Database is not iinitialized correctly")
+		
+		let createTable = {
+			let q = "CREATE TABLE IF NOT EXISTS tb_company(ID INT PRIMARY KEY NOT NULL,NAME TEXT NOT NULL)"
+			let ret = try! database.query(q)
+			
+			XCTAssertEqual(SQLITE_OK, ret.SQLiteSatusCode, "Table is not created successfully SQLStatusCode:\(ret.SQLiteSatusCode)")
+		}
+		
+		let deleteTable = {
+			let drop = "DROP TABLE  IF EXISTS tb_company"
+			
+			do {
+				let dropq = try database.query(drop)
+				XCTAssertEqual(SQLITE_OK, dropq.SQLiteSatusCode, "Table is not deleted successfully SQLStatusCode:\(dropq.SQLiteSatusCode)")
+			} catch {
+				print("Exception",error)
+			}
+			
+		}
 		
 		createTable()
 		
 		let expectationInsert = self.expectation(description: "BatchStatementsAsync")
 		
-		database.query(queries, successClosure: { (batchResult) in
-		
-			XCTAssert(batchResult.results.count == queries.count,"queries count \(queries.count) ≠ \(batchResult.results.count)")
-			print("Async: Time taken to execute \(queries.count) queries",batchResult.timeTaken)
+		database.query(insertqueries, successClosure: { (batchResult) in
 			
-			database.query(updateQuries, successClosure: { (updateResult) in
+			XCTAssert(batchResult.results.count == self.insertqueries.count,"queries count \(self.insertqueries.count) ≠ \(batchResult.results.count)")
+			print("Async: Time taken to execute \(self.insertqueries.count) queries",batchResult.timeTaken)
+			
+			database.query(self.updateQuries, successClosure: { (updateResult) in
 				
-				XCTAssert(updateResult.results.count == updateQuries.count,"queries count \(updateQuries.count) ≠ \(updateResult.results.count)")
-				print("Async: Time taken to update \(updateQuries.count) queries",updateResult.timeTaken)
+				XCTAssert(updateResult.results.count == self.updateQuries.count,"queries count \(self.updateQuries.count) ≠ \(updateResult.results.count)")
+				print("Async: Time taken to update \(self.updateQuries.count) queries",updateResult.timeTaken)
 				
 				for i in updateResult.results {
 					XCTAssert(i.SQLiteSatusCode == SQLITE_OK,"Status code must be SQLITE_OK got \(i.SQLiteSatusCode)")
@@ -575,13 +635,13 @@ class SQLiteManger_Tests: XCTestCase {
 			deleteTable()
 			
 		})
-
+		
 		self.waitForExpectations(timeout: 5.0, handler: { (error) in
 			if let e = error {
 				print("Expectation error:",e)
 			}
 		})
-		
+
 	}
 	
 	func randomString(withLength length:Int) -> String {

@@ -27,9 +27,16 @@ public typealias BatchSuccessClosure = (_ result:SQLiteBatchQueryResult)->()
 public typealias ErrorClosure = (_ error:NSError)->()
 
 
+public enum TransactionCommand:String {
+	case begin = "BEGIN TRANSACTION"
+	case commit = "COMMIT"
+}
+
 //MARK: - SQLite Class
 ///SQLite class
 open class SQLite {
+
+	fileprivate static let kBusyTimeoutInMili = Int32(1000)
 	
     fileprivate var sharedManager:SQLite?
     
@@ -146,6 +153,22 @@ open class SQLite {
 		return queue
 		
 	}()
+	
+	fileprivate let closeClosure:(_ databaseHandler:OpaquePointer,_ preparedStatement:OpaquePointer)->(Int32) = {(databaseHandler, preparedStatement)->(Int32) in
+		sqlite3_exec(databaseHandler, TransactionCommand.commit.rawValue, nil, nil, nil)
+		return sqlite3_finalize(preparedStatement)
+		
+	}
+	
+	fileprivate let errorClosure:(_ databaseHandler:OpaquePointer,_ preparedStatement:OpaquePointer?, _ sqlString:String? ,_ line:Int)->(SQLiteManagerError) = {databaseHandler, preparedStatement, sqlString ,line in
+		let errorMessage = "\(String(cString: sqlite3_errmsg(databaseHandler))) SQL:\(sqlString ?? "[NO-SQL]") at line:\(line) on file:\(#file)"
+		let code = sqlite3_extended_errcode(databaseHandler)
+		sqlite3_exec(databaseHandler, TransactionCommand.commit.rawValue, nil, nil, nil)
+		if (preparedStatement != nil) {
+			sqlite3_finalize(preparedStatement)
+		}
+		return SQLiteManagerError(code: Int(code), userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):errorMessage])
+	}
 	
 	internal func initialize(database name:String, withExtension:String, createIfNotExist create:Bool = false) throws -> SQLite {
 		
@@ -352,6 +375,11 @@ public extension SQLite {
 		
 	}
 	
+	
+}
+
+//MARK: - Execution of SQLite
+fileprivate extension SQLite {
 	/**
 	This is where all dirty jobs happen
 	Run SQL and cast into Dictionary and return the result
@@ -364,58 +392,172 @@ public extension SQLite {
 	*/
 	fileprivate func executeSQL(_ sqlString:String) throws -> SQLiteQueryResult {
 		
-        var returnCode: Int32 = SQLITE_FAIL
+		let preparation = try prepare_exec(sqlString: sqlString)
 		
-		var statement: OpaquePointer? = nil
-		let databaseConnection = getDatabasePointerForQuery(sql: sqlString)
+		let exec = try run_exec(databaseHandler: preparation.databaseHandler, sqlString: sqlString)
 		
-		let closeClosure:(()->(Int32)) = {
-			sqlite3_exec(databaseConnection, "COMMIT", nil, nil, nil);
-			return sqlite3_finalize(statement);
-		}
-		
-        let errorClosure:((_ sqlString:String,_ line:Int)->(SQLiteManagerError)) = {sqlString ,line in
-			let errorMessage = "\(String(cString: sqlite3_errmsg(databaseConnection))) SQL:\(sqlString) at line:\(line) on file:\(#file)"
-			let code = sqlite3_extended_errcode(databaseConnection)
-            closeClosure()
-            return SQLiteManagerError(code: Int(code), userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):errorMessage])
-        }
-        
-		sqlite3_exec(databaseConnection, "BEGIN", nil,nil,nil);
-		returnCode = sqlite3_prepare_v2(databaseConnection, sqlString, -1, &statement, nil)
-        var line = #line - 1
-        
-		if returnCode != SQLITE_OK {
-            throw errorClosure(sqlString,line)
-		}
-		
-		returnCode = sqlite3_exec(databaseConnection, sqlString, nil, nil, nil)
-        line = #line - 1
-        
-		if(returnCode != SQLITE_OK) {
-            throw errorClosure(sqlString,line)
-		}
-
-		let count:Int32 = sqlite3_changes(databaseConnection)
-		
-		if (isSelectStatement(sqlString)) {
+		if (is_select_statement(sqlString)) {
 			
-			let r = castSelectStatementValuesToNSObjects(statement!)
-			returnCode = closeClosure()
-			 log("SQL: \(sqlString) -> count: {\(r.count)}")
+			let r = castSelectStatementValuesToNSObjects(preparation.preparedStatement!)
+			let returnCode = self.closeClosure(preparation.databaseHandler,preparation.preparedStatement!)
 			return (returnCode,r.count ,r.objects)
 			
 		}
 		
-		returnCode = closeClosure()
-		
-        log("SQL: \(sqlString) -> count: {\(count)}")
-    
-		return (returnCode,Int(count),nil)
+		let returnCode = self.closeClosure(preparation.databaseHandler,preparation.preparedStatement!)
+		return (returnCode,Int(exec.count),nil)
 		
 	}
 	
-	fileprivate func isSelectStatement(_ sqlStatement:String!) -> Bool {
+	/// Execute bind query
+	///
+	/// - parameter sql:        sql statement
+	/// - parameter bindValues: values to bind (NSString,NSNumber,NSData,NSNull)
+	///
+	/// - throws: error in any kind while execution
+	///
+	/// - returns: SQLiteQueryResult
+	fileprivate func executeBindSQL(_ sql:String, bindValues:[NSObject]) throws -> SQLiteQueryResult {
+		
+		let preparation = try prepare_exec(sqlString: sql)
+		
+		let bindCount = Int(sqlite3_bind_parameter_count(preparation.preparedStatement))
+		
+		if bindCount != bindValues.count {
+			let returnCode = self.closeClosure(preparation.databaseHandler,preparation.preparedStatement!)
+			throw SQLiteManagerError.bindingValuesCountMissMatch(databaseName, sqlQeuery: sql, bindingParamCount: bindCount, valuesCount: bindValues.count)
+		}
+		
+		guard let stm = preparation.preparedStatement else {
+			throw SQLiteManagerError.unknownError(databaseName)
+		}
+		
+		bind_value(stm, bindValues)
+		var resultCount:Int = 0
+		
+		if (is_select_statement(sql)) {
+			
+			let r = castSelectStatementValuesToNSObjects(stm)
+			let returnCode = self.closeClosure(preparation.databaseHandler,stm)
+			return (returnCode, r.count ,r.objects)
+			
+		}
+		
+		var returnCode = sqlite3_step(stm)
+		let line = #line - 1
+		
+		if returnCode != SQLITE_DONE {
+			throw self.errorClosure(preparation.databaseHandler, preparation.preparedStatement, sql, line)
+		}
+		
+		resultCount  = run_changes(databaseHandler: preparation.databaseHandler)
+		returnCode = self.closeClosure(preparation.databaseHandler,stm)
+		
+		return (returnCode,resultCount ,nil)
+		
+	}
+
+}
+
+//MARK: - SQLite low level Operations
+fileprivate extension SQLite {
+	
+	///single query prepration
+	func prepare_exec(sqlString:String) throws -> (statusCode:Int32,databaseHandler:OpaquePointer,preparedStatement:OpaquePointer?) {
+		
+		var preparedStatement: OpaquePointer? = nil
+		let databaseHandler = getDatabasePointerForQuery(sql: sqlString)
+		
+		var returnCode = sqlite3_busy_timeout(databaseHandler,SQLite.kBusyTimeoutInMili)
+		try validate_exec(databaseHandler: databaseHandler, preparedStatement: preparedStatement, returnCode: returnCode, sqlString: sqlString, line: #line-1)
+		
+		returnCode = sqlite3_exec(databaseHandler, TransactionCommand.begin.rawValue, nil,nil,nil)
+		try validate_exec(databaseHandler: databaseHandler, preparedStatement: preparedStatement, returnCode: returnCode, sqlString: sqlString, line: #line-1)
+		
+		returnCode = sqlite3_prepare_v2(databaseHandler, sqlString, -1, &preparedStatement, nil)
+		try validate_exec(databaseHandler: databaseHandler, preparedStatement: preparedStatement, returnCode: returnCode, sqlString: sqlString, line: #line-1)
+		
+		return (statusCode:returnCode, databaseHandler:databaseHandler, preparedStatement:preparedStatement)
+		
+	}
+	
+	///run single query
+	func run_exec(databaseHandler:OpaquePointer, sqlString:String) throws -> (statusCode:Int32,count:Int) {
+		
+		let returnCode = sqlite3_exec(databaseHandler, sqlString, nil, nil, nil)
+		try validate_exec(databaseHandler: databaseHandler, preparedStatement: nil, returnCode: returnCode, sqlString: sqlString, line: #line-1)
+		let count = run_changes(databaseHandler: databaseHandler)
+		log("SQL::\(sqlString)")
+		return (statusCode:returnCode,count:count)
+		
+	}
+	
+	///get the changes count execpt select statements
+	func run_changes(databaseHandler:OpaquePointer) -> Int {
+		let count:Int32 = sqlite3_changes(databaseHandler)
+		return Int(count)
+	}
+	
+	///validate all the sqlite_exec
+	func validate_exec(databaseHandler:OpaquePointer, preparedStatement:OpaquePointer?, returnCode:Int32,sqlString:String? ,line:Int) throws {
+		
+		if returnCode != SQLITE_OK {
+			if returnCode == SQLITE_LOCKED {
+				sleep(UInt32(SQLite.kBusyTimeoutInMili))
+			} else {
+				let errorClosure:(_ sqlString:String?,_ line:Int)->(SQLiteManagerError) = {sqlString ,line in
+					return self.errorClosure(databaseHandler,preparedStatement,sqlString,line)
+				}
+				throw errorClosure(sqlString, line)
+			}
+		}
+		
+	}
+	
+	/// Bind values
+	fileprivate func bind_value(_ statement:OpaquePointer, _ bindValues:[NSObject]) {
+		
+		let SQLITE_STATIC    = unsafeBitCast(0, to: sqlite3_destructor_type.self)
+		let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
+		
+		var position:Int32 = 1
+		
+		for val in bindValues {
+			
+			if val is NSString {
+				
+				let str = val as! NSString
+				sqlite3_bind_text(statement, position, str.utf8String, -1, SQLITE_STATIC)
+				
+			} else if val is NSNumber {
+				
+				let num = val as! NSNumber
+				
+				let numberType:CFNumberType = CFNumberGetType(num as CFNumber)
+				
+				switch numberType {
+				case .sInt8Type, .sInt16Type , .sInt32Type, .shortType, .charType:
+					sqlite3_bind_int(statement, position, num.int32Value)
+				case .sInt64Type, .intType, .longType, .longLongType, .cfIndexType, .nsIntegerType:
+					sqlite3_bind_int64(statement, position, num.int64Value)
+				default:
+					sqlite3_bind_double(statement, position, num.doubleValue)
+				}
+				
+			} else if val is NSNull {
+				sqlite3_bind_null(statement, position)
+			} else if val is Data {
+				let data = val as! Data
+				sqlite3_bind_blob(statement, position, (data as NSData).bytes, Int32(data.count), SQLITE_TRANSIENT)
+			}
+			
+			position += 1
+			
+		}
+		
+	}
+	
+	fileprivate func is_select_statement(_ sqlStatement:String) -> Bool {
 		
 		let selectWord = "SELECT"
 		return (sqlStatement.trimmingCharacters(in: CharacterSet.whitespaces).substring(to: selectWord.endIndex).uppercased()) == selectWord
@@ -509,128 +651,6 @@ public extension SQLite {
 		
 	}
 	
-    
-	/// Execute bind query
-	///
-	/// - parameter sql:        sql statement
-	/// - parameter bindValues: values to bind (NSString,NSNumber,NSData,NSNull)
-	///
-	/// - throws: error in any kind while execution
-	///
-	/// - returns: SQLiteQueryResult
-	public func executeBindSQL(_ sql:String, bindValues:[NSObject]) throws -> SQLiteQueryResult {
-		
-		var returnCode: Int32 = SQLITE_FAIL
-
-		var statement: OpaquePointer? = nil
-		let databaseConnection = getDatabasePointerForQuery(sql: sql)
-		
-		let closeClosure:(()->(Int32)) = {
-			sqlite3_exec(databaseConnection, "COMMIT", nil, nil, nil);
-			return sqlite3_finalize(statement);
-		}
-		
-        let errorClosure:((_ sql:String,_ line:Int)->(SQLiteManagerError)) = {sql ,line in
-			let errorMessage = "\(String(cString: sqlite3_errmsg(databaseConnection))) SQL:\(sql) at line:\(line) on file:\(#file)"
-			let code = sqlite3_extended_errcode(databaseConnection)
-            closeClosure()
-            return SQLiteManagerError(code: Int(code), userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):errorMessage])
-        }
-        
-		sqlite3_exec(databaseConnection, "BEGIN", nil,nil,nil);
-		returnCode = sqlite3_prepare_v2(databaseConnection, sql, -1, &statement, nil)
-		var line = #line - 1
-        
-		if returnCode != SQLITE_OK {
-			throw errorClosure(sql,line)
-		}
-		
-		let bindCount = Int(sqlite3_bind_parameter_count(statement))
-		
-		if bindCount != bindValues.count {
-			closeClosure()
-			throw SQLiteManagerError.bindingValuesCountMissMatch(databaseName, sqlQeuery: sql, bindingParamCount: bindCount, valuesCount: bindValues.count)
-		}
-		
-        if let stm = statement {
-            bindValue(stm, bindValues)
-        }
-        
-		var resultCount:Int = 0
-		
-		if (isSelectStatement(sql)) {
-			
-			let r = castSelectStatementValuesToNSObjects(statement!)
-			
-			returnCode = closeClosure()
-			
-			return (returnCode, r.count ,r.objects)
-			
-		}
-		
-		returnCode = sqlite3_step(statement)
-        line = #line - 1
-        
-		if returnCode != SQLITE_DONE {
-
-			throw errorClosure(sql,line)
-		}
-		
-        let count   = sqlite3_changes(databaseConnection)
-        resultCount = Int(count)
-		
-		returnCode = closeClosure()
-		
-        log("SQL: \(sql) -> results count: \(resultCount)")
-		
-		return (returnCode,resultCount ,nil)
-		
-	}
-    
-    
-    /// Bind values
-    private func bindValue(_ statement:OpaquePointer, _ bindValues:[NSObject]) {
-        
-        let SQLITE_STATIC    = unsafeBitCast(0, to: sqlite3_destructor_type.self)
-        let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
-        
-        var position:Int32 = 1
-        
-        for val in bindValues {
-            
-            if val is NSString {
-            
-                let str = val as! NSString
-                sqlite3_bind_text(statement, position, str.utf8String, -1, SQLITE_STATIC);
-            
-            } else if val is NSNumber {
-                
-                let num = val as! NSNumber
-                
-                let numberType:CFNumberType = CFNumberGetType(num as CFNumber)
-                
-                switch numberType {
-                case .sInt8Type, .sInt16Type , .sInt32Type, .shortType, .charType:
-                    sqlite3_bind_int(statement, position, num.int32Value)
-                case .sInt64Type, .intType, .longType, .longLongType, .cfIndexType, .nsIntegerType:
-                    sqlite3_bind_int64(statement, position, num.int64Value)
-                default:
-                    sqlite3_bind_double(statement, position, num.doubleValue)
-                }
-                
-            } else if val is NSNull {
-                sqlite3_bind_null(statement, position)
-            } else if val is Data {
-                let data = val as! Data
-                sqlite3_bind_blob(statement, position, (data as NSData).bytes, Int32(data.count), SQLITE_TRANSIENT)
-            }
-            
-            position += 1
-            
-        }
-        
-    }
-	
 }
 
 //MARK: - Batch processing of sqls
@@ -697,32 +717,18 @@ public extension SQLite {
 	/// - Parameter sqlStrings: array of sql statements
 	/// - Returns: SQLiteBatchQueryResult
 	/// - Throws: throw exception if something is wrong
-	public func executeSQL(_ sqlStrings:[String]) throws -> SQLiteBatchQueryResult {
+	fileprivate func executeSQL(_ sqlStrings:[String]) throws -> SQLiteBatchQueryResult {
+	
 		let start = Date()
-		
-		do {
-			try openBatchConnection()
-		} catch {
-			throw error
-		}
+	
+		try openBatchConnection()
 		
 		var statement: OpaquePointer? = nil
 		
 		var results:[SQLiteQueryResult] = [SQLiteQueryResult]()
 		
-		let closeClosure:(()->(Int32)) = { [unowned self] in
-			sqlite3_exec(self.batchConnection, "COMMIT", nil, nil, nil);
-			return sqlite3_finalize(statement);
-		}
-		
-		let errorClosure:((_ sqlString:String,_ line:Int)->(SQLiteManagerError)) = {[unowned self] sqlString ,line in
-			let errorMessage = "\(String(cString: sqlite3_errmsg(self.batchConnection))) SQL:\(sqlString) at line:\(line) on file:\(#file)"
-			let code = sqlite3_extended_errcode(self.batchConnection)
-			closeClosure()
-			return SQLiteManagerError(code: Int(code), userInfo: [errorKeyStr(forCFStr:kCFErrorDescriptionKey):errorMessage])
-		}
-		
-		sqlite3_exec(batchConnection, "BEGIN", nil,nil,nil);
+		sqlite3_busy_timeout(batchConnection,SQLite.kBusyTimeoutInMili)
+		sqlite3_exec(batchConnection, TransactionCommand.begin.rawValue, nil,nil,nil)
 		
 		//Iter all sqlStrings and execute them inside same transaction
 		for sqlString in sqlStrings {
@@ -732,42 +738,46 @@ public extension SQLite {
 			
 			returnCode = sqlite3_prepare_v2(batchConnection, sqlString, -1, &statement, nil)
 			var line = #line - 1
+			try handle_exec(databaseHandler: batchConnection!, preparedStatement:statement, returnCode: returnCode, sql: sqlString, line: line)
 			
-			if returnCode != SQLITE_OK {
-				throw errorClosure(sqlString,line)
+			returnCode = sqlite3_exec(batchConnection , sqlString, nil, nil, nil)
+			line = #line - 1
+			try handle_exec(databaseHandler: batchConnection!, preparedStatement:statement, returnCode: returnCode, sql: sqlString, line: line)
+		
+			if (is_select_statement(sqlString)) {
+				
+				let r = castSelectStatementValuesToNSObjects(statement!)
+				result = (returnCode,r.count, r.objects)
+				
 			} else {
 				
-				returnCode = sqlite3_exec(batchConnection , sqlString, nil, nil, nil)
-				var line = #line - 1
-				
-				if returnCode != SQLITE_OK {
-					throw errorClosure(sqlString,line)
-				} else {
-					
-					if (isSelectStatement(sqlString)) {
-						
-						let r = castSelectStatementValuesToNSObjects(statement!)
-						result = (returnCode,r.count, r.objects)
-						
-					} else {
-						
-						let count:Int32 = sqlite3_changes(batchConnection)
-						result = (returnCode, Int(count) ,nil)
-					}
-				}
+				let count:Int32 = sqlite3_changes(batchConnection)
+				result = (returnCode, Int(count) ,nil)
 			}
 			
 			results.append(result)
 			
 		}
 		
-		closeClosure()
+		self.closeClosure(batchConnection!,statement!)
 		closeBatchConnection()
 		let time = Date().timeIntervalSince(start)
 		let r:SQLiteBatchQueryResult = (timeTaken:time,results:results)
 		return r
 		
 	}
+	
+	fileprivate func handle_exec(databaseHandler:OpaquePointer, preparedStatement:OpaquePointer? ,returnCode:Int32, sql:String, line:Int) throws {
+		if returnCode != SQLITE_OK {
+			if returnCode == SQLITE_LOCKED {
+				sleep(UInt32(SQLite.kBusyTimeoutInMili))
+			} else {
+				throw self.errorClosure(databaseHandler, preparedStatement, sql, line)
+			}
+		}
+	
+	}
+	
 	
 	fileprivate func openBatchConnection() throws {
 		if (batchConnection == nil) {
@@ -824,9 +834,9 @@ public extension SQLite {
 }
 
 //MARK: - Utility extension
-private extension SQLite {
-	
-	func hasDatabaseMovedToDocumentsDir() -> Bool {
+fileprivate extension SQLite {
+
+	fileprivate func hasDatabaseMovedToDocumentsDir() -> Bool {
 		
 		guard let databasePath = databasePath else {
 			return false
@@ -837,7 +847,7 @@ private extension SQLite {
 		
 	}
 	
-	func copyDatabaseFromBundleToDocumentsDir () throws -> Bool {
+	fileprivate func copyDatabaseFromBundleToDocumentsDir () throws -> Bool {
 		
 		guard let databaseBundlePath = Bundle.main.path(forResource: _databaseName, ofType: _databaseExtension) else {
             
@@ -877,7 +887,7 @@ private extension SQLite {
 		return true
 	}
 	
-    func createDatabaseFileAtPath(_ path:String)->Bool {
+    fileprivate func createDatabaseFileAtPath(_ path:String)->Bool {
      
         let fileManager = FileManager.default
         let created =  fileManager.createFile(atPath: path, contents: nil, attributes: [FileAttributeKey.creationDate.rawValue:Date(),FileAttributeKey.type.rawValue:FileAttributeType.typeRegular])
@@ -886,7 +896,7 @@ private extension SQLite {
     }
     
 	// Exclude file at URL from iCloud backup
-	func addSkipBackupAttributeToItemAtPath(_ url: URL) {
+	fileprivate func addSkipBackupAttributeToItemAtPath(_ url: URL) {
 		
 		let fileManager = FileManager.default
 		if fileManager.fileExists(atPath: url.path) {
@@ -902,7 +912,7 @@ private extension SQLite {
 	}
 	
     /// Cast Pointer value to NSObjects
-	func castSelectStatementValuesToNSObjects(_ statement:OpaquePointer) -> (count:Int,objects:SQLiteDataArray?) {
+	fileprivate func castSelectStatementValuesToNSObjects(_ statement:OpaquePointer) -> (count:Int,objects:SQLiteDataArray?) {
 		
 		var keys:[NSString] = getResultKeys(statement)
 		
@@ -931,7 +941,7 @@ private extension SQLite {
 	}
     
     /// Get column keys
-    private func getResultKeys(_ statement:OpaquePointer) -> [NSString] {
+    fileprivate func getResultKeys(_ statement:OpaquePointer) -> [NSString] {
         
         let columnCount:Int32 = sqlite3_column_count(statement)
         
@@ -950,7 +960,7 @@ private extension SQLite {
     }
     
     /// Get column values
-    private func getColumnValues(_ statement:OpaquePointer,keys:[NSString]) -> [NSString:NSObject] {
+    fileprivate func getColumnValues(_ statement:OpaquePointer,keys:[NSString]) -> [NSString:NSObject] {
         
         var c:Int32 = 0
         var row:[NSString:NSObject] = [:]
@@ -988,7 +998,7 @@ private extension SQLite {
             }
             
             row[key] = dataValue
-            c += 1;
+            c += 1
             
         }
         
@@ -996,8 +1006,8 @@ private extension SQLite {
         
     }
 	
-	func getDispatchQueueForQuery(sql:String) -> DispatchQueue {
-		var q:DispatchQueue = isSelectStatement(sql) ? read_database_operation_queue : write_database_operation_queue
+	fileprivate func getDispatchQueueForQuery(sql:String) -> DispatchQueue {
+		var q:DispatchQueue = is_select_statement(sql) ? read_database_operation_queue : write_database_operation_queue
 		if (q == nil) {
 			q = read_database_operation_queue
 		}
@@ -1005,8 +1015,8 @@ private extension SQLite {
 		return q
 	}
 	
-	func getDatabasePointerForQuery(sql:String) -> OpaquePointer {
-		var p:OpaquePointer = isSelectStatement(sql) ? readConnection! : writeConnection!
+	fileprivate func getDatabasePointerForQuery(sql:String) -> OpaquePointer {
+		var p:OpaquePointer = is_select_statement(sql) ? readConnection! : writeConnection!
 		if (p == nil) {
 			p = readConnection!
 		}
@@ -1014,8 +1024,8 @@ private extension SQLite {
 		return p
 	}
 	
-	func getDatabaseOperationQueueForQuery(sql:String) -> OperationQueue {
-		let q = isSelectStatement(sql) ? readDatabaseOperationQueue : writeDatabaseOperationQueue
+	fileprivate func getDatabaseOperationQueueForQuery(sql:String) -> OperationQueue {
+		let q = is_select_statement(sql) ? readDatabaseOperationQueue : writeDatabaseOperationQueue
 		return q
 	}
 }
