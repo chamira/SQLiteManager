@@ -12,7 +12,7 @@ class SQLiteManger_Tests: XCTestCase {
 	override func setUp() {
 		super.setUp()
 
-		for i in 1..<10000 {
+		for i in 1..<50000 {
 			
 			let x = randomString(withLength: Int.random(lower: 0, upper: 100))
 			let q = "INSERT INTO 'tb_company' (ID,NAME) VALUES (\(i),'\(x)')"
@@ -398,7 +398,7 @@ class SQLiteManger_Tests: XCTestCase {
 					expectation.fulfill()
 			})
 			
-			self.waitForExpectations(timeout: 2.0, handler: { (error) in
+			self.waitForExpectations(timeout: 10.0, handler: { (error) in
 				if let e = error {
 					print("Expectation error:",e)
 				}
@@ -537,11 +537,12 @@ class SQLiteManger_Tests: XCTestCase {
 		let updateSync:(_ updateQuries:[String])->() = { (updateQuries)->Void in
 		
 			let selectWorkItem = DispatchWorkItem {
-				print("Selecting ......")
+				
 				for query in self.selectQuerires {
 			
 					do {
 						let selectResult1 = try database.query(query)
+                        print("Select Q",query)
 						XCTAssert(selectResult1.affectedRowCount == 1, "Something wrong result\(selectResult1)")
 					} catch {
 						print("Exception:",error)
@@ -636,7 +637,7 @@ class SQLiteManger_Tests: XCTestCase {
 			
 		})
 		
-		self.waitForExpectations(timeout: 5.0, handler: { (error) in
+		self.waitForExpectations(timeout: 10.0, handler: { (error) in
 			if let e = error {
 				print("Expectation error:",e)
 			}

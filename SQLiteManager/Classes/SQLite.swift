@@ -36,7 +36,7 @@ public enum TransactionCommand:String {
 ///SQLite class
 open class SQLite {
 
-	fileprivate static let kBusyTimeoutInMili = Int32(1000)
+	fileprivate static let kBusyTimeoutInMili = Int32(500)
 	
     fileprivate var sharedManager:SQLite?
     
@@ -301,7 +301,7 @@ public extension SQLite {
 	- returns: return query result, SQLiteQueryResult (SQLiteResultCode, Affected Rows and Results array)
 	
 	*/
-	public func query(_ sql:String!) throws -> SQLiteQueryResult {
+	public func query(_ sql:String) throws -> SQLiteQueryResult {
 	
 		do { return try submitQuery(sql) } catch let e as NSError { throw e }
 		
