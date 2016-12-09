@@ -20,7 +20,6 @@ super lightweight
     s.social_media_url = 'https://twitter.com/chamirafernando'
     s.ios.deployment_target = '8.0'
     s.tvos.deployment_target = '9.0'
-    s.source_files = 'SQLiteManager/Classes/**/*'
-    s.library = 'sqlite3'
+    s.source_files = 'Sources/*.swift'
     s.dependency 'sqlite3'
 end
