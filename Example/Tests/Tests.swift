@@ -12,7 +12,7 @@ class SQLiteManger_Tests: XCTestCase {
 	override func setUp() {
 		super.setUp()
 
-		for i in 1..<50000 {
+		for i in 1..<20000 {
 			
 			let x = randomString(withLength: Int.random(lower: 0, upper: 100))
 			let q = "INSERT INTO 'tb_company' (ID,NAME) VALUES (\(i),'\(x)')"
@@ -542,7 +542,7 @@ class SQLiteManger_Tests: XCTestCase {
 			
 					do {
 						let selectResult1 = try database.query(query)
-                        print("Select Q",query)
+                        //print("Select Q",query)
 						XCTAssert(selectResult1.affectedRowCount == 1, "Something wrong result\(selectResult1)")
 					} catch {
 						print("Exception:",error)
@@ -553,7 +553,7 @@ class SQLiteManger_Tests: XCTestCase {
 			}
 
 			let updateWorkItem = DispatchWorkItem {
-				print("Updating......")
+				//print("Updating......")
 				let updateR = try! database.query(updateQuries)
 				
 				XCTAssert(updateR.results.count == updateQuries.count,"queries count \(updateQuries.count) ≠ \(updateR.results.count)")
