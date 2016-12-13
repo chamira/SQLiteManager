@@ -363,7 +363,7 @@
 				TargetAttributes = {
 					538CA9BD1D93C334004222E2 = {
 						CreatedOnToolsVersion = 8.0;
-						DevelopmentTeam = BNA9R2AMEQ;
+						DevelopmentTeam = Z9E6AHNZ26;
 						LastSwiftMigration = 0800;
 						ProvisioningStyle = Automatic;
 					};
@@ -727,7 +727,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = BNA9R2AMEQ;
+				DEVELOPMENT_TEAM = Z9E6AHNZ26;
 				INFOPLIST_FILE = SQLiteManager_TV_Example/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.makingwaves.SQLiteManager-TV-Example";
@@ -751,7 +751,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = BNA9R2AMEQ;
+				DEVELOPMENT_TEAM = Z9E6AHNZ26;
 				INFOPLIST_FILE = SQLiteManager_TV_Example/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.makingwaves.SQLiteManager-TV-Example";
