@@ -549,8 +549,9 @@ class SQLiteManager_TV_ExampleTests: XCTestCase {
 		
 		let updateSync:(_ updateQuries:[String])->() = { (updateQuries)->Void in
 			
+			database.log = false
 			let selectWorkItem = DispatchWorkItem {
-				print("Selecting ......")
+				//print("Selecting ......")
 				for query in self.selectQuerires {
 					
 					do {
@@ -565,7 +566,7 @@ class SQLiteManager_TV_ExampleTests: XCTestCase {
 			}
 			
 			let updateWorkItem = DispatchWorkItem {
-				print("Updating......")
+				//print("Updating......")
 				let updateR = try! database.query(updateQuries)
 				
 				XCTAssert(updateR.results.count == updateQuries.count,"queries count \(updateQuries.count) ≠ \(updateR.results.count)")

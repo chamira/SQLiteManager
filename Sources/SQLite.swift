@@ -36,7 +36,7 @@ public enum TransactionCommand:String {
 ///SQLite class
 open class SQLite {
 
-	fileprivate static let kBusyTimeoutInMili = Int32(500)
+	fileprivate static let kBusyTimeoutInMilli = Int32(500)
 	
     fileprivate var sharedManager:SQLite?
     
@@ -468,7 +468,7 @@ fileprivate extension SQLite {
 		var preparedStatement: OpaquePointer? = nil
 		let databaseHandler = getDatabasePointerForQuery(sql: sqlString)
 		
-		var returnCode = sqlite3_busy_timeout(databaseHandler,SQLite.kBusyTimeoutInMili)
+		var returnCode = sqlite3_busy_timeout(databaseHandler,SQLite.kBusyTimeoutInMilli)
 		try validate_exec(databaseHandler: databaseHandler, preparedStatement: preparedStatement, returnCode: returnCode, sqlString: sqlString, line: #line-1)
 		
 		returnCode = sqlite3_exec(databaseHandler, TransactionCommand.begin.rawValue, nil,nil,nil)
@@ -502,8 +502,8 @@ fileprivate extension SQLite {
 	func validate_exec(databaseHandler:OpaquePointer, preparedStatement:OpaquePointer?, returnCode:Int32,sqlString:String? ,line:Int) throws {
 		
 		if returnCode != SQLITE_OK {
-			if returnCode == SQLITE_LOCKED {
-				sleep(UInt32(SQLite.kBusyTimeoutInMili))
+			if returnCode == SQLITE_LOCKED || returnCode == SQLITE_BUSY {
+				sleep(UInt32(SQLite.kBusyTimeoutInMilli/100))
 			} else {
 				let errorClosure:(_ sqlString:String?,_ line:Int)->(SQLiteManagerError) = {sqlString ,line in
 					return self.errorClosure(databaseHandler,preparedStatement,sqlString,line)
@@ -727,7 +727,7 @@ public extension SQLite {
 		
 		var results:[SQLiteQueryResult] = [SQLiteQueryResult]()
 		
-		sqlite3_busy_timeout(batchConnection,SQLite.kBusyTimeoutInMili)
+		sqlite3_busy_timeout(batchConnection,SQLite.kBusyTimeoutInMilli)
 		sqlite3_exec(batchConnection, TransactionCommand.begin.rawValue, nil,nil,nil)
 		
 		//Iter all sqlStrings and execute them inside same transaction
@@ -769,8 +769,8 @@ public extension SQLite {
 	
 	fileprivate func handle_exec(databaseHandler:OpaquePointer, preparedStatement:OpaquePointer? ,returnCode:Int32, sql:String, line:Int) throws {
 		if returnCode != SQLITE_OK {
-			if returnCode == SQLITE_LOCKED {
-				sleep(UInt32(SQLite.kBusyTimeoutInMili))
+			if returnCode == SQLITE_LOCKED || returnCode == SQLITE_BUSY {
+				sleep(UInt32(SQLite.kBusyTimeoutInMilli/100))
 			} else {
 				throw self.errorClosure(databaseHandler, preparedStatement, sql, line)
 			}
