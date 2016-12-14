@@ -10,7 +10,7 @@ Modeling, Handling objects, writing business logic is all up to the developers.
 
 [![CI Status](http://img.shields.io/travis/chamira/SQLiteManager.svg?style=flat)](https://travis-ci.org/chamira/SQLiteManager)
 [![Version](https://img.shields.io/cocoapods/v/SQLiteManager.svg?style=flat)](http://cocoapods.org/pods/SQLiteManager)
-[![Platform](https://cocoapod-badges.herokuapp.com/p/SQLite.swift/badge.png)](https://developer.apple.com/swift/)
+[![Swift](https://img.shields.io/badge/swift-3-orange.svg?style=flat)](https://developer.apple.com/swift/)
 [![License](https://img.shields.io/cocoapods/l/SQLiteManager.svg?style=flat)](https://en.wikipedia.org/wiki/MIT_License)
 [![Platform](https://img.shields.io/cocoapods/p/SQLiteManager.svg?style=flat)](http://cocoapods.org/pods/SQLiteManager)
 
