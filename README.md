@@ -110,6 +110,12 @@ If you want to hook up with swift 2.3 point to swift2.3 branch
 
 Chamira Fernando, chamira.fdo@gmail.com, [Twitter](https://twitter.com/chamirafernando)
 
+## Contributing
+
+Contributions are very welcome.
+
+* Before submitting any pull request, please ensure you have run the included tests and they have passed. <br /> 
+* If you are including new functionality, please write test cases for it as well.
 
 ## License
 
