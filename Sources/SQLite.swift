@@ -75,9 +75,6 @@ open class SQLite {
 	
     /// Database URL
 	open var databaseUrl:URL? {
-		if (databaseName == nil) {
-			return nil
-		}
 		return documentsUrl.appendingPathComponent(databaseName)
 	}
 	
@@ -154,6 +151,7 @@ open class SQLite {
 		
 	}()
 	
+	
 	fileprivate let closeClosure:(_ databaseHandler:OpaquePointer,_ preparedStatement:OpaquePointer)->(Int32) = {(databaseHandler, preparedStatement)->(Int32) in
 		sqlite3_exec(databaseHandler, TransactionCommand.commit.rawValue, nil, nil, nil)
 		return sqlite3_finalize(preparedStatement)
@@ -171,9 +169,6 @@ open class SQLite {
 	}
 	
 	internal func initialize(database name:String, withExtension:String, createIfNotExist create:Bool = false) throws -> SQLite {
-		
-		assert(name != nil ,"database name must not be nil")
-		assert(withExtension != nil,"database file extension must not be nil (.db,.sqlite)")
 		
 		sharedManager = SQLitePool.getInstanceFor(database: name+"."+withExtension)
 		if (sharedManager != nil) {
@@ -424,7 +419,7 @@ fileprivate extension SQLite {
 		let bindCount = Int(sqlite3_bind_parameter_count(preparation.preparedStatement))
 		
 		if bindCount != bindValues.count {
-			let returnCode = self.closeClosure(preparation.databaseHandler,preparation.preparedStatement!)
+			_ = self.closeClosure(preparation.databaseHandler,preparation.preparedStatement!)
 			throw SQLiteManagerError.bindingValuesCountMissMatch(databaseName, sqlQeuery: sql, bindingParamCount: bindCount, valuesCount: bindValues.count)
 		}
 		
@@ -759,7 +754,7 @@ public extension SQLite {
 			
 		}
 		
-		self.closeClosure(batchConnection!,statement!)
+		let _ = self.closeClosure(batchConnection!, statement!)
 		closeBatchConnection()
 		let time = Date().timeIntervalSince(start)
 		let r:SQLiteBatchQueryResult = (timeTaken:time,results:results)
@@ -914,7 +909,7 @@ fileprivate extension SQLite {
     /// Cast Pointer value to NSObjects
 	fileprivate func castSelectStatementValuesToNSObjects(_ statement:OpaquePointer) -> (count:Int,objects:SQLiteDataArray?) {
 		
-		var keys:[NSString] = getResultKeys(statement)
+		let keys:[NSString] = getResultKeys(statement)
 		
 		var resultObjects:SQLiteDataArray?
 		
@@ -1007,20 +1002,12 @@ fileprivate extension SQLite {
     }
 	
 	fileprivate func getDispatchQueueForQuery(sql:String) -> DispatchQueue {
-		var q:DispatchQueue = is_select_statement(sql) ? read_database_operation_queue : write_database_operation_queue
-		if (q == nil) {
-			q = read_database_operation_queue
-		}
-	
+		let q:DispatchQueue = is_select_statement(sql) ? read_database_operation_queue : write_database_operation_queue
 		return q
 	}
 	
 	fileprivate func getDatabasePointerForQuery(sql:String) -> OpaquePointer {
-		var p:OpaquePointer = is_select_statement(sql) ? readConnection! : writeConnection!
-		if (p == nil) {
-			p = readConnection!
-		}
-		
+		let p:OpaquePointer = is_select_statement(sql) ? readConnection! : writeConnection!
 		return p
 	}
 	
