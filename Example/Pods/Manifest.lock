@@ -2,7 +2,7 @@ PODS:
   - sqlite3 (3.17.0):
     - sqlite3/common (= 3.17.0)
   - sqlite3/common (3.17.0)
-  - SQLiteManager (0.2.6):
+  - SQLiteManager (0.2.7):
     - sqlite3
 
 DEPENDENCIES:
@@ -14,7 +14,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   sqlite3: 3675836c3d675e606507595cf4fd65066b9e11f2
-  SQLiteManager: 5bce9a499ee18032af8e6b631609b289fd0294c0
+  SQLiteManager: 8832daa2c802ba1304749089772709eebaa28f85
 
 PODFILE CHECKSUM: dda5700cb54730a75aa6411ddd8569150953e838
 
