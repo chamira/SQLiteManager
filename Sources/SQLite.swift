@@ -13,18 +13,18 @@ import sqlite3
 /**
  SQLiteSatusCode.SQLiteSatusCode SQLite status code return by sqlite3 engine
  SQLiteSatusCode.affectedRowCount number of rows affected by the query if any, otherwise 0
- SQLiteQueryResult.results is an array of [String:AnyObject], each row of the result of the query is casted in to a dictionary
+ SQLiteQueryResult.results is an array of [String:SQLReturnValue], each row of the result of the query is casted in to a dictionary
  [key:value], example if SQL statement 'SELECT first_name FROM tb_user WHERE id = 1' results will be [["first_name":"Chamira"]]
 	*/
 
-public typealias SQLiteDataArray = [[NSString:NSObject]]
+public typealias SQLiteDataArray = [[String:SQLReturnValue?]]
 public typealias SQLiteQueryResult = (SQLiteSatusCode:Int32,affectedRowCount:Int,results:SQLiteDataArray?)
 
 public typealias SQLiteBatchQueryResult = (timeTaken:Double,results:[SQLiteQueryResult])
 
 public typealias SuccessClosure = (_ result:SQLiteQueryResult)->()
 public typealias BatchSuccessClosure = (_ result:SQLiteBatchQueryResult)->()
-public typealias ErrorClosure = (_ error:NSError)->()
+public typealias ErrorClosure = (_ error:Error)->()
 
 
 public enum TransactionCommand:String {
@@ -225,7 +225,7 @@ open class SQLite {
 		if (readConnection == nil) {
 			if sqlite3_open(databasePath, &readConnection) != SQLITE_OK {
 				var errorMessage = String(cString: sqlite3_errmsg(readConnection))
-				if (errorMessage.characters.count == 0) {
+				if (errorMessage.count == 0) {
 					errorMessage = "undefined readConnection (sqlite3) error"
 				}
 				
@@ -239,7 +239,7 @@ open class SQLite {
 				if (writeConnection == nil) {
 					if sqlite3_open(databasePath, &writeConnection) != SQLITE_OK {
 						var errorMessage = String(cString: sqlite3_errmsg(writeConnection))
-						if (errorMessage.characters.count == 0) {
+						if (errorMessage.count == 0) {
 							errorMessage = "undefined database (sqlite3) error"
 						}
 						
@@ -412,7 +412,7 @@ fileprivate extension SQLite {
 	/// - throws: error in any kind while execution
 	///
 	/// - returns: SQLiteQueryResult
-	fileprivate func executeBindSQL(_ sql:String, bindValues:[NSObject]) throws -> SQLiteQueryResult {
+	fileprivate func executeBindSQL(_ sql:String, bindValues:[SQLValue]) throws -> SQLiteQueryResult {
 		
 		let preparation = try prepare_exec(sqlString: sql)
 		
@@ -510,7 +510,7 @@ fileprivate extension SQLite {
 	}
 	
 	/// Bind values
-	fileprivate func bind_value(_ statement:OpaquePointer, _ bindValues:[NSObject]) {
+	fileprivate func bind_value(_ statement:OpaquePointer, _ bindValues:[SQLValue]) {
 		
 		let SQLITE_STATIC    = unsafeBitCast(0, to: sqlite3_destructor_type.self)
 		let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
@@ -519,15 +519,12 @@ fileprivate extension SQLite {
 		
 		for val in bindValues {
 			
-			if val is NSString {
-				
-				let str = val as! NSString
+			if val.value is NSString {
+				let str = val.value as! NSString
 				sqlite3_bind_text(statement, position, str.utf8String, -1, SQLITE_STATIC)
+			} else if val.value is NSNumber {
 				
-			} else if val is NSNumber {
-				
-				let num = val as! NSNumber
-				
+				let num = val.value as! NSNumber
 				let numberType:CFNumberType = CFNumberGetType(num as CFNumber)
 				
 				switch numberType {
@@ -539,11 +536,11 @@ fileprivate extension SQLite {
 					sqlite3_bind_double(statement, position, num.doubleValue)
 				}
 				
-			} else if val is NSNull {
+			} else if val.value is NSNull {
 				sqlite3_bind_null(statement, position)
-			} else if val is Data {
-				let data = val as! Data
-				sqlite3_bind_blob(statement, position, (data as NSData).bytes, Int32(data.count), SQLITE_TRANSIENT)
+			} else if val.value is NSData {
+				let data = val.value as! NSData
+				sqlite3_bind_blob(statement, position, data.bytes, Int32(data.length), SQLITE_TRANSIENT)
 			}
 			
 			position += 1
@@ -553,10 +550,9 @@ fileprivate extension SQLite {
 	}
 	
 	fileprivate func is_select_statement(_ sqlStatement:String) -> Bool {
-		
 		let selectWord = "SELECT"
-		return (sqlStatement.trimmingCharacters(in: CharacterSet.whitespaces).substring(to: selectWord.endIndex).uppercased()) == selectWord
-		
+        let cleanSql = sqlStatement.trimmingCharacters(in: CharacterSet.whitespaces).uppercased()
+		return String(cleanSql[..<selectWord.endIndex]) == selectWord
 	}
 	
 }
@@ -574,7 +570,7 @@ public extension SQLite {
 	/// - throws: throw binding exception and query execution exceptions
 	///
 	/// - returns: SQLiteQueryResult
-	public func bindQuery(_ sql:String!, bindValues:[NSObject]) throws -> SQLiteQueryResult {
+	public func bindQuery(_ sql:String, bindValues:[SQLValue]) throws -> SQLiteQueryResult {
 		
 		do { return try submitBindQuery(sql, bindValues: bindValues) } catch let e as NSError { throw e }
 		
@@ -587,7 +583,7 @@ public extension SQLite {
 	/// - parameter bindValues:     values to bind (NSString,NSNumber,NSData,NSNull)
 	/// - parameter successClosure: success closure with result
 	/// - parameter errorClosure:   error closure
-	public func bindQuery(_ sql:String!, bindValues:[NSObject], successClosure:@escaping SuccessClosure,errorClosure:@escaping ErrorClosure) {
+	public func bindQuery(_ sql:String, bindValues:[SQLValue], successClosure:@escaping SuccessClosure,errorClosure:@escaping ErrorClosure) {
 		
 		var error:NSError?
 		unowned let weakSelf = self
@@ -622,7 +618,7 @@ public extension SQLite {
 	}
 	
 	// Gets an sql statement and returns result
-	fileprivate func submitBindQuery(_ sql:String!, bindValues:[NSObject]) throws -> SQLiteQueryResult {
+	fileprivate func submitBindQuery(_ sql:String!, bindValues:[SQLValue]) throws -> SQLiteQueryResult {
 		
 		unowned let weakSelf = self
 		var r:SQLiteQueryResult!
@@ -778,7 +774,7 @@ public extension SQLite {
 		if (batchConnection == nil) {
 			if sqlite3_open(databasePath, &batchConnection) != SQLITE_OK {
 				var errorMessage = String(cString: sqlite3_errmsg(batchConnection))
-				if (errorMessage.characters.count == 0) {
+				if (errorMessage.count == 0) {
 					errorMessage = "undefined database (sqlite3) error"
 				}
 				
@@ -885,7 +881,7 @@ fileprivate extension SQLite {
     fileprivate func createDatabaseFileAtPath(_ path:String)->Bool {
      
         let fileManager = FileManager.default
-        let created =  fileManager.createFile(atPath: path, contents: nil, attributes: [FileAttributeKey.creationDate.rawValue:Date(),FileAttributeKey.type.rawValue:FileAttributeType.typeRegular])
+        let created =  fileManager.createFile(atPath: path, contents: nil, attributes: convertToOptionalFileAttributeKeyDictionary([FileAttributeKey.creationDate.rawValue:Date(),FileAttributeKey.type.rawValue:FileAttributeType.typeRegular]))
         
         return created
     }
@@ -909,13 +905,13 @@ fileprivate extension SQLite {
     /// Cast Pointer value to NSObjects
 	fileprivate func castSelectStatementValuesToNSObjects(_ statement:OpaquePointer) -> (count:Int,objects:SQLiteDataArray?) {
 		
-		let keys:[NSString] = getResultKeys(statement)
+		let keys:[String] = getResultKeys(statement)
 		
 		var resultObjects:SQLiteDataArray?
 		
 		while sqlite3_step(statement) == SQLITE_ROW {
 			
-			let row:[NSString:NSObject] = getColumnValues(statement, keys: keys)
+			let row:[String:SQLReturnValue?] = getColumnValues(statement, keys: keys)
             
             if (resultObjects == nil) {
                 resultObjects = []
@@ -936,17 +932,17 @@ fileprivate extension SQLite {
 	}
     
     /// Get column keys
-    fileprivate func getResultKeys(_ statement:OpaquePointer) -> [NSString] {
+    fileprivate func getResultKeys(_ statement:OpaquePointer) -> [String] {
         
         let columnCount:Int32 = sqlite3_column_count(statement)
         
-        var keys:[NSString] = []
+        var keys:[String] = []
         
         for i in 0..<columnCount {
-            let str = sqlite3_column_name(statement, i)
-            if let _ = str {
-                let columnName = NSString(cString: str!, encoding: NSString.defaultCStringEncoding)
-                keys.append(columnName!)
+            if let str = sqlite3_column_name(statement, i) {
+                if let columnName = String(cString: str, encoding: String.Encoding.utf8) {
+                    keys.append(columnName)
+                }
             }
         }
         
@@ -955,41 +951,42 @@ fileprivate extension SQLite {
     }
     
     /// Get column values
-    fileprivate func getColumnValues(_ statement:OpaquePointer,keys:[NSString]) -> [NSString:NSObject] {
+    fileprivate func getColumnValues(_ statement:OpaquePointer,keys:[String]) -> [String:SQLReturnValue?] {
         
         var c:Int32 = 0
-        var row:[NSString:NSObject] = [:]
+        var row:[String:SQLReturnValue?] = [:]
         
         for key in keys {
             let value     = sqlite3_column_value(statement, c)
             
             let valueType = sqlite3_value_type(value)
-            var dataValue:NSObject!
+            var dataValue:SQLReturnValue? = nil
             
             switch valueType {
                 case SQLITE_TEXT:
                     
                     let strPointer	= sqlite3_value_text(value)
                     if let (str, _) = String.decodeCString(strPointer, as: UTF8.self, repairingInvalidCodeUnits: false) {
-                        dataValue = NSString(string: str)
+                        dataValue = str
                     } else {
-                        dataValue = NSNull()
+                        dataValue = nil
                     }
-                    break
+                
                 case SQLITE_FLOAT:
-                    dataValue = NSNumber(value: sqlite3_value_double(value) as Double)
-                    break
+                    dataValue = sqlite3_value_double(value) as Double
                 case SQLITE_INTEGER:
-                    dataValue = NSNumber(value: sqlite3_value_int64(value) as Int64)
-                    break
+                    dataValue = Int(sqlite3_value_int64(value) as Int64)
                 case SQLITE_BLOB:
+                    
                     let length = Int(sqlite3_column_bytes(statement, c))
-                    let bytes  = sqlite3_column_blob(statement, c)
-                    dataValue = NSData(bytes: bytes, length: length)
-                    break
+                    if let bytes  = sqlite3_column_blob(statement, c) {
+                        dataValue = Data(bytes: bytes, count: Int(length))
+                    } else {
+                        dataValue = nil
+                    }
+                
                 default:
-                    dataValue = NSNull()
-                    break
+                    dataValue = nil
             }
             
             row[key] = dataValue
@@ -1052,4 +1049,10 @@ private extension SQLite {
 		
 	}
 	
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertToOptionalFileAttributeKeyDictionary(_ input: [String: Any]?) -> [FileAttributeKey: Any]? {
+	guard let input = input else { return nil }
+	return Dictionary(uniqueKeysWithValues: input.map { key, value in (FileAttributeKey(rawValue: key), value)})
 }

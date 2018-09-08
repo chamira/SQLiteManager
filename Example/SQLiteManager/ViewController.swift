@@ -35,7 +35,7 @@ class ViewController: UIViewController {
 		executeButton.isEnabled = false
         do {
             
-            database =  try SQLitePool.manager().initialize(database: "app_test_database_1", withExtension: "db")
+            database =  try SQLitePool.manager.initialize(database: "app_test_database_1", withExtension: "db")
             database.log = true
             
             headerLabel.text = "Database '\(database.databaseName)' is initialized successfully!\nWrite your SQL Query Below:"
@@ -78,7 +78,7 @@ class ViewController: UIViewController {
 
         }
         
-        let errorClosure = { (error:NSError) ->() in
+        let errorClosure = { (error:Error) ->() in
             refSelf.resultTextView.text = "Error:\n\(error)"
         }
         
@@ -87,8 +87,8 @@ class ViewController: UIViewController {
             do {
                 let result = try database.query(q)
                 successClosure(result)
-            } catch let e as NSError {
-                errorClosure(e)
+            } catch {
+                errorClosure(error)
             }
             
         } else {

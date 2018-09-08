@@ -40,7 +40,7 @@ class SQLiteManger_Tests: XCTestCase {
 		let dbName = "app_test_database_x_4"
 		let ext = "db"
 		
-		let database = try! SQLitePool.manager().initialize(database: dbName, withExtension: ext, createIfNotExist: true)
+		let database = try! SQLitePool.manager.initialize(database: dbName, withExtension: ext, createIfNotExist: true)
 		
 		XCTAssertEqual(dbName+"."+ext, database.databaseName, "Database is not iinitialized correctly")
 		
@@ -57,7 +57,7 @@ class SQLiteManger_Tests: XCTestCase {
 		let dbName = "app_test_database_1"
 		let ext = "db"
 		
-		let databasesPool = SQLitePool.manager()
+		let databasesPool = SQLitePool.manager
 		let database = try! databasesPool.initialize(database:dbName, withExtension: ext)
 		
 		XCTAssertEqual(dbName+"."+ext, database.databaseName, "Database is not iinitialized correctly")
@@ -72,7 +72,7 @@ class SQLiteManger_Tests: XCTestCase {
 		let dbName = "app_test_database_1"
 		let ext = "db"
 		
-		let databasesPool = SQLitePool.manager()
+		let databasesPool = SQLitePool.manager
 		let database = try! databasesPool.initialize(database:dbName, withExtension: ext)
 
 		let insert = {
@@ -99,9 +99,10 @@ class SQLiteManger_Tests: XCTestCase {
 			XCTAssertEqual(1,result.affectedRowCount)
 
 			let r = result.results?.first
-			
+			let v = r!["name"]!?.string
+            
 			XCTAssertNotNil(r, "Result MUST NOT be nil")
-			XCTAssertEqual(r!["name"],"Making Waves AS" as NSString)
+			XCTAssertEqual(v,"Making Waves AS")
 
 			let count = try! database.query("SELECT count(*) as company_count FROM 'tb_company'")
 
@@ -111,7 +112,7 @@ class SQLiteManger_Tests: XCTestCase {
 			let counter = count.results?.first
 
 			XCTAssertNotNil(counter, "Result MUST NOT be nil")
-			XCTAssertEqual(counter!["company_count"],NSNumber(value: 1 as Int))
+			XCTAssertEqual(counter!["company_count"]??.int,1)
 		}
 		
 		selectCompany()
@@ -124,8 +125,8 @@ class SQLiteManger_Tests: XCTestCase {
 			let r = result.results?.first
 			
 			XCTAssertNotNil(r, "Result MUST NOT be nil")
-			XCTAssertEqual(r!["name"],"Making Waves AS" as NSString)
-			XCTAssertEqual(r!["logo_picture_url"],NSNull())
+			XCTAssertEqual(r!["name"]??.string,"Making Waves AS")
+			XCTAssertEqual(r!["logo_picture_url"]??.string,nil)
 			
 		}
 		
@@ -147,7 +148,7 @@ class SQLiteManger_Tests: XCTestCase {
 		let dbName = "app_test_database_1"
 		let ext = "db"
 		
-		let databasesPool = SQLitePool.manager()
+		let databasesPool = SQLitePool.manager
 		let database = try! databasesPool.initialize(database:dbName, withExtension: ext)
 		
 		let insert = {
@@ -155,7 +156,7 @@ class SQLiteManger_Tests: XCTestCase {
 			let dob = Date(timeIntervalSince1970: 3600*24*3650)
 			let profilePic  = try? Data(contentsOf: URL(fileURLWithPath: Bundle.main.path(forResource: "chamira_fernando", ofType: "jpg")!))
 			let result = try! database.bindQuery("INSERT INTO 'tb_user' (first_name, last_name, username, date_of_birth, company_id, profile_picture) VALUES (?,?,?,?,?,?)",
-												 bindValues: [sqlStr("Chameera"),sqlStr("Fernando"),sqlStr("some_user_name"), sqlNumber(dob.timeIntervalSince1970),sqlNumber(1),sqlData(profilePic!)])
+												 bindValues: ["Chameera","Fernando","some_user_name", dob.timeIntervalSince1970, 1, profilePic!])
 			
 			XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 			XCTAssertEqual(1,result.affectedRowCount)
@@ -165,7 +166,7 @@ class SQLiteManger_Tests: XCTestCase {
 		insert()
 		
 		let update = {
-			let result = try! database.bindQuery("UPDATE 'tb_user' SET first_name = ?, last_name = ? WHERE first_name = ?", bindValues: [sqlStr("Chamira"),sqlStr("Fernando"),sqlStr("Chameera")])
+			let result = try! database.bindQuery("UPDATE 'tb_user' SET first_name = ?, last_name = ? WHERE first_name = ?", bindValues: ["Chamira","Fernando","Chameera"])
 			XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 			XCTAssertEqual(1,result.affectedRowCount)
 			XCTAssertNil(result.results, "Results array MUST be nil")
@@ -174,21 +175,21 @@ class SQLiteManger_Tests: XCTestCase {
 		update()
 		
 		let select = {
-			let result = try! database.bindQuery("SELECT first_name, date_of_birth as dob from 'tb_user' where first_name=?", bindValues: [sqlStr("Chamira")])
+			let result = try! database.bindQuery("SELECT first_name, date_of_birth as dob from 'tb_user' where first_name=?", bindValues: ["Chamira"])
 			XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 			XCTAssertEqual(1,result.affectedRowCount)
 			
 			let r = result.results?.first
 			
 			XCTAssertNotNil(r, "Result MUST NOT be nil")
-			XCTAssertEqual(r!["first_name"],"Chamira" as NSString)
+			XCTAssertEqual(r!["first_name"]??.string,"Chamira")
 		
 		}
 		
 		select()
 	
 		let delete = {
-			let result = try! database.bindQuery("DELETE FROM 'tb_user' WHERE first_name = ?",bindValues: [sqlStr("Chamira")])
+			let result = try! database.bindQuery("DELETE FROM 'tb_user' WHERE first_name = ?",bindValues: ["Chamira"])
 			XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 			XCTAssertEqual(1,result.affectedRowCount)
 			XCTAssertNil(result.results, "Results array MUST be nil")
@@ -203,7 +204,7 @@ class SQLiteManger_Tests: XCTestCase {
 		let dbName = "app_test_database_1"
 		let ext = "db"
 		
-		let databasesPool = SQLitePool.manager()
+		let databasesPool = SQLitePool.manager
 		let database = try! databasesPool.initialize(database:dbName, withExtension: ext)
 		
 		let insert = {
@@ -268,7 +269,7 @@ class SQLiteManger_Tests: XCTestCase {
 				let r = result.results?.first
 				
 				XCTAssertNotNil(r, "Result MUST NOT be nil")
-				XCTAssertEqual(r!["name"],"Making Waves AS" as NSString)
+				XCTAssertEqual(r!["name"]??.string,"Making Waves AS")
 				
 				expectation.fulfill()
 				}, errorClosure: { (error) in
@@ -281,7 +282,6 @@ class SQLiteManger_Tests: XCTestCase {
 					print("Expectation error:",e)
 				}
 			})
-			
 			
 		}
 		
@@ -296,7 +296,7 @@ class SQLiteManger_Tests: XCTestCase {
 				let counter = count.results?.first
 				
 				XCTAssertNotNil(counter, "Result MUST NOT be nil")
-				XCTAssertEqual(counter!["company_count"],NSNumber(value: 1 as Int))
+				XCTAssertEqual(counter!["company_count"]??.int, 1 )
 				
 				expectation.fulfill()
 				}, errorClosure: { (error) in
@@ -326,8 +326,8 @@ class SQLiteManger_Tests: XCTestCase {
 				let r = result.results?.first
 				
 				XCTAssertNotNil(r, "Result MUST NOT be nil")
-				XCTAssertEqual(r!["name"],"Making Waves AS" as NSString)
-				XCTAssertEqual(r!["logo_picture_url"],NSNull())
+				XCTAssertEqual(r!["name"]??.string,"Making Waves AS")
+				XCTAssertEqual(r!["logo_picture_url"]??.string,nil)
 				expectation.fulfill()
 				}, errorClosure: { (error) in
 					XCTAssertThrowsError(error)
@@ -375,7 +375,7 @@ class SQLiteManger_Tests: XCTestCase {
 		let dbName = "app_test_database_1"
 		let ext = "db"
 		
-		let databasesPool = SQLitePool.manager()
+		let databasesPool = SQLitePool.manager
 		let database = try! databasesPool.initialize(database:dbName, withExtension: ext)
 		
 		let insert = {
@@ -386,9 +386,9 @@ class SQLiteManger_Tests: XCTestCase {
 			let profilePic  = try? Data(contentsOf: URL(fileURLWithPath: Bundle.main.path(forResource: "chamira_fernando", ofType: "jpg")!))
 			
 			let sqlStatement = "INSERT INTO 'tb_user' (first_name, last_name, username, date_of_birth, company_id, profile_picture) VALUES (?,?,?,?,?,?)"
-			let values = [sqlStr("Chameera"),sqlStr("Fernando"),sqlStr("some_user_name"),sqlNumber(dob.timeIntervalSince1970),sqlNumber(1),sqlData(profilePic!)]
+            let values = ["Chameera","Fernando","some_user_name",dob.timeIntervalSince1970,1,profilePic!] as! [SQLValue]
 			
-			database.bindQuery(sqlStatement, bindValues: values, successClosure: { (result) in
+            database.bindQuery(sqlStatement, bindValues: values, successClosure: { (result) in
 				XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
 				XCTAssertEqual(1,result.affectedRowCount)
 				XCTAssertNil(result.results, "Results array MUST be nil")
@@ -413,7 +413,7 @@ class SQLiteManger_Tests: XCTestCase {
 			let expectation = self.expectation(description: "SQLStatementsAsync")
 			
 			let sqlStatement = "UPDATE 'tb_user' SET first_name = ?, last_name = ? WHERE first_name = ?"
-			let values = [sqlStr("Chamira"),("Fernando"),("Chameera")]
+			let values = ["Chamira","Fernando","Chameera"]
 			
 			database.bindQuery(sqlStatement, bindValues: values, successClosure: { (result) in
 				XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
@@ -440,7 +440,7 @@ class SQLiteManger_Tests: XCTestCase {
 			let expectation = self.expectation(description: "SQLStatementsAsync")
 			
 			let sqlStatement = "SELECT first_name, date_of_birth as dob from 'tb_user' where first_name=?"
-			let values = [sqlStr("Chamira")]
+			let values = ["Chamira"]
 			
 			database.bindQuery(sqlStatement, bindValues: values, successClosure: { (result) in
 				XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
@@ -449,7 +449,7 @@ class SQLiteManger_Tests: XCTestCase {
 				let r = result.results?.first
 				
 				XCTAssertNotNil(r, "Result MUST NOT be nil")
-				XCTAssertEqual(r!["first_name"],"Chamira" as NSString)
+				XCTAssertEqual(r!["first_name"]??.string,"Chamira")
 				expectation.fulfill()
 				}, errorClosure: { (error) in
 					XCTAssertThrowsError(error)
@@ -471,7 +471,7 @@ class SQLiteManger_Tests: XCTestCase {
 			let expectation = self.expectation(description: "SQLStatementsAsync")
 			
 			let sqlStatement = "DELETE FROM 'tb_user' WHERE first_name = ?"
-			let values = [sqlStr("Chamira")]
+			let values = ["Chamira"]
 			
 			database.bindQuery(sqlStatement, bindValues: values, successClosure: { (result) in
 				XCTAssertEqual(SQLITE_OK, result.SQLiteSatusCode, "SQLiteStatus code is wrong \(result.SQLiteSatusCode)")
@@ -500,7 +500,7 @@ class SQLiteManger_Tests: XCTestCase {
 		let dbName = "app_test_database_x_big_dump"
 		let ext = "db"
 		
-		let database = try! SQLitePool.manager().initialize(database: dbName, withExtension: ext, createIfNotExist: true)
+		let database = try! SQLitePool.manager.initialize(database: dbName, withExtension: ext, createIfNotExist: true)
 		
 		XCTAssertEqual(dbName+"."+ext, database.databaseName, "Database is not iinitialized correctly")
 		
@@ -580,7 +580,7 @@ class SQLiteManger_Tests: XCTestCase {
 		let dbName = "app_test_database_y_big_dump"
 		let ext = "db"
 		
-		let database = try! SQLitePool.manager().initialize(database: dbName, withExtension: ext, createIfNotExist: true)
+		let database = try! SQLitePool.manager.initialize(database: dbName, withExtension: ext, createIfNotExist: true)
 		
 		XCTAssertEqual(dbName+"."+ext, database.databaseName, "Database is not iinitialized correctly")
 		
@@ -651,7 +651,7 @@ class SQLiteManger_Tests: XCTestCase {
 		var word:String = ""
 		
 		for _ in 0 ..< length {
-			let rand = Int.random(lower:0, upper:s.characters.count)
+			let rand = Int.random(lower:0, upper:s.count)
 			let char =  s.substring(with: rand..<rand+1)
 			
 			word += char
@@ -669,18 +669,18 @@ extension String {
 	
 	func substring(from: Int) -> String {
 		let fromIndex = index(from: from)
-		return substring(from: fromIndex)
+        return String(self[fromIndex...])
 	}
 	
 	func substring(to: Int) -> String {
 		let toIndex = index(from: to)
-		return substring(to: toIndex)
+		return String(self[..<toIndex])
 	}
 	
 	func substring(with r: Range<Int>) -> String {
 		let startIndex = index(from: r.lowerBound)
 		let endIndex = index(from: r.upperBound)
-		return substring(with: startIndex..<endIndex)
+		return  String(self[startIndex..<endIndex])
 	}
 }
 

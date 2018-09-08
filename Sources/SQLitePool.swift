@@ -30,7 +30,7 @@ open class SQLitePool {
 	
 	- returns: SQLitePool class
 	*/
-	open static func manager()->SQLitePool {
+    public static var manager: SQLitePool {
 		return sharedPool
 	}
 	
@@ -41,7 +41,7 @@ open class SQLitePool {
 	
 	- returns: SQLite Database
 	*/
-	open static func getInstanceFor(database databaseNameWithExtension:String)->SQLite? {
+    public static func getInstanceFor(database databaseNameWithExtension:String)->SQLite? {
 		
 		if (instances.isEmpty) {
 			return nil
@@ -66,7 +66,7 @@ open class SQLitePool {
 	- returns: SQLite database
 	*/
 	
-	open func initialize(database name:String, withExtension:String, createIfNotExist:Bool = false) throws -> SQLite {
+	public func initialize(database name:String, withExtension:String, createIfNotExist:Bool = false) throws -> SQLite {
 		do {
 			let lite = try SQLite().initialize(database: name, withExtension: withExtension, createIfNotExist: createIfNotExist)
 			return lite
@@ -78,18 +78,18 @@ open class SQLitePool {
 	/**
 	Close all open databases in the pool
 	*/
-	open static func closeDatabases() {
+    public static func closeDatabases() {
 		instances.forEach {  $0.1.closeDatabase() }
 		instances.removeAll()
 	}
 	
 	/// Open databases count
-	open static var databasesCount:Int {
+    public static var databasesCount:Int {
 		return instances.count
 	}
 	
 	/// Returns all instances of databases in the pool
-	open static var databases:[String:SQLite] {
+    public static var databases:[String:SQLite] {
 		return instances
 	}
 	
