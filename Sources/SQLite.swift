@@ -296,7 +296,7 @@ public extension SQLite {
 	- returns: return query result, SQLiteQueryResult (SQLiteResultCode, Affected Rows and Results array)
 	
 	*/
-	public func query(_ sql:String) throws -> SQLiteQueryResult {
+    func query(_ sql:String) throws -> SQLiteQueryResult {
 	
 		do { return try submitQuery(sql) } catch let e as NSError { throw e }
 		
@@ -309,7 +309,7 @@ public extension SQLite {
 	- parameter successClosure: if query is successfully executed run successClosure which has SQLiteQueryResult as a param
 	- parameter errorClosure:   if any error, run errorClosure
 	*/
-	public func query(_ sql:String,successClosure:@escaping SuccessClosure,errorClosure:@escaping ErrorClosure) {
+    func query(_ sql:String,successClosure:@escaping SuccessClosure,errorClosure:@escaping ErrorClosure) {
 		
 		var error:NSError?
 		unowned let weakSelf = self
@@ -385,7 +385,7 @@ fileprivate extension SQLite {
 	
 	- returns: result
 	*/
-	fileprivate func executeSQL(_ sqlString:String) throws -> SQLiteQueryResult {
+    func executeSQL(_ sqlString:String) throws -> SQLiteQueryResult {
 		
 		let preparation = try prepare_exec(sqlString: sqlString)
 		
@@ -412,7 +412,7 @@ fileprivate extension SQLite {
 	/// - throws: error in any kind while execution
 	///
 	/// - returns: SQLiteQueryResult
-	fileprivate func executeBindSQL(_ sql:String, bindValues:[SQLValue]) throws -> SQLiteQueryResult {
+    func executeBindSQL(_ sql:String, bindValues:[SQLValue]) throws -> SQLiteQueryResult {
 		
 		let preparation = try prepare_exec(sqlString: sql)
 		
@@ -510,7 +510,7 @@ fileprivate extension SQLite {
 	}
 	
 	/// Bind values
-	fileprivate func bind_value(_ statement:OpaquePointer, _ bindValues:[SQLValue]) {
+    func bind_value(_ statement:OpaquePointer, _ bindValues:[SQLValue]) {
 		
 		let SQLITE_STATIC    = unsafeBitCast(0, to: sqlite3_destructor_type.self)
 		let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
@@ -549,7 +549,7 @@ fileprivate extension SQLite {
 		
 	}
 	
-	fileprivate func is_select_statement(_ sqlStatement:String) -> Bool {
+    func is_select_statement(_ sqlStatement:String) -> Bool {
 		let selectWord = "SELECT"
         let cleanSql = sqlStatement.trimmingCharacters(in: CharacterSet.whitespaces).uppercased()
 		return String(cleanSql[..<selectWord.endIndex]) == selectWord
@@ -570,7 +570,7 @@ public extension SQLite {
 	/// - throws: throw binding exception and query execution exceptions
 	///
 	/// - returns: SQLiteQueryResult
-	public func bindQuery(_ sql:String, bindValues:[SQLValue]) throws -> SQLiteQueryResult {
+    func bindQuery(_ sql:String, bindValues:[SQLValue]) throws -> SQLiteQueryResult {
 		
 		do { return try submitBindQuery(sql, bindValues: bindValues) } catch let e as NSError { throw e }
 		
@@ -583,7 +583,7 @@ public extension SQLite {
 	/// - parameter bindValues:     values to bind (NSString,NSNumber,NSData,NSNull)
 	/// - parameter successClosure: success closure with result
 	/// - parameter errorClosure:   error closure
-	public func bindQuery(_ sql:String, bindValues:[SQLValue], successClosure:@escaping SuccessClosure,errorClosure:@escaping ErrorClosure) {
+    func bindQuery(_ sql:String, bindValues:[SQLValue], successClosure:@escaping SuccessClosure,errorClosure:@escaping ErrorClosure) {
 		
 		var error:NSError?
 		unowned let weakSelf = self
@@ -655,7 +655,7 @@ public extension SQLite {
 	/// - Parameter sqls: Array of sql statements
 	/// - Returns: SQLiteBatchQueryResult which is a tuple (timeTaken:Double,results:[SQLiteQueryResult])
 	/// - Throws: Error
-	public func query(_ sql:[String]) throws -> SQLiteBatchQueryResult {
+    func query(_ sql:[String]) throws -> SQLiteBatchQueryResult {
 		
 		do { return try submitQuery(sql) } catch let e as NSError { throw e }
 		
@@ -668,7 +668,7 @@ public extension SQLite {
 	///   - sql: Array of sql statements
 	///   - successClosure: SQLiteBatchQueryResult which is a tuple (timeTaken:Double,results:[SQLiteQueryResult])
 	///   - errorClosure: Error
-	public func query(_ sql:[String],successClosure:@escaping BatchSuccessClosure,errorClosure:@escaping ErrorClosure) {
+    func query(_ sql:[String],successClosure:@escaping BatchSuccessClosure,errorClosure:@escaping ErrorClosure) {
 		
 		var error:NSError?
 		unowned let weakSelf = self
@@ -827,7 +827,7 @@ public extension SQLite {
 //MARK: - Utility extension
 fileprivate extension SQLite {
 
-	fileprivate func hasDatabaseMovedToDocumentsDir() -> Bool {
+    func hasDatabaseMovedToDocumentsDir() -> Bool {
 		
 		guard let databasePath = databasePath else {
 			return false
@@ -838,7 +838,7 @@ fileprivate extension SQLite {
 		
 	}
 	
-	fileprivate func copyDatabaseFromBundleToDocumentsDir () throws -> Bool {
+    func copyDatabaseFromBundleToDocumentsDir () throws -> Bool {
 		
 		guard let databaseBundlePath = Bundle.main.path(forResource: _databaseName, ofType: _databaseExtension) else {
             
@@ -878,7 +878,7 @@ fileprivate extension SQLite {
 		return true
 	}
 	
-    fileprivate func createDatabaseFileAtPath(_ path:String)->Bool {
+    func createDatabaseFileAtPath(_ path:String)->Bool {
      
         let fileManager = FileManager.default
         let created =  fileManager.createFile(atPath: path, contents: nil, attributes: convertToOptionalFileAttributeKeyDictionary([FileAttributeKey.creationDate.rawValue:Date(),FileAttributeKey.type.rawValue:FileAttributeType.typeRegular]))
@@ -887,7 +887,7 @@ fileprivate extension SQLite {
     }
     
 	// Exclude file at URL from iCloud backup
-	fileprivate func addSkipBackupAttributeToItemAtPath(_ url: URL) {
+    func addSkipBackupAttributeToItemAtPath(_ url: URL) {
 		
 		let fileManager = FileManager.default
 		if fileManager.fileExists(atPath: url.path) {
@@ -903,7 +903,7 @@ fileprivate extension SQLite {
 	}
 	
     /// Cast Pointer value to NSObjects
-	fileprivate func castSelectStatementValuesToNSObjects(_ statement:OpaquePointer) -> (count:Int,objects:SQLiteDataArray?) {
+    func castSelectStatementValuesToNSObjects(_ statement:OpaquePointer) -> (count:Int,objects:SQLiteDataArray?) {
 		
 		let keys:[String] = getResultKeys(statement)
 		
@@ -932,7 +932,7 @@ fileprivate extension SQLite {
 	}
     
     /// Get column keys
-    fileprivate func getResultKeys(_ statement:OpaquePointer) -> [String] {
+    func getResultKeys(_ statement:OpaquePointer) -> [String] {
         
         let columnCount:Int32 = sqlite3_column_count(statement)
         
@@ -951,7 +951,7 @@ fileprivate extension SQLite {
     }
     
     /// Get column values
-    fileprivate func getColumnValues(_ statement:OpaquePointer,keys:[String]) -> [String:SQLReturnValue?] {
+    func getColumnValues(_ statement:OpaquePointer,keys:[String]) -> [String:SQLReturnValue?] {
         
         var c:Int32 = 0
         var row:[String:SQLReturnValue?] = [:]
@@ -998,17 +998,17 @@ fileprivate extension SQLite {
         
     }
 	
-	fileprivate func getDispatchQueueForQuery(sql:String) -> DispatchQueue {
+    func getDispatchQueueForQuery(sql:String) -> DispatchQueue {
 		let q:DispatchQueue = is_select_statement(sql) ? read_database_operation_queue : write_database_operation_queue
 		return q
 	}
 	
-	fileprivate func getDatabasePointerForQuery(sql:String) -> OpaquePointer {
+    func getDatabasePointerForQuery(sql:String) -> OpaquePointer {
 		let p:OpaquePointer = is_select_statement(sql) ? readConnection! : writeConnection!
 		return p
 	}
 	
-	fileprivate func getDatabaseOperationQueueForQuery(sql:String) -> OperationQueue {
+    func getDatabaseOperationQueueForQuery(sql:String) -> OperationQueue {
 		let q = is_select_statement(sql) ? readDatabaseOperationQueue : writeDatabaseOperationQueue
 		return q
 	}

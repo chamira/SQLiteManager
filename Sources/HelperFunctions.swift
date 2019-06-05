@@ -94,7 +94,7 @@ public protocol SQLValue {
 public protocol SQLReturnValue  {}
 
 public extension SQLValue {
-    public var value: NSObjectProtocol {
+    var value: NSObjectProtocol {
         if self is String {
             return self as! NSString
         } else if self is Int {

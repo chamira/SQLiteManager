@@ -686,7 +686,7 @@ extension String {
 
 
 public extension Int {
-	public static func random(lower: Int = min, upper: Int = max) -> Int {
+    static func random(lower: Int = min, upper: Int = max) -> Int {
 		return Int(arc4random_uniform(UInt32(upper) - UInt32(lower)) + UInt32(lower))
 	}
 }
