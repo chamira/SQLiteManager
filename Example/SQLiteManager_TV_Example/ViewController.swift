@@ -34,7 +34,7 @@ class ViewController: UIViewController {
 		
 		do {
 			
-			database =  try SQLitePool.manager().initialize(database: "app_test_database_1", withExtension: "db")
+            database =  try SQLitePool.manager.initialize(database: "app_test_database_1", withExtension: "db")
 			database.log = true
 			
 			
@@ -102,11 +102,16 @@ class ViewController: UIViewController {
 		
 		} else {
 
-			database.query(q, successClosure: { (result) in
-				successClosure(result)
-				}, errorClosure: { (error) in
-					errorClosure(error)
-			})
+//            database.query(q, successClosure: { (r) in
+//                successClosure(r)
+//            }) { (error) in
+//                errorClosure(error)
+//            }
+//            database.query(q, successClosure: { (result) in
+//                successClosure(result)
+//                }, errorClosure: { (error) in
+//                    errorClosure(error)
+//            })
 
 		}
 
