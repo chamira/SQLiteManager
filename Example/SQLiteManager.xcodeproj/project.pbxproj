@@ -89,7 +89,7 @@
 		B9F5DB5B5C1516ABE77ADEA4 /* Pods-SQLiteManager_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SQLiteManager_Example.debug.xcconfig"; path = "Target Support Files/Pods-SQLiteManager_Example/Pods-SQLiteManager_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		D07ECEAD1D802337E3231E3D /* Pods-SQLiteManager_TV_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SQLiteManager_TV_Example.debug.xcconfig"; path = "Target Support Files/Pods-SQLiteManager_TV_Example/Pods-SQLiteManager_TV_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		E9A887F9127FFC1B5BCED5A5 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		F77DBEE6D59A9C77554FB761 /* SQLiteManager.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = SQLiteManager.podspec; path = ../SQLiteManager.podspec; sourceTree = "<group>"; };
+		F77DBEE6D59A9C77554FB761 /* SQLiteManager.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = SQLiteManager.podspec; path = ../SQLiteManager.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		FCE8011967A2132E74222C55 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -247,7 +247,6 @@
 				058D5E142361AA77B33ED3DD /* Pods-SQLiteManager_Tests.debug.xcconfig */,
 				93703E6382CEE3436D0777C0 /* Pods-SQLiteManager_Tests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -507,12 +506,10 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SQLiteManager_TV_Example/Pods-SQLiteManager_TV_Example-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/SQLiteManager-tvOS/SQLiteManager.framework",
 				"${BUILT_PRODUCTS_DIR}/sqlite3-tvOS/sqlite3.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SQLiteManager.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/sqlite3.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -527,12 +524,10 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SQLiteManager_Example/Pods-SQLiteManager_Example-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/SQLiteManager-iOS/SQLiteManager.framework",
 				"${BUILT_PRODUCTS_DIR}/sqlite3-iOS/sqlite3.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SQLiteManager.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/sqlite3.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;

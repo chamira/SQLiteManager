@@ -24,4 +24,5 @@ DESC
     s.source_files = 'Sources/*.swift'
     s.dependency 'sqlite3'
     s.swift_version = '5.0'
+    s.static_framework = true
 end
