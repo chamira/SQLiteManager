@@ -38,6 +38,16 @@
                ReferencedContainer = "container:SQLiteManager.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "607FACE41AFB9204008FA782"
+               BuildableName = "SQLiteManager_Tests.xctest"
+               BlueprintName = "SQLiteManager_Tests"
+               ReferencedContainer = "container:SQLiteManager.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference

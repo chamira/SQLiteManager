@@ -83,15 +83,15 @@ import Foundation
 //    return NSNumber(value: number)
 //}
 
-public func errorKeyStr(forCFStr cfStr:CFString) -> String {
+public func errorKeyStr(forCFStr cfStr: CFString) -> String {
 	return "\(cfStr)"
 }
 
 public protocol SQLValue {
-    var value:NSObjectProtocol { get }
+    var value: NSObjectProtocol { get }
 }
 
-public protocol SQLReturnValue  {}
+public protocol SQLReturnValue {}
 
 public extension SQLValue {
     var value: NSObjectProtocol {
@@ -134,51 +134,51 @@ public extension SQLValue {
     }
 }
 
-extension String:SQLValue {}
-extension Data:SQLValue {}
-extension Bool:SQLValue {}
-extension Int:SQLValue {}
-extension Int8:SQLValue {}
-extension Int32:SQLValue {}
-extension Int64:SQLValue {}
-extension UInt:SQLValue {}
-extension UInt8:SQLValue {}
-extension UInt32:SQLValue {}
-extension UInt64:SQLValue {}
-extension Float:SQLValue {}
-extension Double:SQLValue {}
+extension String: SQLValue {}
+extension Data: SQLValue {}
+extension Bool: SQLValue {}
+extension Int: SQLValue {}
+extension Int8: SQLValue {}
+extension Int32: SQLValue {}
+extension Int64: SQLValue {}
+extension UInt: SQLValue {}
+extension UInt8: SQLValue {}
+extension UInt32: SQLValue {}
+extension UInt64: SQLValue {}
+extension Float: SQLValue {}
+extension Double: SQLValue {}
 
 extension SQLReturnValue {
-    public var string:String? {
+    public var string: String? {
         return self as? String
     }
-    
-    public var int:Int? {
+
+    public var int: Int? {
         return self as? Int
     }
-    
-    public var float:Float? {
+
+    public var float: Float? {
         return self as? Float
     }
-    
-    public var double:Double? {
+
+    public var double: Double? {
         return self as? Double
     }
-    
-    public var data:Data? {
+
+    public var data: Data? {
         return self as? Data
     }
-    
-    public var date:Date? {
+
+    public var date: Date? {
         guard let v = self as? Double else {
             return nil
         }
         return Date(timeIntervalSince1970: v)
     }
 }
-extension String:SQLReturnValue {}
-extension Data:SQLReturnValue {}
-extension Bool:SQLReturnValue {}
-extension Int:SQLReturnValue {}
-extension Float:SQLReturnValue {}
-extension Double:SQLReturnValue {}
+extension String: SQLReturnValue {}
+extension Data: SQLReturnValue {}
+extension Bool: SQLReturnValue {}
+extension Int: SQLReturnValue {}
+extension Float: SQLReturnValue {}
+extension Double: SQLReturnValue {}

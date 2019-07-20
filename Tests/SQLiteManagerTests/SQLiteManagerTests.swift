@@ -8,10 +8,9 @@ class SQLiteManagerTests: XCTestCase {
         XCTAssertEqual(SQLiteManager().text, "Hello, World!")
     }
 
-
-    static var allTests : [(String, (SQLiteManagerTests) -> () throws -> Void)] {
+    static var allTests: [(String, (SQLiteManagerTests) -> () throws -> Void)] {
         return [
-            ("testExample", testExample),
+            ("testExample", testExample)
         ]
     }
 }

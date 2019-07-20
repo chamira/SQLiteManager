@@ -8,23 +8,23 @@
 
 import Foundation
 
-//MARK: - SQLitePool Class
+// MARK: - SQLitePool Class
 //SQLitePool class
 open class SQLitePool {
-	
+
 	fileprivate init() {}
-	
+
 	deinit {
 		SQLitePool.closeDatabases()
 	}
-	
-	fileprivate static var instances:[String:SQLite] = [:]
-	fileprivate static var sharedPool:SQLitePool = SQLitePool()
-	
-	internal static func addInstanceFor(database databaseNameWithExtension:String, instance:SQLite) {
+
+	fileprivate static var instances: [String: SQLite] = [:]
+	fileprivate static var sharedPool: SQLitePool = SQLitePool()
+
+	internal static func addInstanceFor(database databaseNameWithExtension: String, instance: SQLite) {
 		instances[databaseNameWithExtension] = instance
 	}
-	
+
 	/**
 	SQLitePool Manager, Singleton access method
 	
@@ -33,7 +33,7 @@ open class SQLitePool {
     public static var manager: SQLitePool {
 		return sharedPool
 	}
-	
+
 	/**
 	Returns the instance of a database if its already in the pool, otherwise nil
 	
@@ -41,18 +41,18 @@ open class SQLitePool {
 	
 	- returns: SQLite Database
 	*/
-    public static func getInstanceFor(database databaseNameWithExtension:String)->SQLite? {
-		
+    public static func getInstanceFor(database databaseNameWithExtension: String) -> SQLite? {
+
 		if (instances.isEmpty) {
 			return nil
 		}
-		
+
 		let lite = instances[databaseNameWithExtension]
-		
+
 		return lite
-		
+
 	}
-	
+
 	/**
 	Initialize a database and add to SQLitePool, you can initialize many databases as you like.
 	Each database (instance) will be remained in SQLitePool
@@ -65,8 +65,8 @@ open class SQLitePool {
 	
 	- returns: SQLite database
 	*/
-	
-	public func initialize(database name:String, withExtension:String, createIfNotExist:Bool = false) throws -> SQLite {
+
+	public func initialize(database name: String, withExtension: String, createIfNotExist: Bool = false) throws -> SQLite {
 		do {
 			let lite = try SQLite().initialize(database: name, withExtension: withExtension, createIfNotExist: createIfNotExist)
 			return lite
@@ -74,7 +74,7 @@ open class SQLitePool {
 			throw e
 		}
 	}
-	
+
 	/**
 	Close all open databases in the pool
 	*/
@@ -82,15 +82,15 @@ open class SQLitePool {
 		instances.forEach {  $0.1.closeDatabase() }
 		instances.removeAll()
 	}
-	
+
 	/// Open databases count
-    public static var databasesCount:Int {
+    public static var databasesCount: Int {
 		return instances.count
 	}
-	
+
 	/// Returns all instances of databases in the pool
-    public static var databases:[String:SQLite] {
+    public static var databases: [String: SQLite] {
 		return instances
 	}
-	
+
 }
