@@ -1,8 +1,8 @@
 PODS:
-  - sqlite3 (3.28.0):
-    - sqlite3/common (= 3.28.0)
-  - sqlite3/common (3.28.0)
-  - SQLiteManager (0.3.0):
+  - sqlite3 (3.29.0):
+    - sqlite3/common (= 3.29.0)
+  - sqlite3/common (3.29.0)
+  - SQLiteManager (0.3.1):
     - sqlite3
 
 DEPENDENCIES:
@@ -17,8 +17,8 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  sqlite3: 52491522eeafb647cc13be0b97f91657be276bf6
-  SQLiteManager: d8eb642071a469f036815cf2810576e45f7ee6fd
+  sqlite3: 1b61edbb8cc8ee5f9150fc846bf32df6876577cd
+  SQLiteManager: aa780a09b8ec98b3fac7f7274765d4f03f65e2e5
 
 PODFILE CHECKSUM: dda5700cb54730a75aa6411ddd8569150953e838
 

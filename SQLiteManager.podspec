@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'SQLiteManager'
-  s.version          = '0.3.0'
+  s.version          = '0.3.1'
   s.summary          = 'Simple SQLite Manager class to do operations such as open database, close database, insert, update, delete and select'
 
   s.description      = <<-DESC
@@ -11,7 +11,8 @@ Thus, the idea is to get rid of all the boilerplate code and keep things very si
 Handling objects, writing business logic is all up to the developers.
 
 super lightweight
-                       DESC
+
+DESC
 
     s.homepage         = 'https://github.com/chamira/'
     s.license          = { :type => 'MIT', :file => 'LICENSE' }
@@ -22,5 +23,5 @@ super lightweight
     s.tvos.deployment_target = '9.0'
     s.source_files = 'Sources/*.swift'
     s.dependency 'sqlite3'
-    s.swift_versions = '5.0'
+    s.swift_version = '5.0'
 end
