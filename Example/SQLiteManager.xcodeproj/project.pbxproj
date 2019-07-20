@@ -362,12 +362,12 @@
 					538CA9BD1D93C334004222E2 = {
 						CreatedOnToolsVersion = 8.0;
 						DevelopmentTeam = GPG98N7JC9;
-						LastSwiftMigration = 0800;
+						LastSwiftMigration = 1020;
 						ProvisioningStyle = Automatic;
 					};
 					538CA9CD1D93C334004222E2 = {
 						CreatedOnToolsVersion = 8.0;
-						LastSwiftMigration = 0800;
+						LastSwiftMigration = 1020;
 						ProvisioningStyle = Manual;
 						TestTargetID = 538CA9BD1D93C334004222E2;
 					};
