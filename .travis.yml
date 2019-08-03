@@ -2,8 +2,7 @@
 # * http://www.objc.io/issue-6/travis-ci.html
 # * https://github.com/supermarin/xcpretty#usage
 
-language: swift
-osx_image: xcode10
+language: objective-c
 podfile: Example/
 # cache: cocoapods
 # podfile: Example/Podfile
@@ -11,4 +10,4 @@ podfile: Example/
 # - gem install cocoapods # Since Travis is not always on latest version
 # - pod install --project-directory=Example
 script:
-- set -o pipefail && xcodebuild clean test -workspace Example/SQLiteManager.xcworkspace -scheme SQLiteManager_TV_Example -destination 'platform=tvOS Simulator,name=Apple TV 1080p' && xcodebuild test -workspace Example/SQLiteManager.xcworkspace -scheme SQLiteManager-Example -destination 'platform=iOS Simulator,name=iPhone X' | xcpretty
+- set -o pipefail && xcodebuild clean test -workspace Example/SQLiteManager.xcworkspace -scheme SQLiteManager_TV_Example -destination 'platform=tvOS Simulator' && xcodebuild test -workspace Example/SQLiteManager.xcworkspace -scheme SQLiteManager-Example -destination 'platform=iOS Simulator' | xcpretty
