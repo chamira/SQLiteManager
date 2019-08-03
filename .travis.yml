@@ -10,4 +10,4 @@ podfile: Example/
 # - gem install cocoapods # Since Travis is not always on latest version
 # - pod install --project-directory=Example
 script:
-- set -o pipefail && xcodebuild clean test -workspace Example/SQLiteManager.xcworkspace -scheme SQLiteManager_TV_Example -destination 'platform:tvOS Simulator, id:275FDABC-42E5-4508-ABA0-16E258796612, OS:11.0, name:Apple TV' && xcodebuild test -workspace Example/SQLiteManager.xcworkspace -scheme SQLiteManager-Example -destination 'platform:tvOS Simulator, id:275FDABC-42E5-4508-ABA0-16E258796612, OS:11.0, name:Apple TV' | xcpretty
+- set -o pipefail && xcodebuild clean test -workspace Example/SQLiteManager.xcworkspace -scheme SQLiteManager_TV_Example -destination='platform:tvOS Simulator,OS:11.0,name:Apple TV' && xcodebuild test -workspace Example/SQLiteManager.xcworkspace -scheme SQLiteManager-Example -destination='platform:tvOS Simulator,OS:11.0,name:Apple TV' | xcpretty
