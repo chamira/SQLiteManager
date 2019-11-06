@@ -496,8 +496,7 @@ fileprivate extension SQLite {
 				}
 				throw errorClosure(sqlString, line)
 			}
-		}
-
+		}        
 	}
 
 	/// Bind values
